@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "aind-metadata-mapper"
 description = "Generated from aind-library-template"
 license = {text = "MIT"}
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 authors = [
     {name = "Allen Institute for Neural Dynamics"}
 ]
@@ -17,6 +17,8 @@ readme = "README.md"
 dynamic = ["version"]
 
 dependencies = [
+    "aind-data-schema==0.13.57",
+    "aind-metadata-service[client]"
 ]
 
 [project.optional-dependencies]
@@ -38,7 +40,7 @@ version = {attr = "aind_metadata_mapper.__version__"}
 
 [tool.black]
 line-length = 79
-target_version = ['py36']
+target_version = ['py310']
 exclude = '''
 
 (
