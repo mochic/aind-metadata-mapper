@@ -1,0 +1,436 @@
+{
+    "additional_devices": null,
+    "calibrations": [],
+    "cameras": [
+        {
+            "camera": {
+                "chroma": "Monochrome",
+                "computer_name": "10.128.40.1",
+                "data_interface": "USB",
+                "device_type": "Camera",
+                "driver": null,
+                "driver_version": null,
+                "format_unit": null,
+                "frame_rate_unit": "hertz",
+                "manufacturer": "ALLIED",
+                "max_frame_rate": 60.0,
+                "model": null,
+                "name": null,
+                "notes": "Target is face forward.",
+                "pixel_height": 0,
+                "pixel_width": 0,
+                "recording_software": null,
+                "sensor_format": null,
+                "serial_number": null,
+                "size_unit": "pixel"
+            },
+            "camera_assembly_name": "Face forward",
+            "camera_target": "Other",
+            "filter": null,
+            "lens": {
+                "device_type": "Lens",
+                "focal_length": 8.5,
+                "focal_length_unit": "millimeter",
+                "lens_size_unit": "inch",
+                "manufacturer": "EDMUND_OPTICS",
+                "max_aperture": null,
+                "model": null,
+                "name": null,
+                "notes": "Serial # or model # is 86604.",
+                "optimized_wavelength_range": null,
+                "serial_number": null,
+                "size": null,
+                "wavelength_unit": "nanometer"
+            },
+            "position": {
+                "angle_unit": "degrees",
+                "coordinate_system": "Angles were originally negative and were converted to their reciprocal positive values.",
+                "pitch": 356.3,
+                "position_unit": "millimeter",
+                "roll": 3.6,
+                "x": -31.0,
+                "y": 124.7,
+                "yaw": 0.0,
+                "z": 55.5
+            }
+        },
+        {
+            "camera": {
+                "chroma": "Monochrome",
+                "computer_name": "10.128.40.1",
+                "data_interface": "USB",
+                "device_type": "Camera",
+                "driver": null,
+                "driver_version": null,
+                "format_unit": null,
+                "frame_rate_unit": "hertz",
+                "manufacturer": "ALLIED",
+                "max_frame_rate": 60.0,
+                "model": null,
+                "name": null,
+                "notes": null,
+                "pixel_height": 0,
+                "pixel_width": 0,
+                "recording_software": null,
+                "sensor_format": null,
+                "serial_number": null,
+                "size_unit": "pixel"
+            },
+            "camera_assembly_name": "Behavior",
+            "camera_target": "Body",
+            "filter": null,
+            "lens": {
+                "device_type": "Lens",
+                "focal_length": 6.0,
+                "focal_length_unit": "millimeter",
+                "lens_size_unit": "inch",
+                "manufacturer": "NAVITAR",
+                "max_aperture": null,
+                "model": null,
+                "name": null,
+                "notes": null,
+                "optimized_wavelength_range": null,
+                "serial_number": null,
+                "size": null,
+                "wavelength_unit": "nanometer"
+            },
+            "position": {
+                "angle_unit": "degrees",
+                "coordinate_system": "Angles were originally negative and were converted to their reciprocal positive values.",
+                "pitch": 349.1,
+                "position_unit": "millimeter",
+                "roll": 5.3,
+                "x": -214.9,
+                "y": -41.2,
+                "yaw": 0.0,
+                "z": -20.8
+            }
+        },
+        {
+            "camera": {
+                "chroma": "Monochrome",
+                "computer_name": "10.128.40.1",
+                "data_interface": "USB",
+                "device_type": "Camera",
+                "driver": null,
+                "driver_version": null,
+                "format_unit": null,
+                "frame_rate_unit": "hertz",
+                "manufacturer": "ALLIED",
+                "max_frame_rate": 60.0,
+                "model": null,
+                "name": null,
+                "notes": null,
+                "pixel_height": 0,
+                "pixel_width": 0,
+                "recording_software": null,
+                "sensor_format": null,
+                "serial_number": null,
+                "size_unit": "pixel"
+            },
+            "camera_assembly_name": "Eye",
+            "camera_target": "Eye",
+            "filter": null,
+            "lens": {
+                "device_type": "Lens",
+                "focal_length": 6.0,
+                "focal_length_unit": "millimeter",
+                "lens_size_unit": "inch",
+                "manufacturer": "INFINITY_PHOTO_OPTICAL",
+                "max_aperture": null,
+                "model": null,
+                "name": null,
+                "notes": null,
+                "optimized_wavelength_range": null,
+                "serial_number": null,
+                "size": null,
+                "wavelength_unit": "nanometer"
+            },
+            "position": {
+                "angle_unit": "degrees",
+                "coordinate_system": "Angles were originally negative and were converted to their reciprocal positive values.",
+                "pitch": 0.0,
+                "position_unit": "millimeter",
+                "roll": 0.0,
+                "x": 102.8,
+                "y": 74.7,
+                "yaw": 2.8,
+                "z": 31.6
+            }
+        }
+    ],
+    "ccf_coordinate_transform": null,
+    "daqs": [],
+    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/rig.py",
+    "detectors": null,
+    "ephys_assemblies": [
+        {
+            "ephys_assembly_name": "A",
+            "manipulator": {
+                "device_type": "Manipulator",
+                "manufacturer": "NEW_SCALE_TECHNOLOGIES",
+                "model": null,
+                "name": null,
+                "notes": null,
+                "serial_number": null
+            },
+            "probes": [
+                {
+                    "device_type": "EphysProbe",
+                    "headstage": null,
+                    "lasers": null,
+                    "manufacturer": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "probe_model": "Neuropixels 1.0",
+                    "serial_number": "32148"
+                }
+            ]
+        },
+        {
+            "ephys_assembly_name": "B",
+            "manipulator": {
+                "device_type": "Manipulator",
+                "manufacturer": "NEW_SCALE_TECHNOLOGIES",
+                "model": null,
+                "name": null,
+                "notes": null,
+                "serial_number": null
+            },
+            "probes": [
+                {
+                    "device_type": "EphysProbe",
+                    "headstage": null,
+                    "lasers": null,
+                    "manufacturer": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "probe_model": "Neuropixels 1.0",
+                    "serial_number": "32142"
+                }
+            ]
+        },
+        {
+            "ephys_assembly_name": "C",
+            "manipulator": {
+                "device_type": "Manipulator",
+                "manufacturer": "NEW_SCALE_TECHNOLOGIES",
+                "model": null,
+                "name": null,
+                "notes": null,
+                "serial_number": null
+            },
+            "probes": [
+                {
+                    "device_type": "EphysProbe",
+                    "headstage": null,
+                    "lasers": null,
+                    "manufacturer": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "probe_model": "Neuropixels 1.0",
+                    "serial_number": "32144"
+                }
+            ]
+        },
+        {
+            "ephys_assembly_name": "D",
+            "manipulator": {
+                "device_type": "Manipulator",
+                "manufacturer": "NEW_SCALE_TECHNOLOGIES",
+                "model": null,
+                "name": null,
+                "notes": null,
+                "serial_number": null
+            },
+            "probes": [
+                {
+                    "device_type": "EphysProbe",
+                    "headstage": null,
+                    "lasers": null,
+                    "manufacturer": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "probe_model": "Neuropixels 1.0",
+                    "serial_number": "32149"
+                }
+            ]
+        },
+        {
+            "ephys_assembly_name": "E",
+            "manipulator": {
+                "device_type": "Manipulator",
+                "manufacturer": "NEW_SCALE_TECHNOLOGIES",
+                "model": null,
+                "name": null,
+                "notes": null,
+                "serial_number": null
+            },
+            "probes": [
+                {
+                    "device_type": "EphysProbe",
+                    "headstage": null,
+                    "lasers": null,
+                    "manufacturer": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "probe_model": "Neuropixels 1.0",
+                    "serial_number": "32135"
+                }
+            ]
+        },
+        {
+            "ephys_assembly_name": "F",
+            "manipulator": {
+                "device_type": "Manipulator",
+                "manufacturer": "NEW_SCALE_TECHNOLOGIES",
+                "model": null,
+                "name": null,
+                "notes": null,
+                "serial_number": null
+            },
+            "probes": [
+                {
+                    "device_type": "EphysProbe",
+                    "headstage": null,
+                    "lasers": null,
+                    "manufacturer": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "probe_model": "Neuropixels 1.0",
+                    "serial_number": "24273"
+                }
+            ]
+        }
+    ],
+    "filters": null,
+    "laser_assemblies": [
+        {
+            "laser_assembly_name": "Laser assembly",
+            "lasers": [
+                {
+                    "coupling": null,
+                    "coupling_efficiency": null,
+                    "coupling_efficiency_unit": "percent",
+                    "device_type": "Laser",
+                    "item_number": null,
+                    "manufacturer": "VORTRAN",
+                    "maximum_power": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "power_unit": "milliwatt",
+                    "serial_number": null,
+                    "wavelength": 488,
+                    "wavelength_unit": "nanometer"
+                },
+                {
+                    "coupling": null,
+                    "coupling_efficiency": null,
+                    "coupling_efficiency_unit": "percent",
+                    "device_type": "Laser",
+                    "item_number": null,
+                    "manufacturer": "VORTRAN",
+                    "maximum_power": null,
+                    "model": null,
+                    "name": null,
+                    "notes": null,
+                    "power_unit": "milliwatt",
+                    "serial_number": null,
+                    "wavelength": 633,
+                    "wavelength_unit": "nanometer"
+                }
+            ],
+            "manipulator": {
+                "device_type": "Manipulator",
+                "manufacturer": "NEW_SCALE_TECHNOLOGIES",
+                "model": null,
+                "name": null,
+                "notes": null,
+                "serial_number": null
+            }
+        }
+    ],
+    "lenses": null,
+    "light_sources": [
+        {
+            "manufacturer": "Other",
+            "wavelength": 1
+        },
+        {
+            "manufacturer": "Other",
+            "wavelength": 800
+        }
+    ],
+    "modalities": [
+        "behavior-videos",
+        "ecephys"
+    ],
+    "modification_date": "2023-11-02",
+    "mouse_platform": {
+        "date_surface_replaced": null,
+        "decoder": null,
+        "device_type": "Disc",
+        "encoder": null,
+        "encoder_firmware": null,
+        "manufacturer": null,
+        "model": null,
+        "name": null,
+        "notes": null,
+        "output": null,
+        "radius": 0.0,
+        "radius_unit": "centimeter",
+        "serial_number": null,
+        "surface_material": null
+    },
+    "notes": null,
+    "objectives": null,
+    "patch_cords": null,
+    "rig_id": "np2",
+    "schema_version": "0.1.2",
+    "stick_microscopes": null,
+    "stimulus_devices": [
+        {
+            "brightness": 0,
+            "contrast": 0,
+            "device_type": "Monitor",
+            "height": 1200,
+            "manufacturer": "ASUS",
+            "model": null,
+            "name": null,
+            "notes": null,
+            "position": {
+                "angle_unit": "degrees",
+                "coordinate_system": "Angles were originally negative and were converted to their reciprocal positive values.",
+                "pitch": 0.0,
+                "position_unit": "millimeter",
+                "roll": 0.0,
+                "x": 118.6,
+                "y": 86.2,
+                "yaw": 0.0,
+                "z": 31.6
+            },
+            "refresh_rate": 60,
+            "serial_number": null,
+            "size_unit": "pixel",
+            "viewing_distance": 10.0,
+            "viewing_distance_unit": "centimeter",
+            "width": 1920
+        },
+        {
+            "device_type": "Speaker",
+            "manufacturer": "ISL",
+            "model": null,
+            "name": null,
+            "notes": null,
+            "position": null,
+            "serial_number": null
+        }
+    ]
+}
