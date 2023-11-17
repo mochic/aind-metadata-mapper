@@ -2,10 +2,14 @@ import json
 import pathlib
 import configparser
 import typing
+import pydantic
 from aind_data_schema import device
 
 from ..core import BaseEtl
 
+
+class MVRException(Exception):
+    """General error for MVR."""
 
 
 class PartialCameraAssembly(device.CameraAssembly):
@@ -13,10 +17,23 @@ class PartialCameraAssembly(device.CameraAssembly):
     camera: typing.Optional[device.Camera] = None
 
 
+# class MVRMeta(pydantic.BaseModel):
 
-MVRMeta = tuple[str, list[tuple[str, dict]]]
-MVRCameraInfo = tuple[str, str, int, int, float]  # name, serial number, height, width, frame rate
+#     host: str
+#     partials: list[tuple[str, PartialCameraAssembly]]
 
+
+class MVRMeta(pydantic.BaseModel):
+
+    host: str
+    partials: list[tuple[str, dict]]
+
+
+
+# MVRMeta = tuple[str, list[tuple[str, dict]]]
+MVRCameraInfo = tuple[str, str, int, int, float]  # name, label, serial number, height, width, frame rate
+
+MVRContext = tuple[list[MVRCameraInfo], MVRMeta]
 
 class MVREtl(BaseEtl):
 
@@ -51,8 +68,8 @@ class MVREtl(BaseEtl):
             raise Exception("%s not found." % mvr_meta_path)
         
         extracted = self._extract_mvr(mvr_path.read_text())
-        meta = json.loads(mvr_meta_path.read_text())
-
+        meta = MVRMeta.parse_raw(mvr_meta_path.read_text())
+        print(meta)
         return (extracted, meta)
     
     def _extract_mvr(self, mvr_contents: str) -> [MVRCameraInfo]:        
@@ -89,27 +106,27 @@ class MVREtl(BaseEtl):
         ]
 
 
-    def _transform(self, extracted_source: MVRMeta) -> [device.CameraAssembly]:
+    def _transform(self, extracted_source: MVRContext) -> [device.CameraAssembly]:
         mvr_camera_infos, meta = extracted_source
-        computer_name = meta["host"]
         camera_assemblies = []
-        for (name, partial_camera_assembly) in meta["partials"].items():
+        for (name, partial_camera_assembly) in meta.partials:
             filtered = list(filter(
                 lambda info: info[0] == name,
                 mvr_camera_infos,
             ))
             if len(filtered) < 1:
-                raise Exception("MVR camera name: %s not found in mvr.ini" % name)
-            
-            camera_assemblies.append(
-                device.CameraAssembly(
-                    camera_target=partial_camera_assembly["camera_target"],
-                    camera_assembly_name=partial_camera_assembly["camera_assembly_name"],
-                    camera=device.Camera(
-                        computer_name=computer_name,
-                        **filtered[0]
-                    ),
-                    lens=device.Lens(**partial_camera_assembly["lens"])
-                )
-            )
+                raise MVRException("MVR camera name: %s not found in mvr.ini" % name)
+            name, _, serial_number, height, width, frame_rate = filtered[0]
+            camera_assemblies.append(device.CameraAssembly.parse_obj({
+                **partial_camera_assembly,
+                "camera": {
+                    "computer_name": meta.host,
+                    "name": name,
+                    "serial_number": serial_number,
+                    "pixel_height": height,
+                    "pixel_width": width,
+                    "max_frame_rate": frame_rate,
+                    **partial_camera_assembly["camera"]
+                },
+            }))
         return camera_assemblies
