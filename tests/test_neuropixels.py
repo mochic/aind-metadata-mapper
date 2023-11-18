@@ -21,17 +21,17 @@ class TestNeuropixelsEtl(unittest.TestCase):
         output = rig.Rig.parse_raw(
             (self.output_dir / "rig.json").read_text()
         )
-        expected = rig.Rig.parse_raw(
+        expected_template = json.loads(
             pathlib.Path("./tests/resources/neuropixels/expected-rig.json")
                 .read_text()
         )
         # patch over expected property values that won't stay static over time
-        expected.schema_version = output.schema_version
-        expected.modification_date = output.modification_date,
-        shutil.copy2(
-            (self.output_dir / "rig.json"),
-            pathlib.Path("./tests/resources/neuropixels/"),
-        )
+        expected = rig.Rig.parse_obj({
+            **expected_template,
+            "schema_version": output.schema_version,
+            "modification_date": output.modification_date,
+        })
+
         assert output == expected
 
     def setUp(self):

@@ -3,7 +3,7 @@ import yaml
 import pathlib
 import datetime
 import configparser
-from aind_data_schema import rig, device
+from aind_data_schema import rig
 
 from ..core import BaseEtl
 
@@ -167,64 +167,10 @@ class NeuropixelsRigEtl(BaseEtl):
 
         return rig.Rig.parse_obj({
             **partial,
+            "modification_date": datetime.date.today(),
             "daqs": [
                 *partial["daqs"],
                 sync_daq,
             ],
             "cameras": camera_assemblies,
         })
-
-
-        cameras = []
-        for camera_assembly in base["cameras"]:
-            camera_kwargs = camera_assembly["camera"]
-            camera_kwargs["computer_name"] = camera_meta["host"]
-            cameras.append(
-                rig.CameraAssembly(
-                    camera_target=camera_assembly["camera_target"],
-                    camera_assembly_name=camera_assembly["camera_assembly_name"],
-                    camera=device.Camera(**camera_kwargs),
-                    lens=rig.Lens(**camera_assembly["lens"])
-                )
-            )
-        return rig.Rig(
-            describedBy=base["describedBy"],
-            rig_id=base["rig_id"],
-            modification_date=base["modification_date"],
-            modalities=base["modalities"],
-            mouse_platform=device.Disc(**base["mouse_platform"]),
-            cameras=cameras,
-            ephys_assemblies=[
-                rig.EphysAssembly(
-                    ephys_assembly_name=ephys_assembly["ephys_assembly_name"],
-                    manipulator=device.Manipulator(**ephys_assembly["manipulator"]),
-                    probes=[
-                        device.EphysProbe(**probe)
-                        for probe in ephys_assembly["probes"]
-                    ],
-                )
-                for ephys_assembly in base["ephys_assemblies"]
-            ],
-            laser_assemblies=[
-                rig.LaserAssembly(
-                    laser_assembly_name=laser_assembly["laser_assembly_name"],
-                    manipulator=device.Manipulator(
-                        **laser_assembly["manipulator"]
-                    ),
-                    lasers=[
-                        rig.Laser(**laser)
-                        for laser in laser_assembly["lasers"]
-                    ],
-                )
-                for laser_assembly in base["laser_assemblies"]
-            ],
-            light_sources=[
-                device.LightEmittingDiode(**led)
-                for led in base["light_sources"]
-            ],
-            stimulus_devices=list(map(
-                load_stimulus_device,
-                base["stimulus_devices"],
-            )),
-            calibrations=[],
-        )
