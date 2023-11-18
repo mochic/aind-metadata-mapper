@@ -9,8 +9,12 @@ from aind_metadata_mapper.neuropixels import rig as neuropixels_rig
 
 
 class TestNeuropixelsEtl(unittest.TestCase):
+    """Tests methods in NeuropixelsEtl class."""
 
     def test_rig_etl(self):
+        """Tests that NeuropixelsRigEtl returns the result we expect for valid
+        data.
+        """
         etl = neuropixels_rig.NeuropixelsRigEtl(
             self.input_dir,
             self.output_dir
@@ -33,6 +37,8 @@ class TestNeuropixelsEtl(unittest.TestCase):
         assert output == expected
 
     def setUp(self):
+        """Moves required test resources to testing directory.
+        """
         self.input_dir = pathlib.Path(
             tempfile.mkdtemp(),
         )
@@ -57,5 +63,7 @@ class TestNeuropixelsEtl(unittest.TestCase):
         )
 
     def tearDown(self):
+        """Removes test resources and directory.
+        """
         shutil.rmtree(self.input_dir)
         shutil.rmtree(self.output_dir)
