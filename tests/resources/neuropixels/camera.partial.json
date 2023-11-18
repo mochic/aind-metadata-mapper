@@ -1,0 +1,33 @@
+[
+    "Camera 1",
+    {
+        "camera": {
+            "computer_name": "10.128.0.4", 
+            "chroma": "Monochrome",
+            "data_interface": "Ethernet",
+            "device_type": "Camera",
+            "frame_rate_unit": "hertz",
+            "manufacturer": "ALLIED",
+            "name": "Body",
+            "size_unit": "pixel"
+        },
+        "camera_assembly_name": "Behavior",
+        "camera_target": "Body",
+        "filter": null,
+        "lens": {
+            "device_type": "Lens",
+            "focal_length": 6.0,
+            "focal_length_unit": "millimeter",
+            "lens_size_unit": "inch",
+            "manufacturer": "NAVITAR",
+            "max_aperture": null,
+            "model": null,
+            "name": null,
+            "notes": null,
+            "optimized_wavelength_range": null,
+            "serial_number": null,
+            "size": null,
+            "wavelength_unit": "nanometer"
+        }
+    }
+]

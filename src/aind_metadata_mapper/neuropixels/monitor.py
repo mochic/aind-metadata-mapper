@@ -30,12 +30,10 @@ class MVRMeta(pydantic.BaseModel):
 
 
 
-# MVRMeta = tuple[str, list[tuple[str, dict]]]
-MVRCameraInfo = tuple[str, str, int, int, float]  # name, label, serial number, height, width, frame rate
+ExtractedDxdiag = tuple[str]  # TODO: expand out if there are improvements dxdiag info
+ExtractedContext = tuple[ExtractedDxdiag, dict]
 
-MVRContext = tuple[list[MVRCameraInfo], MVRMeta]
-
-class MVREtl(BaseEtl):
+class MonitorEtl(BaseEtl):
 
     def __init__(
         self,
@@ -57,19 +55,18 @@ class MVREtl(BaseEtl):
         if not self.input_source.is_dir():
             raise Exception("Input source is not a directory. %s" % self.input_source)
         
-        mvr_filename = "mvr.ini"
-        mvr_path = self.input_source / mvr_filename
-        if not mvr_path.exists():
-            raise Exception("%s not found." % mvr_path)
+        target_filename = "dxdiag.xml"
+        target_path = self.input_source / target_filename
+        if not target_path.exists():
+            raise Exception("%s not found." % target_path)
 
-        mvr_meta_filename = "mvr-meta.json"
-        mvr_meta_path = self.input_source / mvr_meta_filename
-        if not mvr_meta_path.exists():
-            raise Exception("%s not found." % mvr_meta_path)
+        meta_filename = "monitor-meta.json"
+        meta_path = self.input_source / meta_filename
+        if not meta_path.exists():
+            raise Exception("%s not found." % meta_path)
         
-        extracted = self._extract_mvr(mvr_path.read_text())
-        meta = MVRMeta.parse_raw(mvr_meta_path.read_text())
-        print(meta)
+        extracted = self._extract_dxdiag(target_path.read_text())
+        meta = json.loads(meta_path.read_text())
         return (extracted, meta)
     
     def _extract_mvr(self, mvr_contents: str) -> [MVRCameraInfo]:        
@@ -106,7 +103,7 @@ class MVREtl(BaseEtl):
         ]
 
 
-    def _transform(self, extracted_source: MVRContext) -> [device.CameraAssembly]:
+    def _transform(self, extracted_source: ExtractedContext) -> device.Monitor:
         mvr_camera_infos, meta = extracted_source
         camera_assemblies = []
         for (name, partial_camera_assembly) in meta.partials:

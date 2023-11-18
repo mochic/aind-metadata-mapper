@@ -5,7 +5,7 @@
         {
             "camera": {
                 "chroma": "Monochrome",
-                "computer_name": "10.128.40.1",
+                "computer_name": "W10DT714046",
                 "data_interface": "Ethernet",
                 "device_type": "Camera",
                 "driver": null,
@@ -47,7 +47,7 @@
         {
             "camera": {
                 "chroma": "Monochrome",
-                "computer_name": "10.128.40.1",
+                "computer_name": "W10DT714046",
                 "data_interface": "Ethernet",
                 "device_type": "Camera",
                 "driver": null,
@@ -89,7 +89,7 @@
         {
             "camera": {
                 "chroma": "Monochrome",
-                "computer_name": "10.128.40.1",
+                "computer_name": "W10DT714046",
                 "data_interface": "Ethernet",
                 "device_type": "Camera",
                 "driver": null,
