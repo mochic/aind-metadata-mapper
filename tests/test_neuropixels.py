@@ -1,12 +1,10 @@
-import os
 import json
 import shutil
 import unittest
 import tempfile
 import pathlib
-import datetime
 
-from aind_data_schema import __version__, rig
+from aind_data_schema import rig
 from aind_metadata_mapper.neuropixels import rig as neuropixels_rig
 
 
@@ -23,7 +21,7 @@ class TestNeuropixelsEtl(unittest.TestCase):
         )
         expected_template = json.loads(
             pathlib.Path("./tests/resources/neuropixels/expected-rig.json")
-                .read_text()
+            .read_text()
         )
         # patch over expected property values that won't stay static over time
         expected = rig.Rig.parse_obj({

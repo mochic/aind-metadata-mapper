@@ -12,9 +12,11 @@ class NeuropixelsRigException(Exception):
     """General error for MVR."""
 
 
-MVRCamera = tuple[str, str, int, int, float]  # assembly name, serial number, height, width, frame rate
+# assembly name, serial number, height, width, frame rate
+MVRCamera = tuple[str, str, int, int, float]
 SyncChannel = tuple[int, str]  # di line index, name
-SyncContext = tuple[str, float, list[SyncChannel]]  # device name, sample rate, channels
+# device name, sample rate, channels
+SyncContext = tuple[str, float, list[SyncChannel]]
 RigContext = tuple[dict, list[MVRCamera], SyncContext]
 
 
@@ -26,7 +28,7 @@ class NeuropixelsRigEtl(BaseEtl):
         output_directory: pathlib.Path,
     ):
         """Class constructor for Neuropixels rig etl class.
-        
+
         Parameters
         ----------
         input_source : Path
@@ -37,12 +39,16 @@ class NeuropixelsRigEtl(BaseEtl):
         super().__init__(input_source, output_directory)
 
     def _load_resource(self, path: pathlib.Path) -> str:
+        """Loads a rig-related resource from input source.
+        """
         if not path.exists():
             raise NeuropixelsRigException("%s not found." % path)
-        
+
         return path.read_text()
 
     def _extract(self) -> RigContext:
+        """Extracts rig-related information from config files.
+        """
         if not self.input_source.is_dir():
             raise NeuropixelsRigException(
                 "Input source is not a directory. %s" % self.input_source
@@ -72,9 +78,13 @@ class NeuropixelsRigEtl(BaseEtl):
         )
 
     def _extract_mvr(self, content: str, mapping: dict) -> list[MVRCamera]:
+        """Extracts camera-related information from MPE mvr config.
+        """
         config = configparser.ConfigParser()
         config.read_string(content)
-        frame_rate = float(config["CAMERA_DEFAULT_CONFIG"]["frames_per_second"])
+        frame_rate = float(
+            config["CAMERA_DEFAULT_CONFIG"]["frames_per_second"]
+        )
         height = int(config["CAMERA_DEFAULT_CONFIG"]["height"])
         width = int(config["CAMERA_DEFAULT_CONFIG"]["width"])
 
@@ -98,6 +108,8 @@ class NeuropixelsRigEtl(BaseEtl):
         return extracted
 
     def _extract_sync(self, content: str) -> SyncContext:
+        """Extracts DAQ-related information from MPE sync config.
+        """
         config = yaml.safe_load(content)
         return (
             config["device"],
@@ -113,11 +125,12 @@ class NeuropixelsRigEtl(BaseEtl):
         sync_daq_name = "Sync"
         for idx, partial_daq in enumerate(partial["daqs"]):
             if partial_daq["name"] == sync_daq_name:
-                partial_sync_daq = partial["daqs"].pop(idx)  # remove from daqs for later spread operation
+                # remove from daqs for later spread operation
+                partial_sync_daq = partial["daqs"].pop(idx)
                 break
         else:
             raise NeuropixelsRigException(
-                "Sync daq not found in partial rig. expected name=%s" % 
+                "Sync daq not found in partial rig. expected=%s" %
                 sync_daq_name
             )
 
@@ -147,10 +160,10 @@ class NeuropixelsRigEtl(BaseEtl):
             ))
             if len(found) < 1:
                 raise NeuropixelsRigException(
-                    "Camera assembly not found in partial rig. expected name=%s" %
-                    name
+                    "Camera assembly not found in partial rig. expected=%s"
+                    % name
                 )
-            
+
             assembly_name, serial_number, height, width, frame_rate = found[0]
             camera_assemblies.append({
                 **partial_camera_assembly,
