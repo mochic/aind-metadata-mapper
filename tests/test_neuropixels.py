@@ -3,25 +3,58 @@ import shutil
 import unittest
 import tempfile
 import pathlib
+import typing
 
 from aind_data_schema import rig
 from aind_metadata_mapper.neuropixels import rig as neuropixels_rig
 
 
+def setup_neuropixels_etl_dirs(
+        *resources: pathlib.Path
+        ) -> tuple[pathlib.Path, pathlib.Path, typing.Callable[[], None]]:
+    """Sets up a temporary input/output directory context for neuropixels etl
+
+    Parameters
+    ----------
+    resources: paths to etl resources to move to input dir
+
+    Returns
+    -------
+    input_dir: path to etl input dir
+    output_dir: path to etl output dir
+    clean_up: cleanup function for input/output dirs
+    """
+    input_dir = pathlib.Path(tempfile.mkdtemp())
+    for resource in resources:
+        shutil.copy2(resource, input_dir)
+
+    output_dir = pathlib.Path(tempfile.mkdtemp())
+
+    def clean_up():
+        shutil.rmtree(input_dir)
+        shutil.rmtree(output_dir)
+
+    return (
+        input_dir,
+        output_dir,
+        clean_up,
+    )
+
+
 class TestNeuropixelsEtl(unittest.TestCase):
     """Tests methods in NeuropixelsEtl class."""
 
-    def test_rig_etl(self):
+    def test_good_rig_etl(self):
         """Tests that NeuropixelsRigEtl returns the result we expect for valid
         data.
         """
         etl = neuropixels_rig.NeuropixelsRigEtl(
-            self.input_dir,
-            self.output_dir
+            self.good_input_dir,
+            self.good_output_dir
         )
         etl.run_job()
         output = rig.Rig.parse_raw(
-            (self.output_dir / "rig.json").read_text()
+            (self.good_output_dir / "rig.json").read_text()
         )
         expected_template = json.loads(
             pathlib.Path("./tests/resources/neuropixels/expected-rig.json")
@@ -36,34 +69,169 @@ class TestNeuropixelsEtl(unittest.TestCase):
 
         assert output == expected
 
+    def test_bad_mvr_rig_etl(self):
+        etl = neuropixels_rig.NeuropixelsRigEtl(
+            self.bad_mvr_input_dir,
+            self.bad_mvr_output_dir
+        )
+        self.assertRaises(
+            neuropixels_rig.NeuropixelsRigException,
+            etl.run_job,
+        )
+
+    def test_bad_mvr_mapping_rig_etl(self):
+        etl = neuropixels_rig.NeuropixelsRigEtl(
+            self.bad_mvr_mapping_input_dir,
+            self.bad_mvr_mapping_output_dir
+        )
+        self.assertRaises(
+            neuropixels_rig.NeuropixelsRigException,
+            etl.run_job,
+        )
+
+    def test_bad_rig_partial_camera_rig_etl(self):
+        etl = neuropixels_rig.NeuropixelsRigEtl(
+            self.bad_rig_partial_camera_input_dir,
+            self.bad_rig_partial_camera_output_dir
+        )
+        self.assertRaises(
+            neuropixels_rig.NeuropixelsRigException,
+            etl.run_job,
+        )
+
+    def test_bad_rig_partial_sync_rig_etl(self):
+        etl = neuropixels_rig.NeuropixelsRigEtl(
+            self.bad_rig_partial_sync_input_dir,
+            self.bad_rig_partial_sync_output_dir
+        )
+        self.assertRaises(
+            neuropixels_rig.NeuropixelsRigException,
+            etl.run_job,
+        )
+
+    def test_bad_input_dir_rig_etl(self):
+        etl = neuropixels_rig.NeuropixelsRigEtl(
+            pathlib.Path(
+                "./tests/resources/neuropixels/good/rig.partial.json"
+            ),
+            pathlib.Path(
+                "./tests/resources/neuropixels/good/rig.partial.json"
+            ),
+        )
+        self.assertRaises(
+            neuropixels_rig.NeuropixelsRigException,
+            etl.run_job,
+        )
+
+    def test_missing_sync_rig_etl(self):
+        etl = neuropixels_rig.NeuropixelsRigEtl(
+            self.missing_sync_input_dir,
+            self.missing_sync_output_dir
+        )
+        self.assertRaises(
+            neuropixels_rig.NeuropixelsRigException,
+            etl.run_job,
+        )
+
     def setUp(self):
         """Moves required test resources to testing directory.
         """
-        self.input_dir = pathlib.Path(
-            tempfile.mkdtemp(),
+        good_rig_partial_path = pathlib.Path(
+            "./tests/resources/neuropixels/good/rig.partial.json"
         )
-        shutil.copy2(
-            pathlib.Path("./tests/resources/neuropixels/rig.partial.json"),
-            self.input_dir,
+        good_mvr_path = pathlib.Path(
+            "./tests/resources/neuropixels/good/mvr.ini"
         )
-        shutil.copy2(
-            pathlib.Path("./tests/resources/neuropixels/mvr.ini"),
-            self.input_dir,
+        good_mvr_mapping_path = pathlib.Path(
+            "./tests/resources/neuropixels/good/mvr.mapping.json"
         )
-        shutil.copy2(
-            pathlib.Path("./tests/resources/neuropixels/mvr.mapping.json"),
-            self.input_dir,
+        good_sync_path = pathlib.Path(
+            "./tests/resources/neuropixels/good/sync.yml"
         )
-        shutil.copy2(
-            pathlib.Path("./tests/resources/neuropixels/sync.yml"),
-            self.input_dir,
+
+        # setup good directory
+        self.good_input_dir, self.good_output_dir, self._cleanup_good = \
+            setup_neuropixels_etl_dirs(
+                good_rig_partial_path,
+                good_mvr_path,
+                good_mvr_mapping_path,
+                good_sync_path,
+            )
+
+        # setup bad mvr directory
+        bad_mvr_path = pathlib.Path(
+            "./tests/resources/neuropixels/bad/mvr.ini"
         )
-        self.output_dir = pathlib.Path(
-            tempfile.mkdtemp(),
+        self.bad_mvr_input_dir, \
+            self.bad_mvr_output_dir, self._cleanup_bad_mvr = \
+            setup_neuropixels_etl_dirs(
+                good_rig_partial_path,
+                bad_mvr_path,
+                good_mvr_mapping_path,
+                good_sync_path,
+            )
+
+        # setup bad mvr mapping directory
+        bad_mvr_mapping_path = pathlib.Path(
+            "./tests/resources/neuropixels/bad/mvr.mapping.json"
         )
+        self.bad_mvr_mapping_input_dir, \
+            self.bad_mvr_mapping_output_dir, self._cleanup_bad_mvr_mapping = \
+            setup_neuropixels_etl_dirs(
+                good_rig_partial_path,
+                good_mvr_path,
+                bad_mvr_mapping_path,
+                good_sync_path,
+            )
+
+        # setup bad rig partial camera directory
+        bad_rig_partial_camera_path = pathlib.Path(
+            "./tests/resources/neuropixels/bad/rig-camera/rig.partial.json"
+        )
+        self.bad_rig_partial_camera_input_dir, \
+            self.bad_rig_partial_camera_output_dir, \
+            self._cleanup_bad_rig_partial_camera = \
+            setup_neuropixels_etl_dirs(
+                bad_rig_partial_camera_path,
+                good_mvr_path,
+                good_mvr_mapping_path,
+                good_sync_path,
+            )
+
+        # setup bad rig partial sync directory
+        bad_rig_partial_sync_path = pathlib.Path(
+            "./tests/resources/neuropixels/bad/rig-sync/rig.partial.json"
+        )
+        self.bad_rig_partial_sync_input_dir, \
+            self.bad_rig_partial_sync_output_dir, \
+            self._cleanup_bad_rig_partial_sync = \
+            setup_neuropixels_etl_dirs(
+                bad_rig_partial_sync_path,
+                good_mvr_path,
+                good_mvr_mapping_path,
+                good_sync_path,
+            )
+        
+        # setup bad rig directory missing required files
+        self.missing_sync_input_dir, \
+            self.missing_sync_output_dir, \
+            self._cleanup_missing_sync = \
+            setup_neuropixels_etl_dirs(
+                good_rig_partial_path,
+                good_mvr_path,
+                good_mvr_mapping_path,
+            )
 
     def tearDown(self):
         """Removes test resources and directory.
         """
-        shutil.rmtree(self.input_dir)
-        shutil.rmtree(self.output_dir)
+        self._cleanup_good()
+        self._cleanup_bad_mvr()
+        self._cleanup_bad_mvr_mapping()
+        self._cleanup_bad_rig_partial_camera()
+        self._cleanup_bad_rig_partial_sync()
+        self._cleanup_missing_sync()
+
+
+if __name__ == "__main__":
+    unittest.main()
