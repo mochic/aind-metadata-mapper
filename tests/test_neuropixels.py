@@ -1,3 +1,5 @@
+"""Tests parsing of information related to neuropixels rigs."""
+
 import json
 import shutil
 import unittest
@@ -12,7 +14,7 @@ from aind_metadata_mapper.neuropixels import rig as neuropixels_rig
 def setup_neuropixels_etl_dirs(
         *resources: pathlib.Path
         ) -> tuple[pathlib.Path, pathlib.Path, typing.Callable[[], None]]:
-    """Sets up a temporary input/output directory context for neuropixels etl
+    """Sets up a temporary input/output directory context for neuropixels etl.
 
     Parameters
     ----------
@@ -31,6 +33,7 @@ def setup_neuropixels_etl_dirs(
     output_dir = pathlib.Path(tempfile.mkdtemp())
 
     def clean_up():
+        """Clean up callback for temporary directories and their contents."""
         shutil.rmtree(input_dir)
         shutil.rmtree(output_dir)
 
@@ -70,6 +73,9 @@ class TestNeuropixelsEtl(unittest.TestCase):
         assert output == expected
 
     def test_bad_mvr_rig_etl(self):
+        """Tests that the expected exception is raised for an mvr file missing
+        an expected mvr camera name.
+        """
         etl = neuropixels_rig.NeuropixelsRigEtl(
             self.bad_mvr_input_dir,
             self.bad_mvr_output_dir
@@ -80,6 +86,9 @@ class TestNeuropixelsEtl(unittest.TestCase):
         )
 
     def test_bad_mvr_mapping_rig_etl(self):
+        """Tests that the expected exception is raised for an mvr mapping file
+        with an mvr camera name not present in mvr.ini.
+        """
         etl = neuropixels_rig.NeuropixelsRigEtl(
             self.bad_mvr_mapping_input_dir,
             self.bad_mvr_mapping_output_dir
@@ -90,6 +99,9 @@ class TestNeuropixelsEtl(unittest.TestCase):
         )
 
     def test_bad_rig_partial_camera_rig_etl(self):
+        """Tests that the expected excetion is raised for a partial rig file
+         that contains a camera not found in mvr.ini.
+        """
         etl = neuropixels_rig.NeuropixelsRigEtl(
             self.bad_rig_partial_camera_input_dir,
             self.bad_rig_partial_camera_output_dir
@@ -100,6 +112,9 @@ class TestNeuropixelsEtl(unittest.TestCase):
         )
 
     def test_bad_rig_partial_sync_rig_etl(self):
+        """Tests that the expected exception is raised for a partial rig file
+         that doesn't contain a sync daq we expect.
+        """
         etl = neuropixels_rig.NeuropixelsRigEtl(
             self.bad_rig_partial_sync_input_dir,
             self.bad_rig_partial_sync_output_dir
@@ -110,6 +125,9 @@ class TestNeuropixelsEtl(unittest.TestCase):
         )
 
     def test_bad_input_dir_rig_etl(self):
+        """Tests that the expected exception is raised when supplying a path
+         that isnt a directory.
+        """
         etl = neuropixels_rig.NeuropixelsRigEtl(
             pathlib.Path(
                 "./tests/resources/neuropixels/good/rig.partial.json"
@@ -124,6 +142,9 @@ class TestNeuropixelsEtl(unittest.TestCase):
         )
 
     def test_missing_sync_rig_etl(self):
+        """Tests that the expected exception is raised when the sync file is
+        missing.
+        """
         etl = neuropixels_rig.NeuropixelsRigEtl(
             self.missing_sync_input_dir,
             self.missing_sync_output_dir
@@ -211,7 +232,7 @@ class TestNeuropixelsEtl(unittest.TestCase):
                 good_mvr_mapping_path,
                 good_sync_path,
             )
-        
+
         # setup bad rig directory missing required files
         self.missing_sync_input_dir, \
             self.missing_sync_output_dir, \

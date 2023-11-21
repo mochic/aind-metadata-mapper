@@ -1,3 +1,5 @@
+"""ETL class for neuropixels rigs."""
+
 import json
 import yaml
 import pathlib
@@ -21,6 +23,9 @@ RigContext = tuple[dict, list[MVRCamera], SyncContext]
 
 
 class NeuropixelsRigEtl(BaseEtl):
+    """Neuropixels rig ETL class. Extracts information from rig-related files
+    and transforms them into an aind-data-schema rig.Rig instance.
+    """
 
     def __init__(
         self,
@@ -118,6 +123,9 @@ class NeuropixelsRigEtl(BaseEtl):
         )
 
     def _transform(self, extracted_source: RigContext) -> rig.Rig:
+        """Transforms extracted rig context into aind-data-schema rig.Rig
+        instance.
+        """
         partial, mvr_cameras, sync_context = extracted_source
 
         # search for partial sync daq
