@@ -1,25 +1,23 @@
 """ETL class for neuropixels rigs."""
 
 import json
-import yaml
 import pathlib
 import datetime
-import configparser
+import typing
 from aind_data_schema import rig
 
 from ..core import BaseEtl
+from . import open_ephys, mvr, dxdiag, sync, utils, NeuropixelsRigException
 
 
-class NeuropixelsRigException(Exception):
-    """General error for MVR."""
-
-
-# assembly name, serial number, height, width, frame rate
-MVRCamera = tuple[str, str, int, int, float]
-SyncChannel = tuple[int, str]  # di line index, name
-# device name, sample rate, channels
-SyncContext = tuple[str, float, list[SyncChannel]]
-RigContext = tuple[dict, list[MVRCamera], SyncContext]
+# partial rig, mvr cameras, sync daq, open ephys probes, dxdiag settings
+RigContext = tuple[
+    dict,
+    list[mvr.MVRCamera],
+    sync.SyncSettings,
+    list[open_ephys.OpenEphysProbe],
+    dxdiag.DxdiagSettings,
+]
 
 
 class NeuropixelsRigEtl(BaseEtl):
@@ -29,27 +27,26 @@ class NeuropixelsRigEtl(BaseEtl):
 
     def __init__(
         self,
-        input_source: pathlib.Path,
+        input_directory: pathlib.Path,
         output_directory: pathlib.Path,
+        modification_date: typing.Optional[datetime.date] = None,
     ):
         """Class constructor for Neuropixels rig etl class.
 
         Parameters
         ----------
-        input_source : Path
-          Can be a string or a Path
+        input_directory : Path
+          The directory containing required resource files.
         output_directory : Path
           The directory where to save the json files.
+        modification_date: datetime.date
+          Date of modification, defaults to today.
         """
-        super().__init__(input_source, output_directory)
-
-    def _load_resource(self, path: pathlib.Path) -> str:
-        """Loads a rig-related resource from input source.
-        """
-        if not path.exists():
-            raise NeuropixelsRigException("%s not found." % path)
-
-        return path.read_text()
+        super().__init__(input_directory, output_directory)
+        if modification_date is None:
+            self.modification_date = datetime.date.today()
+        else:
+            self.modification_date = modification_date
 
     def _extract(self) -> RigContext:
         """Extracts rig-related information from config files.
@@ -61,109 +58,56 @@ class NeuropixelsRigEtl(BaseEtl):
 
         return (
             json.loads(
-                self._load_resource(
-                    self.input_source / "rig.partial.json",
-                )
+                (self.input_source / "rig.partial.json").read_text(),
             ),
-            self._extract_mvr(
-                self._load_resource(
-                    self.input_source / "mvr.ini",
-                ),
+            mvr.extract(
+                (self.input_source / "mvr.ini").read_text(),
                 json.loads(
-                    self._load_resource(
-                        self.input_source / "mvr.mapping.json",
-                    )
+                    (self.input_source / "mvr.mapping.json").read_text(),
                 ),
             ),
-            self._extract_sync(
-                self._load_resource(
-                    self.input_source / "sync.yml",
-                )
+            sync.extract(
+                (self.input_source / "sync.yml").read_text(),
             ),
-        )
-
-    def _extract_mvr(self, content: str, mapping: dict) -> list[MVRCamera]:
-        """Extracts camera-related information from MPE mvr config.
-        """
-        config = configparser.ConfigParser()
-        config.read_string(content)
-        frame_rate = float(
-            config["CAMERA_DEFAULT_CONFIG"]["frames_per_second"]
-        )
-        height = int(config["CAMERA_DEFAULT_CONFIG"]["height"])
-        width = int(config["CAMERA_DEFAULT_CONFIG"]["width"])
-
-        extracted = []
-        for mvr_name, assembly_name in mapping.items():
-            try:
-                extracted.append(
-                    (
-                        assembly_name,
-                        "".join(config[mvr_name]["sn"]),
-                        height,
-                        width,
-                        frame_rate,
-                    )
-                )
-            except KeyError:
-                raise NeuropixelsRigException(
-                    "No camera found for: %s in mvr.ini" %
-                    mvr_name
-                )
-        return extracted
-
-    def _extract_sync(self, content: str) -> SyncContext:
-        """Extracts DAQ-related information from MPE sync config.
-        """
-        config = yaml.safe_load(content)
-        return (
-            config["device"],
-            config["freq"],
-            list(config["line_labels"].items()),
+            open_ephys.extract(
+                (self.input_source / "settings.open_ephys.xml").read_text(),
+            ),
+            dxdiag.extract(
+                (self.input_source / "dxdiag.xml").read_text(),
+            ),
         )
 
     def _transform(self, extracted_source: RigContext) -> rig.Rig:
         """Transforms extracted rig context into aind-data-schema rig.Rig
         instance.
         """
-        partial, mvr_cameras, sync_context = extracted_source
+        partial, mvr_cameras, sync_settings, open_ephys_probes, \
+            dxdiag_settings = extracted_source
 
-        # search for partial sync daq
-        sync_device_name, sync_sample_rate, sync_channels = sync_context
-        sync_daq_name = "Sync"
-        for idx, partial_daq in enumerate(partial["daqs"]):
-            if partial_daq["name"] == sync_daq_name:
-                # remove from daqs for later spread operation
-                partial_sync_daq = partial["daqs"].pop(idx)
-                break
-        else:
-            raise NeuropixelsRigException(
-                "Sync daq not found in partial rig. expected=%s" %
-                sync_daq_name
-            )
+        sync_daq_channels = [
+            channel.dict()
+            for channel in sync.transform(sync_settings)
+        ]
+        daqs = utils.find_transform_replace(
+            partial["daqs"],
+            lambda partial_daq: partial_daq["name"] == "Sync",
+            lambda partial_sync_daq: \
+                {**partial_sync_daq, "channels": sync_daq_channels}
+        )
 
-        sync_daq = {
-            **partial_sync_daq,
-            "channels": [
-                {
-                    "channel_name": name,
-                    "channel_type": "Digital Input",
-                    "device_name": sync_device_name,
-                    "event_based_sampling": False,
-                    "channel_index": line,
-                    "sample_rate": sync_sample_rate,
-                    "sample_rate_unit": "hertz"
-                }
-                for line, name in sync_channels
-            ],
-        }
+        stimulus_devices = utils.find_transform_replace(
+            partial["stimulus_devices"],
+            lambda device: device["device_type"] == "Monitor",
+            lambda partial_monitor: dxdiag.transform(
+                dxdiag_settings, **partial_monitor).dict()
+        )
 
         camera_assemblies = []
         for partial_camera_assembly in partial["cameras"]:
             name = partial_camera_assembly["camera_assembly_name"]
-
+            
             found = list(filter(
-                lambda camera: camera[0] == name,
+                lambda camera: camera.assembly_name == name,
                 mvr_cameras,
             ))
             if len(found) < 1:
@@ -171,27 +115,53 @@ class NeuropixelsRigEtl(BaseEtl):
                     "Camera assembly not found in partial rig. expected=%s"
                     % name
                 )
-
-            assembly_name, serial_number, height, width, frame_rate = found[0]
+            
             camera_assemblies.append({
                 **partial_camera_assembly,
                 "camera": {
                     **partial_camera_assembly["camera"],
-                    "name": assembly_name,
-                    "serial_number": serial_number,
-                    "pixel_height": height,
-                    "pixel_width": width,
+                    "name": found[0].assembly_name,
+                    "serial_number": found[0].serial_number,
+                    "pixel_height": found[0].height,
+                    "pixel_width": found[0].width,
                     "size_unit": "pixel",
-                    "max_frame_rate": frame_rate,
+                    "max_frame_rate": found[0].frame_rate,
                 }
+            })
+
+        ephys_assemblies = []
+        for partial_ephys_assembly in partial["ephys_assemblies"]:
+            assembly_name = partial_ephys_assembly["ephys_assembly_name"]
+            found = list(filter(
+                lambda probe: probe.name == \
+                    assembly_name,
+                open_ephys_probes,
+            ))
+            if len(found) < 1:
+                raise NeuropixelsRigException(
+                    "Open ephys probe not found for partial rig. expected=%s"
+                    % assembly_name
+                )
+            for open_ephys_probe in found:
+                partial_ephys_assembly = utils.find_transform_replace(
+                    partial_ephys_assembly["probes"],
+                    lambda partial_probe: partial_probe["name"] == \
+                        open_ephys_probe.name,
+                    lambda partial_probe: open_ephys.transform(
+                        open_ephys_probe, **partial_probe).dict()
+                )
+            ephys_assemblies.append({
+                **partial_ephys_assembly,
+                "probes": [
+                    open_ephys.transform(found[0]).dict(),
+                ]
             })
 
         return rig.Rig.parse_obj({
             **partial,
-            "modification_date": datetime.date.today(),
-            "daqs": [
-                *partial["daqs"],
-                sync_daq,
-            ],
+            "stimulus_devices": stimulus_devices,
+            "modification_date": self.modification_date,
+            "daqs": daqs,
             "cameras": camera_assemblies,
+            "ephys_assemblies": ephys_assemblies,
         })

@@ -131,7 +131,7 @@
     "digital_micromirror_devices": null,
     "ephys_assemblies": [
         {
-            "ephys_assembly_name": "ProbeA",
+            "ephys_assembly_name": "A",
             "manipulator": {
                 "device_type": "Manipulator",
                 "manufacturer": "NEW_SCALE_TECHNOLOGIES",
@@ -155,7 +155,7 @@
             ]
         },
         {
-            "ephys_assembly_name": "ProbeB",
+            "ephys_assembly_name": "B",
             "manipulator": {
                 "device_type": "Manipulator",
                 "manufacturer": "NEW_SCALE_TECHNOLOGIES",
@@ -179,7 +179,7 @@
             ]
         },
         {
-            "ephys_assembly_name": "ProbeC",
+            "ephys_assembly_name": "C",
             "manipulator": {
                 "device_type": "Manipulator",
                 "manufacturer": "NEW_SCALE_TECHNOLOGIES",
@@ -203,7 +203,7 @@
             ]
         },
         {
-            "ephys_assembly_name": "ProbeD",
+            "ephys_assembly_name": "D",
             "manipulator": {
                 "device_type": "Manipulator",
                 "manufacturer": "NEW_SCALE_TECHNOLOGIES",
@@ -227,7 +227,7 @@
             ]
         },
         {
-            "ephys_assembly_name": "ProbeE",
+            "ephys_assembly_name": "E",
             "manipulator": {
                 "device_type": "Manipulator",
                 "manufacturer": "NEW_SCALE_TECHNOLOGIES",
@@ -251,7 +251,7 @@
             ]
         },
         {
-            "ephys_assembly_name": "ProbeF",
+            "ephys_assembly_name": "F",
             "manipulator": {
                 "device_type": "Manipulator",
                 "manufacturer": "NEW_SCALE_TECHNOLOGIES",

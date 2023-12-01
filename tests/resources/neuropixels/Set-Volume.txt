@@ -1,0 +1,6 @@
+Report for Speakers (Sound BlasterX AE-5 Plus)
+
+Master volume level = 100
+
+ Channel 0 level = 100
+ Channel 1 level = 100

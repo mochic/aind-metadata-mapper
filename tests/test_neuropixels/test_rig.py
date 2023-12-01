@@ -141,19 +141,6 @@ class TestNeuropixelsEtl(unittest.TestCase):
             etl.run_job,
         )
 
-    def test_missing_sync_rig_etl(self):
-        """Tests that the expected exception is raised when the sync file is
-        missing.
-        """
-        etl = neuropixels_rig.NeuropixelsRigEtl(
-            self.missing_sync_input_dir,
-            self.missing_sync_output_dir
-        )
-        self.assertRaises(
-            neuropixels_rig.NeuropixelsRigException,
-            etl.run_job,
-        )
-
     def setUp(self):
         """Moves required test resources to testing directory.
         """
@@ -169,6 +156,12 @@ class TestNeuropixelsEtl(unittest.TestCase):
         good_sync_path = pathlib.Path(
             "./tests/resources/neuropixels/good/sync.yml"
         )
+        good_open_ephys_path = pathlib.Path(
+            "./tests/resources/neuropixels/settings.open_ephys.xml",
+        )
+        good_dxdiag_path = pathlib.Path(
+            "./tests/resources/neuropixels/dxdiag.xml",
+        )
 
         # setup good directory
         self.good_input_dir, self.good_output_dir, self._cleanup_good = \
@@ -177,6 +170,8 @@ class TestNeuropixelsEtl(unittest.TestCase):
                 good_mvr_path,
                 good_mvr_mapping_path,
                 good_sync_path,
+                good_open_ephys_path,
+                good_dxdiag_path,
             )
 
         # setup bad mvr directory
@@ -190,6 +185,8 @@ class TestNeuropixelsEtl(unittest.TestCase):
                 bad_mvr_path,
                 good_mvr_mapping_path,
                 good_sync_path,
+                good_open_ephys_path,
+                good_dxdiag_path,
             )
 
         # setup bad mvr mapping directory
@@ -203,6 +200,8 @@ class TestNeuropixelsEtl(unittest.TestCase):
                 good_mvr_path,
                 bad_mvr_mapping_path,
                 good_sync_path,
+                good_open_ephys_path,
+                good_dxdiag_path,
             )
 
         # setup bad rig partial camera directory
@@ -217,6 +216,8 @@ class TestNeuropixelsEtl(unittest.TestCase):
                 good_mvr_path,
                 good_mvr_mapping_path,
                 good_sync_path,
+                good_open_ephys_path,
+                good_dxdiag_path,
             )
 
         # setup bad rig partial sync directory
@@ -231,16 +232,8 @@ class TestNeuropixelsEtl(unittest.TestCase):
                 good_mvr_path,
                 good_mvr_mapping_path,
                 good_sync_path,
-            )
-
-        # setup bad rig directory missing required files
-        self.missing_sync_input_dir, \
-            self.missing_sync_output_dir, \
-            self._cleanup_missing_sync = \
-            setup_neuropixels_etl_dirs(
-                good_rig_partial_path,
-                good_mvr_path,
-                good_mvr_mapping_path,
+                good_open_ephys_path,
+                good_dxdiag_path,
             )
 
     def tearDown(self):
@@ -251,7 +244,7 @@ class TestNeuropixelsEtl(unittest.TestCase):
         self._cleanup_bad_mvr_mapping()
         self._cleanup_bad_rig_partial_camera()
         self._cleanup_bad_rig_partial_sync()
-        self._cleanup_missing_sync()
+        # self._cleanup_missing_sync()
 
 
 if __name__ == "__main__":
