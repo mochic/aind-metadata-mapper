@@ -1,0 +1,1 @@
+from aind_data_schema import device

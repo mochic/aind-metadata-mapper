@@ -7,16 +7,16 @@ import typing
 from aind_data_schema import rig
 
 from ..core import BaseEtl
-from . import open_ephys, mvr, dxdiag, sync, utils, NeuropixelsRigException
+from . import dxdiag_monitor, mvr, open_ephys_probe, sync_daq, utils, NeuropixelsRigException
 
 
 # partial rig, mvr cameras, sync daq, open ephys probes, dxdiag settings
 RigContext = tuple[
     dict,
     list[mvr.MVRCamera],
-    sync.SyncSettings,
-    list[open_ephys.OpenEphysProbe],
-    dxdiag.DxdiagSettings,
+    sync_daq.SyncSettings,
+    list[open_ephys_probe.OpenEphysProbe],
+    dxdiag_monitor.DxdiagSettings,
 ]
 
 
@@ -66,13 +66,13 @@ class NeuropixelsRigEtl(BaseEtl):
                     (self.input_source / "mvr.mapping.json").read_text(),
                 ),
             ),
-            sync.extract(
+            sync_daq.extract(
                 (self.input_source / "sync.yml").read_text(),
             ),
-            open_ephys.extract(
+            open_ephys_probe.extract(
                 (self.input_source / "settings.open_ephys.xml").read_text(),
             ),
-            dxdiag.extract(
+            dxdiag_monitor.extract(
                 (self.input_source / "dxdiag.xml").read_text(),
             ),
         )
@@ -86,7 +86,7 @@ class NeuropixelsRigEtl(BaseEtl):
 
         sync_daq_channels = [
             channel.dict()
-            for channel in sync.transform(sync_settings)
+            for channel in sync_daq.transform(sync_settings)
         ]
         daqs = utils.find_transform_replace(
             partial["daqs"],
@@ -98,7 +98,7 @@ class NeuropixelsRigEtl(BaseEtl):
         stimulus_devices = utils.find_transform_replace(
             partial["stimulus_devices"],
             lambda device: device["device_type"] == "Monitor",
-            lambda partial_monitor: dxdiag.transform(
+            lambda partial_monitor: dxdiag_monitor.transform(
                 dxdiag_settings, **partial_monitor).dict()
         )
 
@@ -147,13 +147,13 @@ class NeuropixelsRigEtl(BaseEtl):
                     partial_ephys_assembly["probes"],
                     lambda partial_probe: partial_probe["name"] == \
                         open_ephys_probe.name,
-                    lambda partial_probe: open_ephys.transform(
+                    lambda partial_probe: open_ephys_probe.transform(
                         open_ephys_probe, **partial_probe).dict()
                 )
             ephys_assemblies.append({
                 **partial_ephys_assembly,
                 "probes": [
-                    open_ephys.transform(found[0]).dict(),
+                    open_ephys_probe.transform(found[0]).dict(),
                 ]
             })
 

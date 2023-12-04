@@ -2,8 +2,9 @@
 import typing
 import copy
 import pydantic
+import pathlib
 from xml.etree import ElementTree
-from aind_data_schema import device
+from aind_data_schema import device, rig
 
 from . import NeuropixelsRigException
 
@@ -56,8 +57,10 @@ def find_transform_replace(
 
 
 class AllOptionalMeta(pydantic.main.ModelMetaclass):
+    
     def __new__(cls, name, bases, namespaces, required_fields=[], **kwargs):
         annotations = namespaces.get('__annotations__', {})
+        print(required_fields)
         for base in bases:
             annotations.update(getattr(base, '__annotations__', {}))
         for field, field_type in annotations.items():
@@ -78,7 +81,48 @@ class AllOptionalMeta(pydantic.main.ModelMetaclass):
         return super().__new__(cls, name, bases, namespaces, **kwargs)
     
 
+# def merge_devices(device_a: device.Device, device_b: device.Device) -> \
+#     device.Device:
+#     updates = {}
+#     all_annotations = {}
+#     for c in device_a.__class__.mro():
+#         if hasattr(c, '__annotations__'):
+#             all_annotations.update(c.__annotations__)
+#     for prop_name in all_annotations.keys():
+#         value = getattr(device_b, prop_name)
+#         if value is not None:
+#             updates[prop_name] = value
+#     return device_a.copy(update=updates)
+
+
 def merge_devices(device_a: device.Device, device_b: device.Device) -> \
-    device.Device:
-    for item in device_a.__annotations__:
-        pass
+    None:
+    """
+    ---
+    - Mutates device_a in-place
+    """
+    # updates = {}
+    all_annotations = {}
+    # get annotations for all classes in hierarchy
+    for c in device_a.__class__.mro():
+        if hasattr(c, '__annotations__'):
+            all_annotations.update(c.__annotations__)
+    
+    for prop_name in all_annotations.keys():
+        value = getattr(device_b, prop_name)
+        if value is not None:
+            setattr(device_a, prop_name, value)
+
+
+def update_rig(
+        *resources: pathlib.Path,
+        rig_resource: pathlib.Path,
+        output_dir: pathlib.Path,
+        transformer: typing.Callable,
+        
+    ):
+    output_path = output_dir / "rig.json"
+    return 
+    current = rig.Rig.parse_file(rig_resource)
+
+
