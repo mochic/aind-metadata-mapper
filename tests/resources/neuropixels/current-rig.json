@@ -63,7 +63,7 @@
       },
       {
          "device_type": "Speaker",
-         "name": null,
+         "name": "speaker",
          "serial_number": null,
          "manufacturer": {
             "name": "ISL Products International",
