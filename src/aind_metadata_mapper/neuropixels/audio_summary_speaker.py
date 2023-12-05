@@ -14,7 +14,7 @@ class SetVolumeInfo(pydantic.BaseModel):
     master_volume: int
 
 
-def extract(content: str) -> SetVolumeInfo:
+def extract(set_volume_content: str, dxdiag_content: str) -> SetVolumeInfo:
     # model = re.find(r"Report for Speakers \((.*)\)", content)
     # master_volume = re.find(r"Master volume level = (\d*)")
     return SetVolumeInfo(

@@ -63,16 +63,3 @@ def transform(
             "Sync daq not found on current rig. name=%s" % sync_name
         )
     return current_rig
-    # return [
-    #     device.DAQChannel(
-    #         channel_name=name,
-    #         channel_type="Digital Input",
-    #         device_name=settings.name,
-    #         event_based_sampling=False,
-    #         channel_index=line,
-    #         sample_rate=settings.freq,
-    #         sample_rate_unit="hertz",
-    #         **overloads
-    #     )
-    #     for line, name in settings.line_labels
-    # ]

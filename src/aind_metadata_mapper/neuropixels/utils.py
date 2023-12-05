@@ -8,6 +8,7 @@ from aind_data_schema import device, rig
 
 from . import NeuropixelsRigException
 
+
 def find_elements(et: ElementTree, name: str) -> \
     typing.Generator[ElementTree.Element, None, None]:
     """
@@ -70,6 +71,8 @@ class AllOptionalMeta(pydantic.main.ModelMetaclass):
                 if field in required_fields \
                     and typing.get_origin(field_type) == typing.Union and \
                     type(None) in field_type.__args__:
+                    print("Required field")
+                    print(field)
                     # If the field is Optional, remove None to make it required
                     non_none_types = [t for t in field_type.__args__ if t != type(None)]
                     annotations[field] = typing.Union[tuple(non_none_types)]
@@ -114,12 +117,16 @@ def merge_devices(device_a: device.Device, device_b: device.Device) -> \
             setattr(device_a, prop_name, value)
 
 
+def update_rig(*updates: device.Device, rig: rig.Rig) -> None:
+    pass
+
+
 def update_rig(
         *resources: pathlib.Path,
         rig_resource: pathlib.Path,
         output_dir: pathlib.Path,
         transformer: typing.Callable,
-        
+
     ):
     output_path = output_dir / "rig.json"
     return 

@@ -9,13 +9,13 @@ from . import utils, NeuropixelsRigException
 logger = logging.getLogger(__name__)
 
 
-class MVRCamera(pydantic.BaseModel):
+# class MVRCamera(pydantic.BaseModel):
 
-    assembly_name: str
-    serial_number: str
-    height: int
-    width: int
-    frame_rate: float
+#     assembly_name: str
+#     serial_number: str
+#     height: int
+#     width: int
+#     frame_rate: float
 
 class MVRCamera(
     device.Camera,
