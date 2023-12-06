@@ -4,7 +4,7 @@ import copy
 import pydantic
 import pathlib
 from xml.etree import ElementTree
-from aind_data_schema import device, rig
+from aind_data_schema import device, rig, base
 
 from . import NeuropixelsRigException
 
@@ -117,8 +117,30 @@ def merge_devices(device_a: device.Device, device_b: device.Device) -> \
             setattr(device_a, prop_name, value)
 
 
-def update_rig(*updates: device.Device, rig: rig.Rig) -> None:
-    pass
+
+
+def recurse_aind_model(model: base.AindModel) -> None:
+    for field_name, field_value in model.__fields__.items():
+        if isinstance(field_value, base.AindModel):
+            return (field_name, recurse_aind_model(field_value), )
+        elif isinstance(field_value, list):
+            return (field_name, list(map(
+                recurse_aind_model,
+                field_value,
+            ), ))
+        else:
+            return (field_name, field_value, )
+
+
+def update_rig(*updates: base.AindModel, rig: rig.Rig) -> None:
+    updated = {}
+    for update in updates:
+        for device_name, device in update.devices.items():
+            if device_name not in rig.devices:
+                raise NeuropixelsRigException(
+                    f"Device {device_name} not found in rig."
+                )
+            merge_devices(rig.devices[device_name], device)
 
 
 def update_rig(
