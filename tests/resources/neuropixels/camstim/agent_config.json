@@ -1,0 +1,34 @@
+{
+    "email": {
+        "error": [
+            "derricw@alleninstitute.org"
+        ],
+        "password": "",
+        "type": "aibs",
+        "user_name": "behavioralert@alleninstitute.org"
+    },
+    "network_mouse_folder": "//allen/programs/braintv/workgroups/neuralcoding/Behavior/Data",
+    "nidaq": {
+        "device": "Dev0",
+        "do_open": 1,
+       "iodaq_port_line_list": [
+            [
+                0,
+                7
+            ],
+	    [
+		2,
+		0
+	    ]
+        ]
+    },
+    "rig_id": "",
+    "zro": {
+        "pub_port": 5001,
+        "rep_port": 5000,
+        "script_rep_port": 12000,
+        "whitelist": [
+            "localhost"
+        ]
+    }
+}
