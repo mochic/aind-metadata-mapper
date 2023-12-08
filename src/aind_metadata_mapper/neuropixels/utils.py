@@ -155,3 +155,22 @@ def update_rig(
     current = rig.Rig.parse_file(rig_resource)
 
 
+def find_matching_objects(data: typing.Mapping, property_name: str, property_value: str) -> Iterable:
+    matching_objects = []
+
+    def search(obj):
+        if isinstance(obj, typing.Mapping):  # Check if it's a dictionary
+            if property_name in obj and obj[property_name] == property_value:
+                matching_objects.append(obj)
+
+            for value in obj.values():
+                search(value)
+        elif isinstance(obj, typing.Iterable) and not isinstance(obj, (str, bytes)):
+            for item in obj:
+                search(item)
+
+    search(data)
+    if len(matching_objects) > 1:
+        raise ValueError(f"Found multiple matches for {property_name}={property_value}")
+
+    yield from matching_objects

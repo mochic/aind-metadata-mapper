@@ -31,6 +31,17 @@ class MVRCamera(
     """
     """
 
+class MVRCameraAssembly(
+    rig.CameraAssembly,
+    metaclass=utils.AllOptionalMeta,
+    required_fields=[
+        "camera_assembly_name",
+    ]
+):
+    """
+    """
+    camera: MVRCamera
+
 
 def extract(content: str, mapping: dict) -> list[MVRCamera]:
     """Extracts camera-related information from MPE mvr config.
