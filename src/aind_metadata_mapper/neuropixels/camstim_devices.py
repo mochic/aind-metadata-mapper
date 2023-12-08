@@ -30,9 +30,9 @@ class CamstimRewardCalibration(
     """
 
 
-CamstimDevices = tuple[CamstimMonitor, list[device.Calibration]]  # monitor settings, daq devices, water calibration
+CamstimMeta = tuple[CamstimMonitor, list[device.Calibration]]  # monitor settings, daq devices, water calibration
 
-def extract(content: str) -> CamstimDevices:
+def extract(content: str) -> CamstimMeta:
     parsed = yaml.safe_load(content)
     stim = parsed.get("Stim", {})
     monitor = CamstimMonitor(
@@ -53,8 +53,34 @@ def extract(content: str) -> CamstimDevices:
     ))
     return monitor, calibrations
 
-# def transform(daq: CamstimDAQDevice, current: rig.Rig) -> None:
-#     pass
 
+def transform(
+        camstim_meta: CamstimMeta,
+        monitor_name: str,
+        rig_dict: dict,
+) -> rig.Rig:
+    monitor, water_calibrations = camstim_meta
+
+    updated_stimulus_devices = []
+    for stimulus_device in rig_dict["stimulus_devices"]:
+        if stimulus_device["device_type"] == "Monitor" \
+            and stimulus_device["name"] == monitor_name:
+                updated_stimulus_devices.append(utils.update_model_dict(
+                     stimulus_device,
+                     monitor,
+                ))
+        else:
+             updated_stimulus_devices.append(stimulus_device.dict())
+
+    updated_calibrations = []
+    for calibration in rig_dict.calibrations:
+         for water_calibration in water_calibrations:
+            if calibration.device_name == water_calibration.device_name:
+                 updated = utils.merge_models(
+                      
+                 )
+    
+
+    return updated_rig
 # def extract_transform(current: rig.Rig, **overrides): 
 #     current_dict = current.dict()

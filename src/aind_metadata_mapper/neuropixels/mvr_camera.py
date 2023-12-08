@@ -115,3 +115,41 @@ def transform(
     #     chroma=chroma,
     #     **overloads
     # )
+
+class MVRMapping(pydantic.BaseModel):
+
+    pass
+
+
+def extract_transform(
+    content: str,
+    mapping: dict,
+    current_dict: dict,
+) -> dict:
+    config = configparser.ConfigParser()
+    config.read_string(content)
+
+    # doesnt return a correct value?
+    # frame_rate = float(
+    #     config["CAMERA_DEFAULT_CONFIG"]["frames_per_second"]
+    # )
+    height = int(config["CAMERA_DEFAULT_CONFIG"]["height"])
+    width = int(config["CAMERA_DEFAULT_CONFIG"]["width"])
+
+    extracted = []
+    for mvr_name, assembly_name in mapping.items():
+        try:
+            extracted.append(
+                MVRCamera(
+                    name=assembly_name,
+                    serial_number="".join(config[mvr_name]["sn"]),
+                    pixel_height=height,
+                    pixel_width=width,
+                    size_unit="pixel",
+                )
+            )
+        except KeyError:
+            raise NeuropixelsRigException(
+                "No camera found for: %s in mvr.ini" %
+                mvr_name
+            )

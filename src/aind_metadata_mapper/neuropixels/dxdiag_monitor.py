@@ -4,7 +4,7 @@ import typing
 import pydantic
 from aind_data_schema import device, rig
 
-from . import utils
+from . import utils, NeuropixelsRigException
 
 
 # class DxdiagSettings(pydantic.BaseModel):
@@ -89,3 +89,41 @@ def transform(dxdiag_monitor: DxdiagMonitor, current_rig: rig.Rig) -> \
 
 
     
+def extract_transform(
+    content: str,
+    monitor_name: str,
+    current_dict: dict,
+) -> dict:
+    loaded = xml.etree.ElementTree.fromstring(content)
+    modes = list(utils.find_elements(loaded, "currentmode"))
+    height = None
+    width = None
+    if len(modes) > 0:
+        parsed_mode = re.match(
+            r"(\d*) x (\d*) (\(\d{2} bit\)) \((\d*)Hz\)",
+            modes[0].text
+        )
+        if parsed_mode:
+            height = int(parsed_mode[2])
+            width = int(parsed_mode[1])
+
+    models = list(utils.find_elements(loaded, "monitormodel"))
+    if len(models) < 1:
+        model = None
+    else:
+        model = models[0].text
+
+    for stimulus_device in current_dict["stimulus_devices"]:
+        if stimulus_device["device_type"] == "Monitor" and \
+            stimulus_device.name == monitor_name:
+                if not height is None and not width is None:
+                    stimulus_device["height"] = height
+                    stimulus_device["width"] = width
+                    stimulus_device["size_unit"] = "pixel"
+                if model:
+                    stimulus_device["model"] = model
+                break
+    else:
+        raise NeuropixelsRigException("Failed to fin")
+
+    return current_dict

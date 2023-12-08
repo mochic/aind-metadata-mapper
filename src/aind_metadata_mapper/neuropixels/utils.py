@@ -98,7 +98,7 @@ class AllOptionalMeta(pydantic.main.ModelMetaclass):
 #     return device_a.copy(update=updates)
 
 
-def merge_devices(device_a: device.Device, device_b: device.Device) -> \
+def merge_devices(device_a: base.AindModel, device_b: device.Device) -> \
     None:
     """
     ---
@@ -117,6 +117,23 @@ def merge_devices(device_a: device.Device, device_b: device.Device) -> \
             setattr(device_a, prop_name, value)
 
 
+def merge_models(device_a: device.Device, device_b: device.Device) -> \
+    None:
+    """
+    ---
+    - Mutates device_a in-place
+    """
+    # updates = {}
+    all_annotations = {}
+    # get annotations for all classes in hierarchy
+    for c in device_a.__class__.mro():
+        if hasattr(c, '__annotations__'):
+            all_annotations.update(c.__annotations__)
+    
+    for prop_name in all_annotations.keys():
+        value = getattr(device_b, prop_name)
+        if value is not None:
+            setattr(device_a, prop_name, value)
 
 
 def recurse_aind_model(model: base.AindModel) -> None:
@@ -174,3 +191,28 @@ def find_matching_objects(data: typing.Mapping, property_name: str, property_val
         raise ValueError(f"Found multiple matches for {property_name}={property_value}")
 
     yield from matching_objects
+
+
+def update_nested_model(
+        model: pydantic.BaseModel,
+        partial_model: pydantic.BaseModel,
+        prop_map: dict,
+):
+    if isinstance(model, pydantic.BaseModel):
+        updated_fields = {}
+        for field, value in model.dict().items():
+            if isinstance(value, pydantic.BaseModel):
+                updated_fields[field] = update_nested_model(
+                    value,
+                    partial_model,
+                )
+            elif isinstance(value, list):
+                updated_fields[field] = update_nested_model(
+                    value,
+                    partial_model,
+                )
+            else:
+                updated_fields[field] = updated_values.get(field, value)
+        return model.__class__(**updated_fields)
+    else:
+        return model
