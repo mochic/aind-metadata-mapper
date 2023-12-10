@@ -173,7 +173,7 @@ def update_rig(
     current = rig.Rig.parse_file(rig_resource)
 
 
-def find_matching_objects(data: typing.Mapping, property_name: str, property_value: str) -> Iterable:
+def find_matching_objects(data: typing.Mapping, property_name: str, property_value: str) -> typing.Iterable:
     matching_objects = []
 
     def search(obj):

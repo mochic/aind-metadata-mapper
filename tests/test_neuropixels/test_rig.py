@@ -5,8 +5,9 @@ import shutil
 import typing
 import tempfile
 
+from aind_data_schema import rig
 from aind_metadata_mapper.neuropixels import NeuropixelsRigException, \
-    rig
+    rig as neuropixels_rig
 
 from . import get_current_rig
 
@@ -48,12 +49,19 @@ class TestRig(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl(self):
-        etl = rig.NeuropixelsRigEtl(
+        etl = neuropixels_rig.NeuropixelsRigEtl(
             self.good_input_dir,
             self.good_output_dir,
             current=self.good_input_dir / "rig.json",
         )
         etl.run_job()
+
+        updated = rig.Rig.parse_json(
+            (self.good_output_dir / "rig.json").read_text()
+        )
+
+        for stimlus_device in updated.stimulus_devices:
+            if stimlus_device 
 
     # def test_extract_bad_mapping(self):
     #     content = pathlib.Path(
