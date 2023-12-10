@@ -1,7 +1,7 @@
 import json
 from aind_data_schema import device, rig
 
-from . import utils
+from . import utils, NeuropixelsRigException
 
 
 class OpenEphysManipulator(
@@ -47,3 +47,22 @@ def transform(manipulators: list[OpenEphysManipulator], current: rig.Rig) \
                     ephys_assembly.manipulator,
                     manipulator,
                 )
+
+
+def extract_transform(content: str, current_dict: dict) -> None:
+    mapping = json.loads(content)
+    for ephys_assembly in current_dict["ephys_assemblies"]:
+        for name, serial_number in mapping.items():
+            if name == ephys_assembly["ephys_assembly_name"]:
+                ephys_assembly["manipulator"] = {
+                    "name": name,
+                    "serial_number": serial_number,
+                }
+                break
+        else:
+            raise NeuropixelsRigException(
+                "No manipulator found for: %s in open-ephys-probe.json" %
+                name
+            )
+
+    return current_dict

@@ -2,6 +2,7 @@ import re
 import xml
 import typing
 import pydantic
+from xml.etree import ElementTree
 from aind_data_schema import device, rig
 
 from . import utils, NeuropixelsRigException
@@ -127,3 +128,36 @@ def extract_transform(
         raise NeuropixelsRigException("Failed to fin")
 
     return current_dict
+
+
+def transform_monitor(
+    dxdiag_monitor: DxdiagMonitor,
+    current_dict: dict,
+    monitor_name: str,
+) -> None:
+    """
+    Notes
+    -----
+    modifies current_dict inplace.
+    """
+    for stimulus_device in current_dict["stimulus_devices"]:
+        if stimulus_device["device_type"] == "Monitor" and \
+            stimulus_device["name"] == monitor_name:
+                if not dxdiag_monitor.height is None and \
+                    not dxdiag_monitor.width is None:
+                    stimulus_device["height"] = dxdiag_monitor.height
+                    stimulus_device["width"] = dxdiag_monitor.width
+                    stimulus_device["size_unit"] = "pixel"
+                if dxdiag_monitor.model:
+                    stimulus_device["model"] = dxdiag_monitor.model
+                break
+    else:
+        raise NeuropixelsRigException("Failed to find monitor in rig.")
+
+
+def transform_audio(
+    config: ElementTree,
+    current_dict: dict,
+    soundcard_names: str,
+):
+    pass
