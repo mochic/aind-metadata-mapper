@@ -5,7 +5,7 @@ import shutil
 import typing
 import tempfile
 
-from aind_data_schema import rig
+from aind_data_schema.core import rig
 from aind_metadata_mapper.neuropixels import NeuropixelsRigException, \
     rig as neuropixels_rig
 
@@ -52,7 +52,10 @@ class TestRig(unittest.TestCase):
         etl = neuropixels_rig.NeuropixelsRigEtl(
             self.good_input_dir,
             self.good_output_dir,
-            current=self.good_input_dir / "rig.json",
+            self.good_input_dir / "current-rig.json",
+            "Sync",
+            "Stim",
+            "Reward Delivery: 0",
         )
         etl.run_job()
 
@@ -63,6 +66,8 @@ class TestRig(unittest.TestCase):
         expected = rig.Rig.parse_file(
             (self.good_output_dir / "expected-rig.json")
         )
+
+        print(self.good_output_dir / "rig.json")
 
         assert updated == expected
 
@@ -92,7 +97,7 @@ class TestRig(unittest.TestCase):
             "./tests/resources/neuropixels/good/sync.yml"
         )
         good_dxdiag_path = pathlib.Path(
-            "./tests/resources/neuropixels/dxdiag.yml"
+            "./tests/resources/neuropixels/dxdiag.xml"
         )
         camstim_path = pathlib.Path(
             "./tests/resources/neuropixels/camstim.yml"

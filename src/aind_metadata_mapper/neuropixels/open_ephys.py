@@ -1,7 +1,7 @@
 import logging
 import json
 from xml.etree import ElementTree
-from aind_data_schema import device, rig
+# from aind_data_schema import device, rig
 
 from . import utils, NeuropixelsRigException
 

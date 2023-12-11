@@ -1,8 +1,5 @@
 {
-   "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/rig.py",
-   "schema_version": "0.1.7",
    "rig_id": "NP.2",
-   "modification_date": "2023-11-13",
    "modalities": [
       {
          "name": "Behavior videos",
@@ -37,7 +34,7 @@
    "stimulus_devices": [
       {
          "device_type": "Monitor",
-         "name": null,
+         "name": "Stim",
          "serial_number": null,
          "manufacturer": {
             "name": "ASUS",
@@ -62,8 +59,22 @@
          "brightness": 0
       },
       {
+         "device_type": "Reward delivery",
+         "name": "NP.2-Stim",
+         "reward_spouts": [
+            {
+               "device_type": "Reward spout",
+               "side": "Center",
+               "spout_diameter": 0.0,
+               "spout_diameter_unit": "millimeter",
+               "solenoid_valve": {},
+               "notes": "Invalid spout values. TODO: Replace with real values."
+            }
+         ]
+      },
+      {
          "device_type": "Speaker",
-         "name": "speaker",
+         "name": "Speaker",
          "serial_number": null,
          "manufacturer": {
             "name": "ISL Products International",

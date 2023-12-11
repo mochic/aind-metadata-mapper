@@ -1,8 +1,9 @@
 """Grabs all device managed by camstim via camstim config file
 """
-from aind_data_schema import device, rig
+import datetime
+# from aind_data_schema import device, rig
 
-from . import utils
+from . import utils, NeuropixelsRigException
 
 
 # class CamstimMonitor(
@@ -71,7 +72,7 @@ def transform(
     )
 
     try:
-        water_calibration = config["shared"]["water_calibrations"][reward_delivery_name]
+        water_calibration = config["shared"]["water_calibration"][reward_delivery_name]
     except KeyError:
         raise NeuropixelsRigException(
             "No water calibrations found for reward delivery: %s" %
@@ -79,18 +80,29 @@ def transform(
         )
 
     # update water calibrations
-    utils.find_update(
-        current["calibrations"],
-        filters=[
-          ("device_name", reward_delivery_name),
-        ],
-        calibration_date=water_calibration["date"].strftime("%m/%d/%Y"),
-        device_name=reward_delivery_name,
-        output={
+    water_calibration = {
+        "calibration_date": datetime.datetime.strptime(
+                water_calibration["datetime"],
+                "%m/%d/%Y %H:%M:%S"
+        ),
+        "device_name": reward_delivery_name,
+        "output": {
             "intercept": water_calibration["intercept"],
             "slope": water_calibration["slope"],
         },
-    )
+        "description": "Solenoid water calibration."
+    }
+
+    try:
+        utils.find_update(
+            current["calibrations"],
+            filters=[
+                ("device_name", reward_delivery_name),
+            ],
+            **water_calibration
+        )
+    except NeuropixelsRigException:  # TODO: just do this a normal way
+        current["calibrations"].append(water_calibration)
 
     # for stimulus_device in current["stimulus_devices"]:
     #     if stimulus_device["device_type"] == "Monitor" \

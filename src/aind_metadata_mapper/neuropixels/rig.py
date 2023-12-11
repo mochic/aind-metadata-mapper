@@ -6,12 +6,14 @@ import pathlib
 import pydantic
 import datetime
 import configparser
+import typing
 from xml.etree import ElementTree
-from aind_data_schema import rig
+from aind_data_schema.core import rig
 
 from ..core import BaseEtl
 
-from . import mvr, sync, dxdiag, camstim, open_ephys, utils, NeuropixelsRigException
+from . import mvr, sync, dxdiag, camstim, open_ephys, utils, \
+    NeuropixelsRigException
 
 class NeuropixelsRigException(Exception):
     """General error for MVR."""
@@ -27,10 +29,10 @@ RigContext = tuple[dict, list[MVRCamera], SyncContext]
 
 class RigContext(pydantic.BaseModel):
     
-    current: rig.Rig
-    mvr_context: tuple[configparser.ConfigParser, dict]
+    current: dict
+    mvr_context: tuple[typing.Any, dict]
     sync: dict
-    dxdiag: ElementTree
+    dxdiag: typing.Any
     camstim: dict
 
 
@@ -43,6 +45,11 @@ class NeuropixelsRigEtl(BaseEtl):
         self,
         input_source: pathlib.Path,
         output_directory: pathlib.Path,
+        current: pathlib.Path,
+        sync_name: str,
+        monitor_name: str,
+        reward_delivery_name: str,
+        modification_date: datetime.date = None,
     ):
         """Class constructor for Neuropixels rig etl class.
 
@@ -54,6 +61,11 @@ class NeuropixelsRigEtl(BaseEtl):
           The directory where to save the json files.
         """
         super().__init__(input_source, output_directory)
+        self.current = current
+        self.sync_name = sync_name
+        self.monitor_name = monitor_name
+        self.reward_delivery_name = reward_delivery_name
+        self.modification_date = modification_date
 
     def _extract(self) -> RigContext:
         """Extracts rig-related information from config files.
@@ -64,14 +76,22 @@ class NeuropixelsRigEtl(BaseEtl):
             )
         # add logging?
         return RigContext(
-            current=json.load(self.input_source / "rig.json"),
+            current=json.loads(self.current.read_text()),
             mvr_context=(
                 utils.load_config(self.input_source / "mvr.ini"),
-                json.load(self.input_source / "mvr.mapping.json"),
+                json.loads(
+                    (self.input_source / "mvr.mapping.json").read_text()
+                ),
             ),
-            sync_context=yaml.safe_load(self.input_source / "sync.yml"),
-            dxdiag=self._load_resource(self.input_source / "dxdiag.xml"),
-            camstim=yaml.safe_load(self.input_source / "camstim.yml"),
+            sync=yaml.safe_load(
+                (self.input_source / "sync.yml").read_text()
+            ),
+            dxdiag=ElementTree.fromstring(
+                (self.input_source / "dxdiag.xml").read_text()
+            ),
+            camstim=yaml.safe_load(
+                (self.input_source / "camstim.yml").read_text()
+            ),
         )
 
     def _transform(self, extracted_source: RigContext) -> rig.Rig:
@@ -88,20 +108,35 @@ class NeuropixelsRigEtl(BaseEtl):
            sync.transform(
                extracted_source.sync,
                extracted_source.current,
+               self.sync_name,
            ) 
 
         if extracted_source.dxdiag:
-            dxdiag.transform(
+            dxdiag.transform_monitor(
                 extracted_source.dxdiag,
                 extracted_source.current,
+                self.monitor_name,
             )
 
+        # for NP rigs, reward delivery is <rig_id>-Stim
+        reward_delivery_name = f"{extracted_source.current['rig_id']}-Stim"
         if extracted_source.camstim:
             camstim.transform(
-                extracted_source.dxdiag,
+                extracted_source.camstim,
                 extracted_source.current,
+                self.monitor_name,
+                reward_delivery_name,
             )
-
+        
+        if self.modification_date is not None:
+            extracted_source.current["modification_date"] = \
+                self.modification_date
+        else:
+            extracted_source.current["modification_date"] = \
+                datetime.date.today()
+        
+        print(extracted_source.current["stimulus_devices"])
+        
         return rig.Rig.parse_obj(extracted_source.current)
 
         # # search for partial sync daq

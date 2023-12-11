@@ -3,7 +3,7 @@ import xml
 import typing
 import pydantic
 from xml.etree import ElementTree
-from aind_data_schema import device, rig
+# from aind_data_schema import device, rig
 
 from . import utils, NeuropixelsRigException
 
@@ -16,122 +16,122 @@ from . import utils, NeuropixelsRigException
 #     refresh_rate: typing.Optional[float] = None
 
 
-class DxdiagMonitor(
-    device.Monitor,
-    metaclass=utils.AllOptionalMeta,
-    required_fields=[
-        "height",
-        "width",
-        "size_unit",
-        "model",
-    ]
-):
-    """
-    """
+# class DxdiagMonitor(
+#     device.Monitor,
+#     metaclass=utils.AllOptionalMeta,
+#     required_fields=[
+#         "height",
+#         "width",
+#         "size_unit",
+#         "model",
+#     ]
+# ):
+#     """
+#     """
 
 
-def extract(content: str) -> DxdiagMonitor:
-    loaded = xml.etree.ElementTree.fromstring(content)
-    modes = list(utils.find_elements(loaded, "currentmode"))
-    height = None
-    width = None
-    if len(modes) > 0:
-        parsed_mode = re.match(
-            r"(\d*) x (\d*) (\(\d{2} bit\)) \((\d*)Hz\)",
-            modes[0].text
-        )
-        if parsed_mode:
-            height = int(parsed_mode[2])
-            width = int(parsed_mode[1])
+# def extract(content: str) -> DxdiagMonitor:
+#     loaded = xml.etree.ElementTree.fromstring(content)
+#     modes = list(utils.find_elements(loaded, "currentmode"))
+#     height = None
+#     width = None
+#     if len(modes) > 0:
+#         parsed_mode = re.match(
+#             r"(\d*) x (\d*) (\(\d{2} bit\)) \((\d*)Hz\)",
+#             modes[0].text
+#         )
+#         if parsed_mode:
+#             height = int(parsed_mode[2])
+#             width = int(parsed_mode[1])
 
-    models = list(utils.find_elements(loaded, "monitormodel"))
-    if len(models) < 1:
-        model = None
-    else:
-        model = models[0].text
+#     models = list(utils.find_elements(loaded, "monitormodel"))
+#     if len(models) < 1:
+#         model = None
+#     else:
+#         model = models[0].text
     
-    return DxdiagMonitor(
-        model=model,
-        height=height,
-        width=width,
-    )
+#     return DxdiagMonitor(
+#         model=model,
+#         height=height,
+#         width=width,
+#     )
 
 
-def transform(dxdiag_monitor: DxdiagMonitor, current_rig: rig.Rig) -> \
-    rig.Rig:
-    """
-    Notes
-    -----
-    modifies current_rig inplace.
-    """
-    copied = current_rig.copy()  # dont mutated original
-    for idx, device in enumerate(copied.stimulus_devices):
-        if device.device_type == "Monitor":
-            break
-    else:
-        raise Exception
-    monitor = copied.stimulus_devices[idx]
-    utils.merge_devices(
-        monitor,
-        dxdiag_monitor,
-    )
-    # copied_dict = copied.dict()
-    # print(copied.stimulus_devices)
-    return copied
-    # updated_monitor_dict = updated_monitor.dict()
-    # print(updated_monitor_dict)
-    # copied_dict["stimulus_devices"].pop(idx)
-    # copied_dict["stimulus_devices"].insert(idx, updated_monitor)
-    # # print(dxdiag_monitor.model)
-    # # obj = copied.dict()
-    # # print(obj["stimulus_devices"])
-    # print(copied_dict["stimulus_devices"])
-    # return rig.Rig.parse_obj(copied_dict)  # applies updates
+# def transform(dxdiag_monitor: DxdiagMonitor, current_rig: rig.Rig) -> \
+#     rig.Rig:
+#     """
+#     Notes
+#     -----
+#     modifies current_rig inplace.
+#     """
+#     copied = current_rig.copy()  # dont mutated original
+#     for idx, device in enumerate(copied.stimulus_devices):
+#         if device.device_type == "Monitor":
+#             break
+#     else:
+#         raise Exception
+#     monitor = copied.stimulus_devices[idx]
+#     utils.merge_devices(
+#         monitor,
+#         dxdiag_monitor,
+#     )
+#     # copied_dict = copied.dict()
+#     # print(copied.stimulus_devices)
+#     return copied
+#     # updated_monitor_dict = updated_monitor.dict()
+#     # print(updated_monitor_dict)
+#     # copied_dict["stimulus_devices"].pop(idx)
+#     # copied_dict["stimulus_devices"].insert(idx, updated_monitor)
+#     # # print(dxdiag_monitor.model)
+#     # # obj = copied.dict()
+#     # # print(obj["stimulus_devices"])
+#     # print(copied_dict["stimulus_devices"])
+#     # return rig.Rig.parse_obj(copied_dict)  # applies updates
 
 
     
-def extract_transform(
-    content: str,
-    monitor_name: str,
-    current_dict: dict,
-) -> dict:
-    loaded = xml.etree.ElementTree.fromstring(content)
-    modes = list(utils.find_elements(loaded, "currentmode"))
-    height = None
-    width = None
-    if len(modes) > 0:
-        parsed_mode = re.match(
-            r"(\d*) x (\d*) (\(\d{2} bit\)) \((\d*)Hz\)",
-            modes[0].text
-        )
-        if parsed_mode:
-            height = int(parsed_mode[2])
-            width = int(parsed_mode[1])
+# def extract_transform(
+#     content: str,
+#     monitor_name: str,
+#     current_dict: dict,
+# ) -> dict:
+#     loaded = xml.etree.ElementTree.fromstring(content)
+#     modes = list(utils.find_elements(loaded, "currentmode"))
+#     height = None
+#     width = None
+#     if len(modes) > 0:
+#         parsed_mode = re.match(
+#             r"(\d*) x (\d*) (\(\d{2} bit\)) \((\d*)Hz\)",
+#             modes[0].text
+#         )
+#         if parsed_mode:
+#             height = int(parsed_mode[2])
+#             width = int(parsed_mode[1])
 
-    models = list(utils.find_elements(loaded, "monitormodel"))
-    if len(models) < 1:
-        model = None
-    else:
-        model = models[0].text
+#     models = list(utils.find_elements(loaded, "monitormodel"))
+#     if len(models) < 1:
+#         model = None
+#     else:
+#         model = models[0].text
 
-    for stimulus_device in current_dict["stimulus_devices"]:
-        if stimulus_device["device_type"] == "Monitor" and \
-            stimulus_device.name == monitor_name:
-                if not height is None and not width is None:
-                    stimulus_device["height"] = height
-                    stimulus_device["width"] = width
-                    stimulus_device["size_unit"] = "pixel"
-                if model:
-                    stimulus_device["model"] = model
-                break
-    else:
-        raise NeuropixelsRigException("Failed to fin")
+#     for stimulus_device in current_dict["stimulus_devices"]:
+#         if stimulus_device["device_type"] == "Monitor" and \
+#             stimulus_device.name == monitor_name:
+#                 if not height is None and not width is None:
+#                     stimulus_device["height"] = height
+#                     stimulus_device["width"] = width
+#                     stimulus_device["size_unit"] = "pixel"
+#                 if model:
+#                     stimulus_device["model"] = model
+#                 break
+#     else:
+#         raise NeuropixelsRigException("Failed to fin")
 
-    return current_dict
+#     return current_dict
 
 
 def transform_monitor(
-    dxdiag_monitor: DxdiagMonitor,
+    config: ElementTree,
     current_dict: dict,
     monitor_name: str,
 ) -> None:
@@ -140,16 +140,34 @@ def transform_monitor(
     -----
     modifies current_dict inplace.
     """
+    modes = list(utils.find_elements(config, "currentmode"))
+    height = None
+    width = None
+    if len(modes) > 0:
+        parsed_mode = re.match(
+            r"(\d*) x (\d*) (\(\d{2} bit\)) \((\d*)Hz\)",
+            modes[0].text
+        )
+        if parsed_mode:
+            height = int(parsed_mode[2])
+            width = int(parsed_mode[1])
+
+    models = list(utils.find_elements(config, "monitormodel"))
+    if len(models) < 1:
+        model = None
+    else:
+        model = models[0].text
+
     for stimulus_device in current_dict["stimulus_devices"]:
         if stimulus_device["device_type"] == "Monitor" and \
             stimulus_device["name"] == monitor_name:
-                if not dxdiag_monitor.height is None and \
-                    not dxdiag_monitor.width is None:
-                    stimulus_device["height"] = dxdiag_monitor.height
-                    stimulus_device["width"] = dxdiag_monitor.width
+                if not height is None and \
+                    not width is None:
+                    stimulus_device["height"] = height
+                    stimulus_device["width"] = width
                     stimulus_device["size_unit"] = "pixel"
-                if dxdiag_monitor.model:
-                    stimulus_device["model"] = dxdiag_monitor.model
+                if model:
+                    stimulus_device["model"] = model
                 break
     else:
         raise NeuropixelsRigException("Failed to find monitor in rig.")

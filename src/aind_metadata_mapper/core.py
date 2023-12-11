@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Union
 
 from aind_data_schema.base import AindCoreModel
-from pydantic import validate_model
+from pydantic import validate_model, model_validate
 
 
 class BaseEtl(ABC):
