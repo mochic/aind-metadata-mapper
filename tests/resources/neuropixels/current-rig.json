@@ -275,6 +275,106 @@
          "data_interface": "USB",
          "computer_name": "w10dtsm18307",
          "channels": []
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "Audio",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": null,
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "USB",
+         "computer_name": "w10dtsm18307",
+         "channels": []
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "Laser",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": null,
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "USB",
+         "computer_name": "w10dtsm18307",
+         "channels": []
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "Galvo",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": null,
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "USB",
+         "computer_name": "w10dtsm18307",
+         "channels": []
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "PXI",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": null,
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "USB",
+         "computer_name": "w10dtsm18307",
+         "channels": []
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "Stim",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": "NI PCIe-6321",
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "USB",
+         "computer_name": "w10dtsm18307",
+         "channels": []
       }
    ],
    "enclosure": null,
@@ -536,7 +636,7 @@
    "patch_cords": null,
    "light_sources": [
       {
-         "device_type": "Laser",
+         "device_type": "Light emitting diode",
          "name": null,
          "serial_number": null,
          "manufacturer": {
@@ -558,7 +658,7 @@
          "item_number": null
       },
       {
-         "device_type": "Laser",
+         "device_type": "Light emitting diode",
          "name": null,
          "serial_number": null,
          "manufacturer": {
