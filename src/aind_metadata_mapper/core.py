@@ -90,9 +90,9 @@ class BaseEtl(ABC):
             logging.debug("No validation errors detected.")
         except ValidationError:
             logging.warning(
-                f"Validation errors were found. This may be due to "
-                f"mismatched versions or data not found in the "
-                f"databases.", exc_info=True,
+                "Validation errors were found. This may be due to "
+                "mismatched versions or data not found in the "
+                "databases.", exc_info=True,
             )
 
     def run_job(self) -> None:
