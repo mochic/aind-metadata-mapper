@@ -88,7 +88,7 @@ class BaseEtl(ABC):
                 model_instance.__dict__
             )
             logging.debug("No validation errors detected.")
-        except ValidationError as exc:
+        except ValidationError:
             logging.warning(
                 f"Validation errors were found. This may be due to "
                 f"mismatched versions or data not found in the "
