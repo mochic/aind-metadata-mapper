@@ -227,7 +227,6 @@ class SubjectEtlTest(unittest.TestCase):
         mocked_response = self.invalid_response
         mocked_response.status_code = StatusCodes.VALID_DATA
         mock_api_get.return_value = mocked_response
-        # mock_validate.return_value = (None, None)
         self.subject_etl.run_job()
         mock_write.assert_called_once_with(output_directory=Path("tests"))
 
