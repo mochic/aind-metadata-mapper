@@ -19,10 +19,7 @@ from aind_data_schema.core.session import (
     Session,
     Stream,
 )
-from aind_data_schema.models.devices import (
-    Detector,
-    Laser,
-)
+from aind_data_schema.models.devices import Detector, Laser
 from aind_data_schema.models.stimulus import (
     PhotoStimulation,
     PhotoStimulationGroup,

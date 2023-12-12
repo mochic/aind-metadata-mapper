@@ -101,7 +101,8 @@ class SubjectEtlTest(unittest.TestCase):
         self.subject_etl.run_job()
         mock_write.assert_called_once_with(output_directory=Path("tests"))
         mock_log_warn.assert_called_once_with(
-            self.validation_warning_message, exc_info=True)
+            self.validation_warning_message, exc_info=True
+        )
 
     @patch(
         "aind_metadata_service.client.AindMetadataServiceClient.get_subject"
@@ -226,7 +227,7 @@ class SubjectEtlTest(unittest.TestCase):
         mocked_response = self.invalid_response
         mocked_response.status_code = StatusCodes.VALID_DATA
         mock_api_get.return_value = mocked_response
-        mock_validate.return_value = (None, None)
+        # mock_validate.return_value = (None, None)
         self.subject_etl.run_job()
         mock_write.assert_called_once_with(output_directory=Path("tests"))
 

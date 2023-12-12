@@ -84,15 +84,14 @@ class BaseEtl(ABC):
           Contents from the service response.
         """
         try:
-            model_instance.model_validate(
-                model_instance.__dict__
-            )
+            model_instance.model_validate(model_instance.__dict__)
             logging.debug("No validation errors detected.")
         except ValidationError:
             logging.warning(
                 "Validation errors were found. This may be due to "
                 "mismatched versions or data not found in the "
-                "databases.", exc_info=True,
+                "databases.",
+                exc_info=True,
             )
 
     def run_job(self) -> None:
