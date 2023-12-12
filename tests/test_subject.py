@@ -80,9 +80,8 @@ class SubjectEtlTest(unittest.TestCase):
             ]
         )
         cls.validation_warning_message = (
-            "An error was detected during the validation check. This may be "
-            "due to mismatched versions of aind-data-schema from the source "
-            "and this local package. AttributeError('MUS MUSCULUS')"
+            "Validation errors were found. This may be due to mismatched "
+            "versions or data not found in the databases."
         )
 
     @patch(
@@ -101,7 +100,8 @@ class SubjectEtlTest(unittest.TestCase):
         mock_api_get.return_value = self.successful_response
         self.subject_etl.run_job()
         mock_write.assert_called_once_with(output_directory=Path("tests"))
-        mock_log_warn.assert_called_once_with(self.validation_warning_message)
+        mock_log_warn.assert_called_once_with(
+            self.validation_warning_message, exc_info=True)
 
     @patch(
         "aind_metadata_service.client.AindMetadataServiceClient.get_subject"
@@ -121,7 +121,7 @@ class SubjectEtlTest(unittest.TestCase):
         mock_log_warn.assert_has_calls(
             [
                 call("Subject: Multiple Items Found."),
-                call(self.validation_warning_message),
+                call(self.validation_warning_message, exc_info=True),
             ]
         )
         mock_write.assert_called_once_with(output_directory=Path("tests"))
@@ -212,7 +212,7 @@ class SubjectEtlTest(unittest.TestCase):
         "aind_metadata_service.client.AindMetadataServiceClient.get_subject"
     )
     @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
-    @patch("aind_metadata_mapper.core.validate_model")
+    @patch("aind_metadata_mapper.core.BaseEtl._run_validation_check")
     def test_mocked_validate_model(
         self,
         mock_validate: MagicMock,

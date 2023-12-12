@@ -202,7 +202,7 @@ class ProceduresEtlTest(unittest.TestCase):
         "aind_metadata_service.client.AindMetadataServiceClient.get_procedures"
     )
     @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
-    @patch("aind_metadata_mapper.core.validate_model")
+    @patch("aind_metadata_mapper.core.BaseEtl._run_validation_check")
     def test_mocked_validate_model(
         self,
         mock_validate: MagicMock,
@@ -216,7 +216,7 @@ class ProceduresEtlTest(unittest.TestCase):
         mocked_response = self.invalid_response
         mocked_response.status_code = StatusCodes.VALID_DATA
         mock_api_get.return_value = mocked_response
-        mock_validate.return_value = (None, None)
+        # mock_validate.return_value = (None, None)
         self.procedures_etl.run_job()
         mock_write.assert_called_once_with(output_directory=Path("tests"))
 

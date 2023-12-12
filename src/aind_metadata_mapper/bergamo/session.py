@@ -13,21 +13,23 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
-from aind_data_schema.session import (
-    Detector,
+from aind_data_schema.core.session import (
     FieldOfView,
-    Laser,
     Modality,
     Session,
     Stream,
 )
-from aind_data_schema.stimulus import (
+from aind_data_schema.models.devices import (
+    Detector,
+    Laser,
+)
+from aind_data_schema.models.stimulus import (
     PhotoStimulation,
     PhotoStimulationGroup,
     StimulusEpoch,
 )
-from aind_data_schema.utils.units import PowerUnit, SizeUnit
-from pydantic import BaseSettings, Extra
+from aind_data_schema.models.units import PowerUnit, SizeUnit
+from pydantic_settings import BaseSettings
 from ScanImageTiffReader import ScanImageTiffReader
 
 from aind_metadata_mapper.core import BaseEtl
@@ -79,7 +81,6 @@ class UserSettings(BaseSettings):
     class Config:
         """Config to set env var prefix to BERGAMO"""
 
-        extra = Extra.forbid
         env_prefix = "BERGAMO_"
 
 

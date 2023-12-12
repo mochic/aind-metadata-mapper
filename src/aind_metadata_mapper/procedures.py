@@ -6,7 +6,7 @@ import sys
 from os import PathLike
 from pathlib import Path
 
-from aind_data_schema.procedures import Procedures
+from aind_data_schema.core.procedures import Procedures
 from aind_metadata_service.client import AindMetadataServiceClient, StatusCodes
 from requests import Response
 
@@ -74,7 +74,7 @@ class ProceduresEtl(BaseEtl):
             case _:
                 raise Exception("An error occurred connecting to the server.")
 
-        procedures = Procedures.construct(**contents)
+        procedures = Procedures.model_construct(**contents)
         return procedures
 
     @classmethod

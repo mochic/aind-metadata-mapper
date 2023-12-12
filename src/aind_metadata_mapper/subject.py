@@ -6,7 +6,7 @@ import sys
 from os import PathLike
 from pathlib import Path
 
-from aind_data_schema.subject import Subject
+from aind_data_schema.core.subject import Subject
 from aind_metadata_service.client import AindMetadataServiceClient, StatusCodes
 from requests import Response
 
@@ -75,7 +75,7 @@ class SubjectEtl(BaseEtl):
             case _:
                 raise Exception("An error occurred connecting to the server.")
 
-        subject = Subject.construct(**contents)
+        subject = Subject.model_construct(**contents)
         return subject
 
     @classmethod
