@@ -4,7 +4,7 @@ import gzip
 import json
 import os
 import unittest
-from datetime import datetime, time
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -39,14 +39,16 @@ class TestBergamoEtl(unittest.TestCase):
         cls.example_description0 = raw_des0_contents
         cls.example_shape = [347, 512, 512]
         cls.example_user_settings = UserSettings(
+            mouse_platform_name="some_mouse_platform_name",
+            active_mouse_platform=True,
             experimenter_full_name=["John Smith", "Jane Smith"],
             subject_id="12345",
             session_start_time=datetime(2023, 10, 10, 14, 0, 0),
             session_end_time=datetime(2023, 10, 10, 17, 0, 0),
             stream_start_time=datetime(2023, 10, 10, 15, 0, 0),
             stream_end_time=datetime(2023, 10, 10, 16, 0, 0),
-            stimulus_start_time=time(15, 15, 0),
-            stimulus_end_time=time(15, 45, 0),
+            stimulus_start_time=datetime(2023, 10, 10, 15, 15, 0),
+            stimulus_end_time=datetime(2023, 10, 10, 15, 45, 0),
         )
         cls.expected_session = expected_session_contents
 
@@ -197,7 +199,7 @@ class TestBergamoEtl(unittest.TestCase):
         )
         actual_session = etl_job1._transform(raw_image_info)
         self.assertEqual(
-            self.expected_session, json.loads(actual_session.json())
+            self.expected_session, json.loads(actual_session.model_dump_json())
         )
         mock_log.assert_called_once_with(
             "Multiple planes not handled in metadata collection. "
