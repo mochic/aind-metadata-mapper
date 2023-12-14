@@ -1,0 +1,109 @@
+Behavior:
+  nidevice: Dev1
+  volume_limit: null
+DetectionOfChange:
+  abort_on_cycle_end: true
+  abort_on_early_response: true
+  auto_reward_volume: 0.005
+  blank_duration_range:
+  - 0.5
+  - 0.5
+  catch_freq: 0.125
+  flash_omit_probability: 0.0
+  initial_blank: 0.0
+  max_trials: -1
+  reward_probability: 1.0
+  safety_timer_padding: 5.0
+  trial_translator: true
+SweepStim:
+  backupdir: null
+  bgcolor: (0,0,0)
+  controlstream: true
+  trigger: null
+  trigger_delay_sec: 0.0
+Sync:
+  acq_on_pulse: null
+  frame_pulse: null
+  sync_sqr: false
+  sync_sqr_color_sequence:
+  - 1
+  - -1
+  sync_sqr_freq: 60
+  sync_sqr_loc:
+  - 0
+  - 0
+  sync_sqr_loc_warp:
+  - 200
+  - 100
+  sync_sqr_size:
+  - 105
+  - 105
+dev_dir: C:/ProgramData/StimulusFiles/dev/
+linux_install_paths:
+  install: ~/.config/AIBS_MPE
+  local_config: config
+  local_log_config: logs
+  python: /opt/mcpython3
+prod_dir: C:/ProgramData/StimulusFiles/prod/
+root_datapath: C:/ProgramData/AIBS_MPE/camstim/
+services:
+  issue_url: http://mpe-redirects/MPETracking
+  log_server: aibspi.corp.alleninstitute.org:9000
+  python_index: http://aibspi:3141/aibs/dev
+  zookeeper: aibspi:2181
+shared:
+  DigitalEncoder:
+    baudrate: 9600
+    counts: 8192.0
+    radius_cm: 16.5
+    serial_device: COM5
+    timeout: 0.5
+    treadmill: false
+  Encoder:
+    analog_encoder: false
+    encodervinchannel: 3
+    encodervsigchannel: 2
+    nidevice: Dev0
+  Licksensing:
+    lick_lines:
+    - - 0
+      - 0
+    nidevice: Dev0
+  Reward:
+    invert_logic: false
+    nidevice: Dev0
+    reward_lines:
+    - - 0
+      - 7
+    - - 2
+      - 0
+    reward_volume: 0.007
+    rewardlimit: null
+  Stim:
+    fps: 60.0
+    monitor_brightness: 37
+    monitor_contrast: 50
+    showmouse: false
+  nidaq:
+    device: Dev1
+    do_open: 1
+    iodaq_port_line_list:
+    - - 0
+      - 7
+    - - 2
+      - 0
+  water_calibration:
+    NP.2-Stim:
+      datetime: 08/02/2023 14:25:17
+      intercept: 0.0009
+      slope: 21.6887
+test: 2
+windows_install_paths:
+  install: C:/ProgramData/AIBS_MPE
+  local_config: config
+  local_log_config: logs
+  python: C:/mcpython3
+zro:
+  pub_port: 5001
+  rep_port: 5000
+  script_rep_port: 12000
