@@ -6,22 +6,29 @@ import pathlib
 import pydantic
 import datetime
 import typing
+import logging
 from xml.etree import ElementTree
 from aind_data_schema.core import rig
+from aind_data_schema.models import devices
 
 from ..core import BaseEtl
 
-from . import mvr, sync, dxdiag, camstim, utils, \
+from . import mvr, sync, dxdiag, camstim, sound_measure, utils, open_ephys, \
     NeuropixelsRigException
+
+
+logger = logging.getLogger(__name__)
 
 
 class RigContext(pydantic.BaseModel):
     
-    current: typing.Optional[dict]
-    mvr_context: typing.Optional[tuple[typing.Any, dict]]
-    sync: typing.Optional[dict]
-    dxdiag: typing.Optional[typing.Any]
-    camstim: typing.Optional[dict]
+    current: typing.Optional[dict]= pydantic.Field(..., )
+    mvr_context: typing.Optional[tuple[typing.Any, dict]] = None
+    sync: typing.Optional[dict] = None
+    dxdiag: typing.Optional[typing.Any] = None
+    camstim: typing.Optional[dict] = None
+    open_ephys: typing.Optional[typing.Any] = None
+    sound_measure: typing.Optional[str] = None
 
 
 class NeuropixelsRigEtl(BaseEtl):
@@ -37,6 +44,9 @@ class NeuropixelsRigEtl(BaseEtl):
         sync_name: str,
         monitor_name: str,
         reward_delivery_name: str,
+        mvr_map: dict[str, str],
+        # hostname_map: dict[str, str],
+        open_ephys_manipulator_serial_numbers: typing.Optional[dict[str, str]] = None,
         modification_date: datetime.date = None,
     ):
         """Class constructor for Neuropixels rig etl class.
@@ -54,6 +64,7 @@ class NeuropixelsRigEtl(BaseEtl):
         self.monitor_name = monitor_name
         self.reward_delivery_name = reward_delivery_name
         self.modification_date = modification_date
+        self.open_ephys_manipulator_serial_numbers = open_ephys_manipulator_serial_numbers
 
     def _extract(self) -> RigContext:
         """Extracts rig-related information from config files.
@@ -62,25 +73,47 @@ class NeuropixelsRigEtl(BaseEtl):
             raise NeuropixelsRigException(
                 "Input source is not a directory. %s" % self.input_source
             )
-        # add logging?
-        return RigContext(
-            current=json.loads(self.current.read_text()),
-            mvr_context=(
-                utils.load_config(self.input_source / "mvr.ini"),
-                json.loads(
-                    (self.input_source / "mvr.mapping.json").read_text()
-                ),
-            ),
-            sync=yaml.safe_load(
-                (self.input_source / "sync.yml").read_text()
-            ),
-            dxdiag=ElementTree.fromstring(
-                (self.input_source / "dxdiag.xml").read_text()
-            ),
-            camstim=yaml.safe_load(
-                (self.input_source / "camstim.yml").read_text()
-            ),
-        )
+
+        rig_context = {
+            "current": json.loads(self.current.read_text()),
+            "mvr_context": None,
+            "sync": None,
+            "dxdiag": None,
+            "camstim": None,
+        }
+        
+        mvr_ini_path = self.input_source / "mvr.ini"
+        mvr_mapping_path = self.input_source / "mvr.mapping.json"
+        if mvr_ini_path.exists() and mvr_mapping_path.exists():
+            rig_context["mvr_context"] = (
+                utils.load_config(mvr_ini_path),
+                json.loads(mvr_mapping_path.read_text()),
+            )
+        
+        sync_path = self.input_source / "sync.yml"
+        if sync_path.exists():
+            rig_context["sync"] = yaml.safe_load(sync_path.read_text())
+
+        dxdiag_path = self.input_source / "dxdiag.xml"
+        if dxdiag_path.exists():
+            rig_context["dxdiag"] = ElementTree.fromstring(
+                dxdiag_path.read_text()
+            )
+        
+        camstim_path = self.input_source / "camstim.yml"
+        if camstim_path.exists():
+            rig_context["camstim"] = yaml.safe_load(camstim_path.read_text())
+
+        open_ephys_path = self.input_source / "open_ephys.settings.xml"
+        if open_ephys_path.exists():
+            rig_context["open_ephys"] = open_ephys_path.read_text()
+
+        sound_measure_paths = self.input_source.glob("soundMeasure*.txt")
+        if len(sound_measure_paths) > 0:
+            rig_context["sound_measure"] = sound_measure_paths[0].read_text()
+        
+
+        return RigContext(**rig_context)
 
     def _transform(self, extracted_source: RigContext) -> rig.Rig:
         """Transforms extracted rig context into aind-data-schema rig.Rig
@@ -96,24 +129,44 @@ class NeuropixelsRigEtl(BaseEtl):
            sync.transform(
                extracted_source.sync,
                extracted_source.current,
-               self.sync_name,
+               "Sync",
            ) 
 
         if extracted_source.dxdiag:
             dxdiag.transform_monitor(
                 extracted_source.dxdiag,
                 extracted_source.current,
-                self.monitor_name,
+                "Stim",
             )
 
         # for NP rigs, reward delivery is <rig_id>-Stim
-        reward_delivery_name = f"{extracted_source.current['rig_id']}-Stim"
+        # reward_delivery_name = f"{extracted_source.current['rig_id']}-Stim"
         if extracted_source.camstim:
             camstim.transform(
                 extracted_source.camstim,
                 extracted_source.current,
-                self.monitor_name,
-                reward_delivery_name,
+                "Stim",
+                f"{extracted_source.current['rig_id']}-Stim",
+            )
+
+        if extracted_source.open_ephys:
+            open_ephys.transform(
+                extracted_source.open_ephys,
+                extracted_source.current,
+                "Open Ephys",
+                self.open_ephys_manipulator_serial_numbers,
+            )
+        
+        if self.open_ephys_manipulator_serial_numbers is not None:
+            open_ephys.transform_manipulators(
+                self.open_ephys_manipulator_serial_numbers
+            )
+
+        if extracted_source.sound_measure:
+            sound_measure.transform(
+                extracted_source.sound_measure,
+                extracted_source.current,
+                'Speaker',
             )
         
         if self.modification_date is not None:
@@ -123,9 +176,4 @@ class NeuropixelsRigEtl(BaseEtl):
             extracted_source.current["modification_date"] = \
                 datetime.date.today()
         
-        print(extracted_source.current["stimulus_devices"])
-        
-        # current = rig.Rig.model_validate(extracted_source.current)
-        current = rig.Rig(**extracted_source.current)
-        print(current.__dict__["stimulus_devices"])
-        return current
+        return rig.Rig(**extracted_source.current)

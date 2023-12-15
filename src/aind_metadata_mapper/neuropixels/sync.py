@@ -12,7 +12,7 @@ def transform(
                 {
                     "channel_name": name,
                     "channel_type": "Digital Input",
-                    "device_name": config["device"],
+                    "device_name": sync_name,
                     "event_based_sampling": False,
                     "channel_index": line,
                     "sample_rate": config["freq"],

@@ -34,18 +34,18 @@
         },
         "registry_identifier": "00bxkz165"
       },
-      "model": null,
+      "model": "PA248",
       "path_to_cad": null,
       "notes": null,
       "refresh_rate": 60,
-      "width": 0,
-      "height": 0,
+      "width": 1920,
+      "height": 1200,
       "size_unit": "pixel",
       "viewing_distance": "10.0",
       "viewing_distance_unit": "centimeter",
       "position": null,
-      "contrast": null,
-      "brightness": null
+      "contrast": 50,
+      "brightness": 37
     },
     {
       "device_type": "Speaker",
@@ -70,7 +70,7 @@
       "camera": {
         "device_type": "Camera",
         "name": "Face forward",
-        "serial_number": null,
+        "serial_number": "50-0536905703",
         "manufacturer": {
           "name": "Allied",
           "abbreviation": null,
@@ -84,8 +84,8 @@
         "computer_name": "127.0.0.1",
         "max_frame_rate": "60",
         "frame_rate_unit": "hertz",
-        "pixel_width": 0,
-        "pixel_height": 0,
+        "pixel_width": 658,
+        "pixel_height": 492,
         "size_unit": "pixel",
         "chroma": "Monochrome",
         "sensor_format": null,
@@ -127,7 +127,7 @@
       "camera": {
         "device_type": "Camera",
         "name": "Behavior",
-        "serial_number": null,
+        "serial_number": "50-0536876074",
         "manufacturer": {
           "name": "Allied",
           "abbreviation": null,
@@ -141,8 +141,8 @@
         "computer_name": "127.0.0.1",
         "max_frame_rate": "60",
         "frame_rate_unit": "hertz",
-        "pixel_width": 0,
-        "pixel_height": 0,
+        "pixel_width": 658,
+        "pixel_height": 492,
         "size_unit": "pixel",
         "chroma": "Monochrome",
         "sensor_format": null,
@@ -181,7 +181,7 @@
       "camera": {
         "device_type": "Camera",
         "name": null,
-        "serial_number": null,
+        "serial_number": "50-0536905703",
         "manufacturer": {
           "name": "Allied",
           "abbreviation": null,
@@ -195,8 +195,8 @@
         "computer_name": "127.0.0.1",
         "max_frame_rate": "60",
         "frame_rate_unit": "hertz",
-        "pixel_width": 0,
-        "pixel_height": 0,
+        "pixel_width": 658,
+        "pixel_height": 492,
         "size_unit": "pixel",
         "chroma": "Monochrome",
         "sensor_format": null,
@@ -548,19 +548,180 @@
       "notes": null,
       "data_interface": "USB",
       "computer_name": "127.0.0.1",
-      "channels": []
+      "channels": [
+        {
+          "channel_name": "barcode_ephys",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 0,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "vsync_stim",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 2,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "stim_photodiode",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 4,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "stim_running",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 5,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "beh_frame_received",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 8,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "eye_frame_received",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 9,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "face_frame_received",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 10,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "stim_running_opto",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 17,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "stim_trial_opto",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 18,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "beh_cam_frame_readout",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 21,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "face_cam_frame_readout",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 22,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "eye_cam_frame_readout",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 25,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "beh_cam_exposing",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 27,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "face_cam_exposing",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 28,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "eye_cam_exposing",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 29,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        },
+        {
+          "channel_name": "lick_sensor",
+          "device_name": "Sync",
+          "channel_type": "Digital Input",
+          "port": null,
+          "channel_index": 31,
+          "sample_rate": "100000.0",
+          "sample_rate_unit": "hertz",
+          "event_based_sampling": false
+        }
+      ]
     }
   ],
   "calibrations": [],
   "ccf_coordinate_transform": null,
   "modalities": [
     {
-      "name": "Behavior videos",
-      "abbreviation": "behavior-videos"
-    },
-    {
       "name": "Trained behavior",
       "abbreviation": "trained-behavior"
+    },
+    {
+      "name": "Behavior videos",
+      "abbreviation": "behavior-videos"
     }
   ],
   "notes": null
