@@ -24,14 +24,17 @@ def transform_probes(config: ElementTree, current: dict) -> dict:
     for element in utils.find_elements(config, "np_probe"):
         probe_name = element.get("custom_probe_name")
         for ephys_assembly in current["ephys_assemblies"]:
-            utils.find_update(
-                ephys_assembly["probes"],
-                filters=[
-                    ("name", probe_name),
-                ],
-                model=element.get("probe_name"),
-                serial_number=element.get("probe_serial_number"),
-            )
+            try:
+                utils.find_update(
+                    ephys_assembly["probes"],
+                    filters=[
+                        ("name", probe_name),
+                    ],
+                    model=element.get("probe_name"),
+                    serial_number=element.get("probe_serial_number"),
+                )
+            except NeuropixelsRigException:
+                pass
 
 
 def transform_manipulators(config: dict, current: dict):

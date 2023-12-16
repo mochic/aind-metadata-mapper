@@ -1,5 +1,4 @@
 import datetime
-# from aind_data_schema import device, rig
 
 from . import NeuropixelsRigException
 
@@ -7,7 +6,12 @@ from . import NeuropixelsRigException
 """
 
 
-def transform(content: str, current: dict, device_name: str) -> None:
+def transform(
+        content: str,
+        calibration_date: datetime.date,
+        device_name: str,
+        current: dict,
+) -> None:
     lines = content.split("\n")
     measurements_header = lines.pop(0)
     expected_measurements_header = "Volume	SPL (dB)"
@@ -21,39 +25,45 @@ def transform(content: str, current: dict, device_name: str) -> None:
         )
 
     measurements = []
-    for _ in range(len(lines)):
-        value = lines.pop(0)
-        if value == "":
+    for idx, line in enumerate(lines):
+        if line == "":
             break
-        parsed = value.strip().split("\t")
+
+        parsed = line.strip().split("\t")
         measurements.append(
             (
                 float(parsed[0]),
                 float(parsed[1]),
             )
         )
-    
-    curve = lines.pop(0).split("Fit params: ")[1]
+    curve = lines[idx + 1].split("Fit params: ")[1]
     curve_parameters = []
-    for parameter_name in ("a", "b", "c"):
+    for param_idx, parameter_name in enumerate(["a", "b", "c"]):
         curve_parameters.append({
             "name": parameter_name,
-            "value": float(lines.pop(0)),
+            "value": float(lines[idx + param_idx + 2]),
         })
-    # replace it if it exists
-    current.calibrations = [
-        calibration if current_calibration.device_name == \
-            calibration.device_name
-        else current_calibration
-        for current_calibration in current.calibrations
-    ]
 
-    # append if not already present
-    filtered = list(filter(
-        lambda current_calibration: current_calibration.device_name == \
-            calibration.device_name,
-        current.calibrations,
-    ))
+    audio_calibration = {
+        "device_name": device_name,
+        "calibration_date": calibration_date,
+        "input": {
+            "raw": content,
+            "measurements": measurements,
+        },
+        "output": {
+            "curve": curve,
+            "parameters": curve_parameters,
+        },
+        "description": (
+            "Volume calibration. Standardizes sound "
+            "pressure to system sound level."
+        ),
+    }
 
-    if len(filtered) < 1:
-         current.calibrations.append(calibration)
+    for calibration in current["calibrations"]:
+        if calibration["device_name"] == device_name:
+            calibration.update(audio_calibration)
+            break
+    else:
+        current["calibrations"].append(audio_calibration)

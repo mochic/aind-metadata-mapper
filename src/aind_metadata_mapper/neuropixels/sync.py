@@ -5,9 +5,13 @@ def transform(
     config: dict,
     current: dict,
     sync_name: str,
+    sync_hostname: str = None,
 ) -> None:
     for daq in current["daqs"]:
         if daq["name"] == sync_name:
+            if sync_hostname:
+                daq["computer_name"] = sync_hostname
+
             daq["channels"] = [
                 {
                     "channel_name": name,

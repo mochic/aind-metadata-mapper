@@ -43,4 +43,4 @@ def find_update(
             }
             break
     else:
-        raise NeuropixelsRigException("Failed to find matching item.")
+        raise NeuropixelsRigException("Failed to find matching item. filters: %s" % filters)

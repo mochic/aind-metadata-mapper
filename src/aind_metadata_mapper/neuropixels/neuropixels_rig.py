@@ -23,12 +23,12 @@ logger = logging.getLogger(__name__)
 class RigContext(pydantic.BaseModel):
     
     current: typing.Optional[dict]= pydantic.Field(..., )
-    mvr_context: typing.Optional[tuple[typing.Any, dict]] = None
+    mvr_context: typing.Optional[tuple[typing.Any, dict, str]] = None
     sync: typing.Optional[dict] = None
     dxdiag: typing.Optional[typing.Any] = None
     camstim: typing.Optional[dict] = None
     open_ephys: typing.Optional[typing.Any] = None
-    sound_measure: typing.Optional[str] = None
+    sound_measure: typing.Optional[tuple[str, datetime.date]] = None
 
 
 class NeuropixelsRigEtl(BaseEtl):
@@ -45,7 +45,8 @@ class NeuropixelsRigEtl(BaseEtl):
         monitor_name: str,
         reward_delivery_name: str,
         mvr_map: dict[str, str],
-        # hostname_map: dict[str, str],
+        cameras_hostname: typing.Optional[str] = None,
+        daq_hostnames: typing.Optional[dict[str, str]] = {},
         open_ephys_manipulator_serial_numbers: typing.Optional[dict[str, str]] = None,
         modification_date: datetime.date = None,
     ):
@@ -64,6 +65,9 @@ class NeuropixelsRigEtl(BaseEtl):
         self.monitor_name = monitor_name
         self.reward_delivery_name = reward_delivery_name
         self.modification_date = modification_date
+        self.mvr_map = mvr_map
+        self.cameras_hostname = cameras_hostname
+        self.daq_hostnames = daq_hostnames
         self.open_ephys_manipulator_serial_numbers = open_ephys_manipulator_serial_numbers
 
     def _extract(self) -> RigContext:
@@ -80,14 +84,16 @@ class NeuropixelsRigEtl(BaseEtl):
             "sync": None,
             "dxdiag": None,
             "camstim": None,
+            "open_ephys": None,
+            "sound_measure": None,
         }
         
         mvr_ini_path = self.input_source / "mvr.ini"
-        mvr_mapping_path = self.input_source / "mvr.mapping.json"
-        if mvr_ini_path.exists() and mvr_mapping_path.exists():
+        if mvr_ini_path.exists() and self.mvr_map and self.cameras_hostname:
             rig_context["mvr_context"] = (
                 utils.load_config(mvr_ini_path),
-                json.loads(mvr_mapping_path.read_text()),
+                self.mvr_map,
+                self.cameras_hostname,
             )
         
         sync_path = self.input_source / "sync.yml"
@@ -106,11 +112,21 @@ class NeuropixelsRigEtl(BaseEtl):
 
         open_ephys_path = self.input_source / "open_ephys.settings.xml"
         if open_ephys_path.exists():
-            rig_context["open_ephys"] = open_ephys_path.read_text()
+            rig_context["open_ephys"] = ElementTree.fromstring(
+                open_ephys_path.read_text()
+            )
 
-        sound_measure_paths = self.input_source.glob("soundMeasure*.txt")
+        sound_measure_paths = list(self.input_source.glob("soundMeasure*.txt"))
         if len(sound_measure_paths) > 0:
-            rig_context["sound_measure"] = sound_measure_paths[0].read_text()
+            sound_measure_path = sound_measure_paths[0]
+            calibration_date = datetime.datetime.strptime(
+                sound_measure_path.name.split("_")[2],
+                "%Y%m%d",
+            ).date()
+            rig_context["sound_measure"] = (
+                sound_measure_paths[0].read_text(),
+                calibration_date,
+            )
         
 
         return RigContext(**rig_context)
@@ -126,11 +142,20 @@ class NeuropixelsRigEtl(BaseEtl):
             )
 
         if extracted_source.sync:
-           sync.transform(
-               extracted_source.sync,
-               extracted_source.current,
-               "Sync",
-           ) 
+            try:
+                sync_hostname = self.daq_hostnames["sync"]
+            except KeyError:
+                sync_hostname = None
+                logger.debug(
+                    "No sync hostname found in daq_hostnames. %s" % 
+                    self.daq_hostnames
+                )
+            sync.transform(
+                extracted_source.sync,
+                extracted_source.current,
+                "Sync",
+                sync_hostname,
+            ) 
 
         if extracted_source.dxdiag:
             dxdiag.transform_monitor(
@@ -149,26 +174,25 @@ class NeuropixelsRigEtl(BaseEtl):
                 f"{extracted_source.current['rig_id']}-Stim",
             )
 
-        if extracted_source.open_ephys:
-            open_ephys.transform(
-                extracted_source.open_ephys,
-                extracted_source.current,
-                "Open Ephys",
-                self.open_ephys_manipulator_serial_numbers,
-            )
-        
-        if self.open_ephys_manipulator_serial_numbers is not None:
-            open_ephys.transform_manipulators(
-                self.open_ephys_manipulator_serial_numbers
-            )
-
         if extracted_source.sound_measure:
             sound_measure.transform(
-                extracted_source.sound_measure,
-                extracted_source.current,
+                *extracted_source.sound_measure,
                 'Speaker',
+                extracted_source.current,
             )
         
+        if extracted_source.open_ephys:
+            open_ephys.transform_probes(
+                extracted_source.open_ephys,
+                extracted_source.current,
+            )
+
+        if self.open_ephys_manipulator_serial_numbers:
+            open_ephys.transform_manipulators(
+                self.open_ephys_manipulator_serial_numbers,
+                extracted_source.current,
+            )
+
         if self.modification_date is not None:
             extracted_source.current["modification_date"] = \
                 self.modification_date

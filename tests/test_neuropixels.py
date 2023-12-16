@@ -54,6 +54,20 @@ class TestRig(unittest.TestCase):
             "Sync",
             "Stim",
             "Reward Delivery: 0",
+            {
+                "Camera 1": "Behavior",
+                "Camera 2": "Eye",
+                "Camera 3": "Face forward",
+            },
+            "localhost",
+            {
+                "Ephys Assembly A": "SN40906",
+                "Ephys Assembly B": "SN40908",
+                "Ephys Assembly C": "SN40907",
+                "Ephys Assembly D": "SN41084",
+                "Ephys Assembly E": "SN40903",
+                "Ephys Assembly F": "SN40902",
+            },
         )
         etl.run_job()
 
@@ -87,20 +101,35 @@ class TestRig(unittest.TestCase):
             "Sync",
             "Stim",
             "Reward Delivery: 0",
+            {
+                "Camera 1": "Behavior",
+                "Camera 2": "Eye",
+                "Camera 3": "Face forward",
+            },
         )
         etl.run_job()
 
         updated = rig.Rig.model_validate_json(
             (self.output_dir_missing_camstim / "rig.json").read_text()
         )
-        # print(self.output_dir_missing_camstim / "rig.json")
+
         expected = rig.Rig.model_validate_json(
             pathlib.Path(
                 "./tests/resources/neuropixels/rig.expected-missing-camstim.json"
             ).read_text()
         )
+        updated_json = json.loads(
+            (self.output_dir_missing_camstim / "rig.json").read_text()
+        )
+        expected_json = json.loads(
+            pathlib.Path(
+                "./tests/resources/neuropixels/rig.expected-missing-camstim.json"
+            ).read_text()
+        )
+        # print(self.output_dir_good / "rig.json")
         expected_json["modification_date"] = updated_json["modification_date"]
-        assert updated == expected
+        expected_json["modification_date"] = updated_json["modification_date"]
+        assert updated_json == expected_json
 
     def setUp(self):
         """Moves required test resources to testing directory.
@@ -110,9 +139,6 @@ class TestRig(unittest.TestCase):
         )
         mvr_path = pathlib.Path(
             "./tests/resources/neuropixels/mvr.ini"
-        )
-        mvr_mapping_path = pathlib.Path(
-            "./tests/resources/neuropixels/mvr.mapping.json"
         )
         sync_path = pathlib.Path(
             "./tests/resources/neuropixels/sync.yml"
@@ -135,7 +161,6 @@ class TestRig(unittest.TestCase):
             setup_neuropixels_etl_dirs(
                 rig_partial_path,
                 mvr_path,
-                mvr_mapping_path,
                 sync_path,
                 dxdiag_path,
                 camstim_path,
@@ -148,7 +173,6 @@ class TestRig(unittest.TestCase):
             setup_neuropixels_etl_dirs(
                 rig_partial_path,
                 mvr_path,
-                mvr_mapping_path,
                 sync_path,
                 dxdiag_path,
             )

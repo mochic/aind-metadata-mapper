@@ -2,7 +2,7 @@
    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/core/rig.py",
    "schema_version": "0.2.0",
    "rig_id": "NP.2",
-   "modification_date": "2023-12-15",
+   "modification_date": "2023-12-16",
    "mouse_platform": {
       "device_type": "Disc",
       "name": null,
@@ -81,7 +81,7 @@
             "path_to_cad": null,
             "notes": null,
             "data_interface": "Ethernet",
-            "computer_name": "127.0.0.1",
+            "computer_name": "localhost",
             "max_frame_rate": "60",
             "frame_rate_unit": "hertz",
             "pixel_width": 658,
@@ -138,7 +138,7 @@
             "path_to_cad": null,
             "notes": null,
             "data_interface": "Ethernet",
-            "computer_name": "127.0.0.1",
+            "computer_name": "localhost",
             "max_frame_rate": "60",
             "frame_rate_unit": "hertz",
             "pixel_width": 658,
@@ -192,7 +192,7 @@
             "path_to_cad": null,
             "notes": null,
             "data_interface": "Ethernet",
-            "computer_name": "127.0.0.1",
+            "computer_name": "localhost",
             "max_frame_rate": "60",
             "frame_rate_unit": "hertz",
             "pixel_width": 658,
@@ -252,9 +252,9 @@
             {
                "device_type": "Ephys probe",
                "name": "ProbeA",
-               "serial_number": null,
+               "serial_number": "19192719051",
                "manufacturer": null,
-               "model": null,
+               "model": "Neuropixels 1.0",
                "path_to_cad": null,
                "notes": null,
                "probe_model": "Neuropixels 1.0",
@@ -283,9 +283,9 @@
             {
                "device_type": "Ephys probe",
                "name": "ProbeB",
-               "serial_number": null,
+               "serial_number": "19192719091",
                "manufacturer": null,
-               "model": null,
+               "model": "Neuropixels 1.0",
                "path_to_cad": null,
                "notes": null,
                "probe_model": "Neuropixels 1.0",
@@ -314,9 +314,9 @@
             {
                "device_type": "Ephys probe",
                "name": "ProbeC",
-               "serial_number": null,
+               "serial_number": "19192719721",
                "manufacturer": null,
-               "model": null,
+               "model": "Neuropixels 1.0",
                "path_to_cad": null,
                "notes": null,
                "probe_model": "Neuropixels 1.0",
@@ -345,9 +345,9 @@
             {
                "device_type": "Ephys probe",
                "name": "ProbeD",
-               "serial_number": null,
+               "serial_number": "18005117641",
                "manufacturer": null,
-               "model": null,
+               "model": "Neuropixels 1.0",
                "path_to_cad": null,
                "notes": null,
                "probe_model": "Neuropixels 1.0",
@@ -376,9 +376,9 @@
             {
                "device_type": "Ephys probe",
                "name": "ProbeE",
-               "serial_number": null,
+               "serial_number": "18005107542",
                "manufacturer": null,
-               "model": null,
+               "model": "Neuropixels 1.0",
                "path_to_cad": null,
                "notes": null,
                "probe_model": "Neuropixels 1.0",
@@ -407,9 +407,9 @@
             {
                "device_type": "Ephys probe",
                "name": "ProbeF",
-               "serial_number": null,
+               "serial_number": "19192719101",
                "manufacturer": null,
-               "model": null,
+               "model": "Neuropixels 1.0",
                "path_to_cad": null,
                "notes": null,
                "probe_model": "Neuropixels 1.0",
@@ -712,16 +712,92 @@
          ]
       }
    ],
-   "calibrations": [],
+   "calibrations": [
+      {
+         "calibration_date": "2023-08-02T14:25:17",
+         "device_name": "NP.2-Stim",
+         "description": "Solenoid water calibration. Standardizes solenoidopen time to volume of water dispensed.",
+         "input": {},
+         "output": {
+            "intercept": 0.0009,
+            "slope": 21.6887
+         },
+         "notes": null
+      },
+      {
+         "calibration_date": "2023-08-17T00:00:00",
+         "device_name": "Speaker",
+         "description": "Volume calibration. Standardizes sound pressure to system sound level.",
+         "input": {
+            "raw": "Volume\tSPL (dB)\n0.0\t54.73212135610404\n0.01\t55.235729111221154\n0.02\t54.69724311630707\n0.04\t55.679285972319775\n0.08\t57.4382139079785\n0.16\t61.05483990182518\n0.32\t66.58699790137238\n0.64\t71.72639547109954\n1.0\t75.47701783631696\n\nFit params: dB = a * (1 - exp(volume * b) + c\n24.118209824021775\n-2.1755631173563135\n53.97457894733683\n",
+            "measurements": [
+               [
+                  0.0,
+                  54.73212135610404
+               ],
+               [
+                  0.01,
+                  55.235729111221154
+               ],
+               [
+                  0.02,
+                  54.69724311630707
+               ],
+               [
+                  0.04,
+                  55.679285972319775
+               ],
+               [
+                  0.08,
+                  57.4382139079785
+               ],
+               [
+                  0.16,
+                  61.05483990182518
+               ],
+               [
+                  0.32,
+                  66.58699790137238
+               ],
+               [
+                  0.64,
+                  71.72639547109954
+               ],
+               [
+                  1.0,
+                  75.47701783631696
+               ]
+            ]
+         },
+         "output": {
+            "curve": "dB = a * (1 - exp(volume * b) + c",
+            "parameters": [
+               {
+                  "name": "a",
+                  "value": 24.118209824021775
+               },
+               {
+                  "name": "b",
+                  "value": -2.1755631173563135
+               },
+               {
+                  "name": "c",
+                  "value": 53.97457894733683
+               }
+            ]
+         },
+         "notes": null
+      }
+   ],
    "ccf_coordinate_transform": null,
    "modalities": [
       {
-         "name": "Behavior videos",
-         "abbreviation": "behavior-videos"
-      },
-      {
          "name": "Trained behavior",
          "abbreviation": "trained-behavior"
+      },
+      {
+         "name": "Behavior videos",
+         "abbreviation": "behavior-videos"
       }
    ],
    "notes": null
