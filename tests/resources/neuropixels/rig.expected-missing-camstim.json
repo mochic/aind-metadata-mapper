@@ -2,7 +2,7 @@
    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/core/rig.py",
    "schema_version": "0.2.0",
    "rig_id": "NP.2",
-   "modification_date": "2023-12-15",
+   "modification_date": "2023-12-17",
    "mouse_platform": {
       "device_type": "Disc",
       "name": null,
@@ -70,7 +70,7 @@
          "camera": {
             "device_type": "Camera",
             "name": "Face forward",
-            "serial_number": "50-0536905703",
+            "serial_number": null,
             "manufacturer": {
                "name": "Allied",
                "abbreviation": null,
@@ -84,8 +84,8 @@
             "computer_name": "127.0.0.1",
             "max_frame_rate": "60",
             "frame_rate_unit": "hertz",
-            "pixel_width": 658,
-            "pixel_height": 492,
+            "pixel_width": 0,
+            "pixel_height": 0,
             "size_unit": "pixel",
             "chroma": "Monochrome",
             "sensor_format": null,
@@ -127,7 +127,7 @@
          "camera": {
             "device_type": "Camera",
             "name": "Behavior",
-            "serial_number": "50-0536876074",
+            "serial_number": null,
             "manufacturer": {
                "name": "Allied",
                "abbreviation": null,
@@ -141,8 +141,8 @@
             "computer_name": "127.0.0.1",
             "max_frame_rate": "60",
             "frame_rate_unit": "hertz",
-            "pixel_width": 658,
-            "pixel_height": 492,
+            "pixel_width": 0,
+            "pixel_height": 0,
             "size_unit": "pixel",
             "chroma": "Monochrome",
             "sensor_format": null,
@@ -181,7 +181,7 @@
          "camera": {
             "device_type": "Camera",
             "name": null,
-            "serial_number": "50-0536905703",
+            "serial_number": null,
             "manufacturer": {
                "name": "Allied",
                "abbreviation": null,
@@ -195,8 +195,8 @@
             "computer_name": "127.0.0.1",
             "max_frame_rate": "60",
             "frame_rate_unit": "hertz",
-            "pixel_width": 658,
-            "pixel_height": 492,
+            "pixel_width": 0,
+            "pixel_height": 0,
             "size_unit": "pixel",
             "chroma": "Monochrome",
             "sensor_format": null,
