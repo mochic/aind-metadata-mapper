@@ -71,25 +71,12 @@ class TestRig(unittest.TestCase):
         )
         etl.run_job()
 
-        # updated = rig.Rig.model_validate_json(
-        #     (self.output_dir_good / "rig.json").read_text()
-        # )
-
-        # expected = rig.Rig.model_validate_json(
-        #     pathlib.Path(
-        #         "./tests/resources/neuropixels/rig.expected.json"
-        #     ).read_text()
-        # )
-        # print(updated.stimulus_devices)
-        # print(expected.stimulus_devices)
-        # print(self.output_dir_good / "rig.json")
         updated_json = json.loads((self.output_dir_good / "rig.json").read_text())
         expected_json = json.loads(
             pathlib.Path(
                 "./tests/resources/neuropixels/rig.expected.json"
             ).read_text()
         )
-        # print(self.output_dir_good / "rig.json")
         expected_json["modification_date"] = updated_json["modification_date"]
         assert updated_json == expected_json
 
@@ -109,15 +96,6 @@ class TestRig(unittest.TestCase):
         )
         etl.run_job()
 
-        # updated = rig.Rig.model_validate_json(
-        #     (self.output_dir_missing_camstim / "rig.json").read_text()
-        # )
-
-        # expected = rig.Rig.model_validate_json(
-        #     pathlib.Path(
-        #         "./tests/resources/neuropixels/rig.expected-missing-camstim.json"
-        #     ).read_text()
-        # )
         updated_json = json.loads(
             (self.output_dir_missing_camstim / "rig.json").read_text()
         )
@@ -126,7 +104,6 @@ class TestRig(unittest.TestCase):
                 "./tests/resources/neuropixels/rig.expected-missing-camstim.json"
             ).read_text()
         )
-        # print(self.output_dir_missing_camstim / "rig.json")
         expected_json["modification_date"] = updated_json["modification_date"]
         expected_json["modification_date"] = updated_json["modification_date"]
         assert updated_json == expected_json
