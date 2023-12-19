@@ -7,27 +7,29 @@ import os
 import re
 import sys
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import datetime
 from os import PathLike
 from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
-from aind_data_schema.session import (
-    Detector,
+
+# from aind_data_schema.models.devices import Detector, Laser
+from aind_data_schema.core.session import (
+    DetectorConfig,
     FieldOfView,
-    Laser,
+    LaserConfig,
     Modality,
     Session,
     Stream,
 )
-from aind_data_schema.stimulus import (
+from aind_data_schema.models.stimulus import (
     PhotoStimulation,
     PhotoStimulationGroup,
     StimulusEpoch,
 )
-from aind_data_schema.utils.units import PowerUnit, SizeUnit
-from pydantic import BaseSettings, Extra
+from aind_data_schema.models.units import PowerUnit, SizeUnit
+from pydantic_settings import BaseSettings
 from ScanImageTiffReader import ScanImageTiffReader
 
 from aind_metadata_mapper.core import BaseEtl
@@ -44,8 +46,12 @@ class UserSettings(BaseSettings):
     session_end_time: datetime
     stream_start_time: datetime
     stream_end_time: datetime
-    stimulus_start_time: time
-    stimulus_end_time: time
+    stimulus_start_time: datetime
+    stimulus_end_time: datetime
+
+    # TODO: Look into whether defaults can be set for these fields
+    mouse_platform_name: str
+    active_mouse_platform: bool
 
     # Data that might change but can have default values
     session_type: str = "BCI"
@@ -79,7 +85,6 @@ class UserSettings(BaseSettings):
     class Config:
         """Config to set env var prefix to BERGAMO"""
 
-        extra = Extra.forbid
         env_prefix = "BERGAMO_"
 
 
@@ -390,12 +395,14 @@ class BergamoEtl(BaseEtl):
         ]
 
         data_stream = Stream(
+            mouse_platform_name=self.user_settings.mouse_platform_name,
+            active_mouse_platform=self.user_settings.active_mouse_platform,
             stream_start_time=self.user_settings.stream_start_time,
             stream_end_time=self.user_settings.stream_end_time,
             stream_modalities=[Modality.POPHYS],
             camera_names=list(self.user_settings.camera_names),
             light_sources=[
-                Laser(
+                LaserConfig(
                     name=self.user_settings.laser_a_name,
                     wavelength=self.user_settings.laser_a_wavelength,
                     wavelength_unit=self.user_settings.laser_a_wavelength_unit,
@@ -406,7 +413,7 @@ class BergamoEtl(BaseEtl):
                 ),
             ],
             detectors=[
-                Detector(
+                DetectorConfig(
                     name=self.user_settings.detector_a_name,
                     exposure_time=self.user_settings.detector_a_exposure_time,
                     trigger_type=self.user_settings.detector_a_trigger_type,

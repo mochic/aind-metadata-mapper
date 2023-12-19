@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Union
 
 from aind_data_schema.base import AindCoreModel
-from pydantic import validate_model
+from pydantic import ValidationError
 
 
 class BaseEtl(ABC):
@@ -84,22 +84,14 @@ class BaseEtl(ABC):
           Contents from the service response.
         """
         try:
-            *_, validation_error = validate_model(
-                model_instance.__class__, model_instance.__dict__
-            )
-            if validation_error:
-                logging.warning(
-                    f"Validation errors were found. This may be due to "
-                    f"mismatched versions or data not found in the "
-                    f"databases. Error: {validation_error}"
-                )
-            else:
-                logging.debug("No validation errors detected.")
-        except AttributeError as e:
+            model_instance.model_validate(model_instance.__dict__)
+            logging.debug("No validation errors detected.")
+        except ValidationError:
             logging.warning(
-                f"An error was detected during the validation check. "
-                f"This may be due to mismatched versions of aind-data-schema "
-                f"from the source and this local package. {repr(e)}"
+                "Validation errors were found. This may be due to "
+                "mismatched versions or data not found in the "
+                "databases.",
+                exc_info=True,
             )
 
     def run_job(self) -> None:
