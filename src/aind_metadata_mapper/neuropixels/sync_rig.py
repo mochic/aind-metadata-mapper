@@ -3,7 +3,7 @@ import typing
 import yaml
 from aind_data_schema.core import rig
 from aind_data_schema.models import devices
-from . import directory_context_rig, utils, NeuropixelsRigException
+from . import directory_context_rig, NeuropixelsRigException
 
 
 class ExtractContext(pydantic.BaseModel):

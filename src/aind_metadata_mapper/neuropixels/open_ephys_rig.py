@@ -37,7 +37,6 @@ class OpenEphysRigEtl(directory_context_rig.DirectoryContextRigEtl):
             )
         )
 
-
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:

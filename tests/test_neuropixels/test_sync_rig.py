@@ -21,7 +21,6 @@ class SyncRigEtl(unittest.TestCase):
         etl.run_job()
 
         updated_json = json.loads((self.output_dir / "rig.json").read_text())
-        print(self.output_dir / "rig.json")
         expected_json = json.loads(
             pathlib.Path(
                 "./tests/resources/neuropixels/sync_rig.expected.json"
@@ -48,4 +47,4 @@ class SyncRigEtl(unittest.TestCase):
     def tearDown(self):
         """Removes test resources and directory.
         """
-        # self._cleanup()
+        self._cleanup()
