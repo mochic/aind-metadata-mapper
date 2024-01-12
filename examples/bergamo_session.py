@@ -34,9 +34,8 @@ etl_job = BergamoEtl(
 
 etl_job.run_job()
 
-# If the headers have already been parsed, it's possible to run the steps
-# individually, although warning messages may appear about accessing protected
-# class methods
+# Below is not normally necessary, but shows how to parse ScanImage header
+# strings manually.
 
 raw_image_info = RawImageInfo(
     # Truncated metadata for readability
