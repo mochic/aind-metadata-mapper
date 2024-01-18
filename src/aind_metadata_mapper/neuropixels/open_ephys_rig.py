@@ -1,9 +1,12 @@
 import pydantic
 import typing
+import logging
 from xml.etree import ElementTree
 from aind_data_schema.core import rig
 from . import directory_context_rig, utils, NeuropixelsRigException
 
+
+logger = logging.getLogger(__name__)
 
 # the format of open_ephys settings.xml will vary based on version
 SUPPORTED_SETTINGS_VERSIONS = (
@@ -44,7 +47,7 @@ class OpenEphysRigEtl(directory_context_rig.DirectoryContextRigEtl):
             extracted_source.settings, "version")
         version = next(version_elements).text
         if version not in SUPPORTED_SETTINGS_VERSIONS:
-            raise NeuropixelsRigException(
+            logger.warn(
                 "Unsupported open ephys settings version: %s. Supported versions: %s"
                 % (version, SUPPORTED_SETTINGS_VERSIONS, )
             )
