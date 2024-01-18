@@ -2,7 +2,7 @@
    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/core/rig.py",
    "schema_version": "0.2.0",
    "rig_id": "NP.2",
-   "modification_date": "2024-01-10",
+   "modification_date": "2024-01-18",
    "mouse_platform": {
       "device_type": "Disc",
       "name": "Disc",
@@ -237,7 +237,7 @@
          "manipulator": {
             "device_type": "Manipulator",
             "name": "Ephys Assembly Manipulator A",
-            "serial_number": null,
+            "serial_number": "SN45356",
             "manufacturer": {
                "name": "New Scale Technologies",
                "abbreviation": null,
@@ -268,7 +268,7 @@
          "manipulator": {
             "device_type": "Manipulator",
             "name": "Ephys Assembly Manipulator B",
-            "serial_number": null,
+            "serial_number": "SN45484",
             "manufacturer": {
                "name": "New Scale Technologies",
                "abbreviation": null,
@@ -299,7 +299,7 @@
          "manipulator": {
             "device_type": "Manipulator",
             "name": "Ephys Assembly Manipulator C",
-            "serial_number": null,
+            "serial_number": "SN45485",
             "manufacturer": {
                "name": "New Scale Technologies",
                "abbreviation": null,
@@ -330,7 +330,7 @@
          "manipulator": {
             "device_type": "Manipulator",
             "name": "Ephys Assembly Manipulator D",
-            "serial_number": null,
+            "serial_number": "SN45359",
             "manufacturer": {
                "name": "New Scale Technologies",
                "abbreviation": null,
@@ -361,7 +361,7 @@
          "manipulator": {
             "device_type": "Manipulator",
             "name": "Ephys Assembly Manipulator E",
-            "serial_number": null,
+            "serial_number": "SN45482",
             "manufacturer": {
                "name": "New Scale Technologies",
                "abbreviation": null,
@@ -392,7 +392,7 @@
          "manipulator": {
             "device_type": "Manipulator",
             "name": "Ephys Assembly Manipulator F",
-            "serial_number": null,
+            "serial_number": "SN45361",
             "manufacturer": {
                "name": "New Scale Technologies",
                "abbreviation": null,

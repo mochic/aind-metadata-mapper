@@ -566,7 +566,7 @@
           "model": null,
           "path_to_cad": null,
           "notes": null,
-          "data_interface": "Coax",
+          "data_interface": "USB",
           "computer_name": "127.0.0.1",
           "channels": [
              {
@@ -617,7 +617,7 @@
           "model": null,
           "path_to_cad": null,
           "notes": null,
-          "data_interface": "Coax",
+          "data_interface": "PCIe",
           "computer_name": "127.0.0.1",
           "channels": [
              {
@@ -696,7 +696,7 @@
     ],
     "calibrations": [
        {
-          "calibration_date": "2024-01-18T12:11:33.425456",
+          "calibration_date": "2024-01-18T13:43:49.507745",
           "device_name": "Speaker",
           "description": "sound_volume = log(1 - ((dB - c) / a)) / b;dB is sound pressure",
           "input": {},
@@ -711,12 +711,12 @@
     "ccf_coordinate_transform": null,
     "modalities": [
        {
-          "name": "Behavior videos",
-          "abbreviation": "behavior-videos"
-       },
-       {
           "name": "Trained behavior",
           "abbreviation": "trained-behavior"
+       },
+       {
+          "name": "Behavior videos",
+          "abbreviation": "behavior-videos"
        }
     ],
     "notes": null

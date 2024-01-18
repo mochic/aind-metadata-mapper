@@ -17,6 +17,14 @@ class TestMvrRigEtl(unittest.TestCase):
             self.output_dir,
             rig_resource_name="rig.partial.json",
             open_ephys_settings_resource_name="settings.xml",
+            probe_manipulator_serial_numbers={
+                'Ephys Assembly A': 'SN45356',
+                'Ephys Assembly B': 'SN45484',
+                'Ephys Assembly C': 'SN45485',
+                'Ephys Assembly D': 'SN45359',
+                'Ephys Assembly E': 'SN45482',
+                'Ephys Assembly F': 'SN45361',
+            },
         )
         etl.run_job()
 
