@@ -62,7 +62,7 @@ class DynamicRoutingTaskRigEtl(directory_context_rig.DirectoryContextRigEtl):
                 name="Behavior",
                 manufacturer=devices.Manufacturer.NATIONAL_INSTRUMENTS,
                 computer_name="127.0.0.1",
-                data_interface=devices.DataInterface.COAX,
+                data_interface=devices.DataInterface.USB,
                 channels=[
                     devices.DAQChannel(
                         device_name="Behavior",
@@ -91,7 +91,7 @@ class DynamicRoutingTaskRigEtl(directory_context_rig.DirectoryContextRigEtl):
                 name="BehaviorSync",
                 manufacturer=devices.Manufacturer.NATIONAL_INSTRUMENTS,
                 computer_name="127.0.0.1",
-                data_interface=devices.DataInterface.COAX,
+                data_interface=devices.DataInterface.PCIE,
                 channels=[
                     devices.DAQChannel(
                         device_name="BehaviorSync",
