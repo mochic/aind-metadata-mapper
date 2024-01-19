@@ -36,12 +36,6 @@ class MvrRigEtl(directory_context_rig.DirectoryContextRigEtl):
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
-        height = int(
-            extracted_source.mvr_config["CAMERA_DEFAULT_CONFIG"]["height"]
-        )
-        width = int(
-            extracted_source.mvr_config["CAMERA_DEFAULT_CONFIG"]["width"]
-        )
 
         for mvr_name, assembly_name in self.mvr_mapping.items():
             try:
@@ -60,9 +54,6 @@ class MvrRigEtl(directory_context_rig.DirectoryContextRigEtl):
                 setter=lambda item, name, value: setattr(item.camera, name, value),
                 computer_name=self.hostname,
                 serial_number=serial_number,
-                pixel_height=height,
-                pixel_width=width,
-                size_unit="pixel",
             )
 
         return super()._transform(extracted_source.current)
