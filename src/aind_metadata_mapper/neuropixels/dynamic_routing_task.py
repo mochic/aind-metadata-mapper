@@ -4,7 +4,6 @@ import h5py
 import logging
 import datetime
 import numpy as np
-import copy
 from aind_data_schema.core import rig
 from aind_data_schema.models import devices
 from . import directory_context_rig
@@ -15,8 +14,12 @@ logger = logging.getLogger(__name__)
 
 class ExtractContext(pydantic.BaseModel):
 
-    current: typing.Any
-    task: typing.Any
+    model_config = {
+        "arbitrary_types_allowed": True,
+    }
+
+    current: rig.Rig
+    task: h5py.File
 
 
 SUPPORTED_VERSIONS = [

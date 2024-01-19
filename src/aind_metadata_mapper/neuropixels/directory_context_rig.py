@@ -52,13 +52,10 @@ class DirectoryContextRigEtl(BaseEtl):
             raise NeuropixelsRigException(
                 "Input source is not a directory. %s" % self.input_source
             )
-        
-        # return rig.Rig.model_construct(
-        #     **json.loads(
-        #         (self.input_source / self.rig_resource_name).read_text()
-        #     )
-        # )
     
+        # return rig.Rig.model_validate_json(
+        #     self.input_source.read_text()
+        # )
         return rig.Rig.model_validate_json(
             (self.input_source / self.rig_resource_name).read_text()
         )

@@ -7,8 +7,12 @@ from . import directory_context_rig, utils, NeuropixelsRigException
 
 class ExtractContext(pydantic.BaseModel):
 
-    current: typing.Any
-    mvr_config: typing.Any
+    model_config = {
+        "arbitrary_types_allowed": True,
+    }
+
+    current: rig.Rig
+    mvr_config: ConfigParser
 
 
 class MvrRigEtl(directory_context_rig.DirectoryContextRigEtl):

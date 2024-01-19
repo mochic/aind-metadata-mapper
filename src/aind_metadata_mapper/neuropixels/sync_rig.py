@@ -1,5 +1,4 @@
 import pydantic
-import typing
 import yaml
 from aind_data_schema.core import rig
 from aind_data_schema.models import devices
@@ -8,8 +7,8 @@ from . import directory_context_rig, NeuropixelsRigException
 
 class ExtractContext(pydantic.BaseModel):
 
-    current: typing.Any
-    config: typing.Any
+    current: rig.Rig
+    config: dict
 
 
 class SyncRigEtl(directory_context_rig.DirectoryContextRigEtl):

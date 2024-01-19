@@ -17,8 +17,12 @@ SUPPORTED_SETTINGS_VERSIONS = (
 
 class ExtractContext(pydantic.BaseModel):
 
-    current: typing.Any
-    settings: typing.Any
+    model_config = {
+        "arbitrary_types_allowed": True,
+    }
+
+    current: rig.Rig
+    settings: ElementTree
 
 
 class OpenEphysRigEtl(directory_context_rig.DirectoryContextRigEtl):
