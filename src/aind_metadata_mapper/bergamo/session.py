@@ -13,8 +13,6 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
-
-# from aind_data_schema.models.devices import Detector, Laser
 from aind_data_schema.core.session import (
     DetectorConfig,
     FieldOfView,
@@ -103,7 +101,7 @@ class ParsedMetadata:
 
     metadata: dict
     roi_data: dict
-    roi_metadata: dict
+    roi_metadata: List[dict]
     frame_rate: str
     num_planes: int
     shape: List[int]
