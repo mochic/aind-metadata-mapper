@@ -1,45 +1,45 @@
 import pydantic
 import typing
+import pathlib
 from configparser import ConfigParser
 from aind_data_schema.core import rig
-from . import directory_context_rig, utils, NeuropixelsRigException
+from . import neuropixels_rig, utils, NeuropixelsRigException
 
 
-class ExtractContext(pydantic.BaseModel):
+class MvrRigContext(neuropixels_rig.RigContext):
 
     model_config = {
         "arbitrary_types_allowed": True,
     }
 
-    current: rig.Rig
     mvr_config: ConfigParser
 
 
-class MvrRigEtl(directory_context_rig.DirectoryContextRigEtl):
+class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
     def __init__(self, 
             *args,
             hostname: str,
             mvr_mapping: dict[str, str],
-            mvr_resource_name: str = "mvr.ini",
+            mvr_config_source: pathlib.Path,
             **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.hostname = hostname
         self.mvr_mapping = mvr_mapping
-        self.mvr_resource_name = mvr_resource_name
+        self.mvr_config_source = mvr_config_source
 
-    def _extract(self) -> ExtractContext:
-        return ExtractContext(
-            current=super()._extract(),
+    def _extract(self) -> MvrRigContext:
+        return MvrRigContext(
+            current=super()._extract().current,
             mvr_config=utils.load_config(
-                self.input_source / self.mvr_resource_name
+                self.mvr_config_source,
             )
         )
 
     def _transform(
             self,
-            extracted_source: ExtractContext) -> rig.Rig:
+            extracted_source: MvrRigContext) -> rig.Rig:
 
         for mvr_name, assembly_name in self.mvr_mapping.items():
             try:
@@ -60,4 +60,5 @@ class MvrRigEtl(directory_context_rig.DirectoryContextRigEtl):
                 serial_number=serial_number,
             )
 
-        return super()._transform(extracted_source.current)
+        # return super()._transform(extracted_source.current)
+        return super()._transform(extracted_source)

@@ -1,41 +1,39 @@
-import pydantic
 import yaml
+import pathlib
 from aind_data_schema.core import rig
 from aind_data_schema.models import devices
-from . import directory_context_rig, NeuropixelsRigException
+from . import NeuropixelsRigException, neuropixels_rig
 
 
-class ExtractContext(pydantic.BaseModel):
+class SyncRigContext(neuropixels_rig.RigContext):
 
     current: rig.Rig
     config: dict
 
 
-class SyncRigEtl(directory_context_rig.DirectoryContextRigEtl):
+class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
     def __init__(self, 
             *args,
-            config_resource_name: str = "sync.yml",
+            sync_config_source: pathlib.Path,
             sync_daq_name: str = "Sync",
             **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.config_resource_name = \
-            config_resource_name
+        self.sync_config_source = sync_config_source
         self.sync_daq_name = sync_daq_name
 
-    def _extract(self) -> ExtractContext:
-        return ExtractContext(
-            current=super()._extract(),
+    def _extract(self) -> SyncRigContext:
+        return SyncRigContext(
+            current=super()._extract().current,
             config=yaml.safe_load(
-                (self.input_source / self.config_resource_name)
-                    .read_text()
+                self.sync_config_source.read_text()
             )
         )
 
     def _transform(
             self,
-            extracted_source: ExtractContext) -> rig.Rig:
+            extracted_source: SyncRigContext) -> rig.Rig:
         for daq in extracted_source.current.daqs:
             if daq.name == self.sync_daq_name:
                 daq.channels = [
@@ -58,4 +56,5 @@ class SyncRigEtl(directory_context_rig.DirectoryContextRigEtl):
                 self.sync_daq_name
             )
 
-        return super()._transform(extracted_source.current)
+        # return super()._transform(extracted_source.current)
+        return super()._transform(extracted_source)

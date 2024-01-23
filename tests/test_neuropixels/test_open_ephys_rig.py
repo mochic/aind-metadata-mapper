@@ -13,10 +13,13 @@ class TestMvrRigEtl(unittest.TestCase):
 
     def test_etl(self):
         etl = open_ephys_rig.OpenEphysRigEtl(
-            self.input_dir,
+            pathlib.Path(
+                "./tests/resources/neuropixels/rig.partial.json"
+            ),
             self.output_dir,
-            rig_resource_name="rig.partial.json",
-            open_ephys_settings_resource_name="settings.xml",
+            open_ephys_settings_source=pathlib.Path(
+                "./tests/resources/neuropixels/settings.xml"
+            ),
             probe_manipulator_serial_numbers={
                 'Ephys Assembly A': 'SN45356',
                 'Ephys Assembly B': 'SN45484',
@@ -41,19 +44,9 @@ class TestMvrRigEtl(unittest.TestCase):
     def setUp(self):
         """Moves required test resources to testing directory.
         """
-        rig_partial_path = pathlib.Path(
-            "./tests/resources/neuropixels/rig.partial.json"
-        )
-        settings_path = pathlib.Path(
-            "./tests/resources/neuropixels/settings.xml"
-        )
-
         # test directory
         self.input_dir, self.output_dir, self._cleanup = \
-            utils.setup_neuropixels_etl_dirs(
-                rig_partial_path,
-                settings_path,
-            )
+            utils.setup_neuropixels_etl_dirs()
 
     def tearDown(self):
         """Removes test resources and directory.

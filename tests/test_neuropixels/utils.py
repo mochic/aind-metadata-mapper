@@ -2,6 +2,7 @@ import pathlib
 import shutil
 import typing
 import tempfile
+import unittest
 
 
 def setup_neuropixels_etl_dirs(
@@ -35,3 +36,12 @@ def setup_neuropixels_etl_dirs(
         output_dir,
         clean_up,
     )
+
+# class NeuropixelsETLTestCaseBase(unittest.TestCase):
+
+#     def setUp(self) -> None:
+#         return super().setUp()
+    
+#     def tearDown(self) -> None:
+#         return super().tearDown()
+

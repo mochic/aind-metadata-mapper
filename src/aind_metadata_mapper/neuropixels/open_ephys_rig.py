@@ -1,10 +1,9 @@
-import pydantic
 import typing
 import logging
+import pathlib
 from xml.etree import ElementTree
 from aind_data_schema.core import rig
-from aind_data_schema.models import devices
-from . import directory_context_rig, utils, NeuropixelsRigException
+from . import neuropixels_rig, utils, NeuropixelsRigException
 
 
 logger = logging.getLogger(__name__)
@@ -15,41 +14,38 @@ SUPPORTED_SETTINGS_VERSIONS = (
 )
 
 
-class ExtractContext(pydantic.BaseModel):
+class OpenEphysRigContext(neuropixels_rig.RigContext):
 
     model_config = {
         "arbitrary_types_allowed": True,
     }
 
-    current: rig.Rig
     settings: ElementTree
 
 
-class OpenEphysRigEtl(directory_context_rig.DirectoryContextRigEtl):
+class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
     def __init__(self, 
             *args,
-            open_ephys_settings_resource_name: str = "settings.xml",
+            open_ephys_settings_source: pathlib.Path,
             probe_manipulator_serial_numbers: typing.Optional[dict] = None,
             **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.open_ephys_settings_resource_name = \
-            open_ephys_settings_resource_name
+        self.open_ephys_settings_source = open_ephys_settings_source
         self.probe_manipulator_serial_numbers = probe_manipulator_serial_numbers
 
-    def _extract(self) -> ExtractContext:
-        return ExtractContext(
-            current=super()._extract(),
+    def _extract(self) -> OpenEphysRigContext:
+        return OpenEphysRigContext(
+            current=super()._extract().current,
             settings=ElementTree.fromstring(
-                (self.input_source / self.open_ephys_settings_resource_name)
-                    .read_text()
+                self.open_ephys_settings_source.read_text(),
             )
         )
 
     def _transform(
             self,
-            extracted_source: ExtractContext) -> rig.Rig:
+            extracted_source: OpenEphysRigContext) -> rig.Rig:
         version_elements = utils.find_elements(
             extracted_source.settings, "version")
         version = next(version_elements).text
@@ -67,10 +63,7 @@ class OpenEphysRigEtl(directory_context_rig.DirectoryContextRigEtl):
                         self.probe_manipulator_serial_numbers:
                     ephys_assembly.manipulator.serial_number = \
                         self.probe_manipulator_serial_numbers[ephys_assembly.ephys_assembly_name]
-                    # ephys_assembly.manipulator = devices.Manipulator.model_validate_json(
-                    #     ephys_assembly.manipulator.__dict__
-                    # )
-                    
+
                 try:
                     utils.find_update(
                         ephys_assembly.probes,
@@ -84,4 +77,5 @@ class OpenEphysRigEtl(directory_context_rig.DirectoryContextRigEtl):
                 except NeuropixelsRigException:
                     pass
 
-        return super()._transform(extracted_source.current)
+        # return super()._transform(extracted_source.current)
+        return super()._transform(extracted_source)

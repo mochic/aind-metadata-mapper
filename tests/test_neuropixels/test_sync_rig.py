@@ -13,10 +13,13 @@ class SyncRigEtl(unittest.TestCase):
 
     def test_etl(self):
         etl = sync_rig.SyncRigEtl(
-            self.input_dir,
+            pathlib.Path(
+                "./tests/resources/neuropixels/rig.partial.json"
+            ),
             self.output_dir,
-            rig_resource_name="rig.partial.json",
-            config_resource_name="sync.yml",
+            sync_config_source=pathlib.Path(
+                "./tests/resources/neuropixels/sync.yml"
+            ),
         )
         etl.run_job()
 
@@ -35,14 +38,7 @@ class SyncRigEtl(unittest.TestCase):
         """
         # test directory
         self.input_dir, self.output_dir, self._cleanup = \
-            utils.setup_neuropixels_etl_dirs(
-                pathlib.Path(
-                    "./tests/resources/neuropixels/rig.partial.json"
-                ),
-                pathlib.Path(
-                    "./tests/resources/neuropixels/sync.yml"
-                ),
-            )
+            utils.setup_neuropixels_etl_dirs()
 
     def tearDown(self):
         """Removes test resources and directory.

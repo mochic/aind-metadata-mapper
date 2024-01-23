@@ -1,24 +1,22 @@
-import pydantic
-import typing
 import h5py
 import logging
 import datetime
+import pathlib
 import numpy as np
 from aind_data_schema.core import rig
 from aind_data_schema.models import devices
-from . import directory_context_rig
+from . import neuropixels_rig
 
 
 logger = logging.getLogger(__name__)
 
 
-class ExtractContext(pydantic.BaseModel):
+class DynamicRoutingTaskRigContext(neuropixels_rig.RigContext):
 
     model_config = {
         "arbitrary_types_allowed": True,
     }
 
-    current: rig.Rig
     task: h5py.File
 
 
@@ -27,32 +25,32 @@ SUPPORTED_VERSIONS = [
 ]
 
 
-class DynamicRoutingTaskRigEtl(directory_context_rig.DirectoryContextRigEtl):
+class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
     def __init__(self, 
             *args,
-            task_resource_name: str = "DynamicRoutingTask.hdf5",
+            task_source: pathlib.Path,
             monitor_name: str = "Stim",
             speaker_name: str = "Speaker",
             **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.task_resource_name = task_resource_name
+        self.task_source = task_source
         self.monitor_name = monitor_name
         self.speaker_name = speaker_name
 
-    def _extract(self) -> ExtractContext:
-        return ExtractContext(
-            current=super()._extract(),
+    def _extract(self) -> DynamicRoutingTaskRigContext:
+        return DynamicRoutingTaskRigContext(
+            current=super()._extract().current,
             task=h5py.File(
-                self.input_source / self.task_resource_name,
+                self.task_source,
                 "r",
             )
         )
 
     def _transform(
             self,
-            extracted_source: ExtractContext) -> rig.Rig:
+            extracted_source: DynamicRoutingTaskRigContext) -> rig.Rig:
         version = extracted_source.task["githubTaskScript"][()]
         if version not in SUPPORTED_VERSIONS:
             logger.warn(
@@ -198,4 +196,5 @@ class DynamicRoutingTaskRigEtl(directory_context_rig.DirectoryContextRigEtl):
             extracted_source.current.calibrations.append(sound_calibration)
 
         # can't add reward calibration yet, due to aind-data-schema reward delivery bug
-        return super()._transform(extracted_source.current)
+        # return super()._transform(extracted_source.current)
+        return super()._transform(extracted_source)

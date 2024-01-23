@@ -13,15 +13,19 @@ class TestMvrRigEtl(unittest.TestCase):
 
     def test_etl(self):
         etl = mvr_rig.MvrRigEtl(
-            self.input_dir,
+            pathlib.Path(
+                "./tests/resources/neuropixels/rig.partial.json"
+            ),
             self.output_dir,
-            rig_resource_name="rig.partial.json",
             hostname="localhost",
             mvr_mapping={
                 "Camera 1": "Behavior",
                 "Camera 2": "Eye",
                 "Camera 3": "Face forward",
             },
+            mvr_config_source=pathlib.Path(
+                "./tests/resources/neuropixels/mvr.ini"
+            ),
         )
         etl.run_job()
 
@@ -38,19 +42,9 @@ class TestMvrRigEtl(unittest.TestCase):
     def setUp(self):
         """Moves required test resources to testing directory.
         """
-        rig_partial_path = pathlib.Path(
-            "./tests/resources/neuropixels/rig.partial.json"
-        )
-        mvr_path = pathlib.Path(
-            "./tests/resources/neuropixels/mvr.ini"
-        )
-
         # test directory
         self.input_dir, self.output_dir, self._cleanup = \
-            utils.setup_neuropixels_etl_dirs(
-                rig_partial_path,
-                mvr_path,
-            )
+            utils.setup_neuropixels_etl_dirs()
 
     def tearDown(self):
         """Removes test resources and directory.
