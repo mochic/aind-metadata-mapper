@@ -44,3 +44,20 @@ def find_update(
     else:
         raise NeuropixelsRigException("Failed to find matching item. filters: %s" % filters)
     
+
+def find_update(
+    items: typing.Iterable[typing.Any],
+    filters: typing.Iterable[typing.Tuple[str, any]],  # property name, property value
+    setter = lambda item, name, value: setattr(item, name, value),
+    **updates: any,
+) -> None:
+    for idx, item in enumerate(items):
+        if all([
+            getattr(item, prop_name, None) == prop_value
+            for prop_name, prop_value in filters
+        ]):
+            for prop_name, prop_value in updates.items():
+                setter(item, prop_name, prop_value)
+            break
+    else:
+        raise NeuropixelsRigException("Failed to find matching item. filters: %s" % filters)
