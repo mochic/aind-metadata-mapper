@@ -1,11 +1,11 @@
 {
    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/core/rig.py",
    "schema_version": "0.2.0",
-   "rig_id": "NP.2",
-   "modification_date": "2024-01-11",
+   "rig_id": "NP.2_0.1.0",
+   "modification_date": "2024-01-24",
    "mouse_platform": {
       "device_type": "Disc",
-      "name": "Disc",
+      "name": null,
       "serial_number": null,
       "manufacturer": null,
       "model": null,
@@ -34,7 +34,7 @@
             },
             "registry_identifier": "00bxkz165"
          },
-         "model": null,
+         "model": "PA248",
          "path_to_cad": null,
          "notes": null,
          "refresh_rate": 60,
@@ -57,7 +57,7 @@
             "registry": null,
             "registry_identifier": null
          },
-         "model": null,
+         "model": "SPK-I-81345",
          "path_to_cad": null,
          "notes": null,
          "position": null
@@ -77,16 +77,16 @@
                "registry": null,
                "registry_identifier": null
             },
-            "model": null,
+            "model": "G-032",
             "path_to_cad": null,
-            "notes": null,
+            "notes": "Max frame rate is at maximum resolution.",
             "data_interface": "Ethernet",
             "computer_name": "127.0.0.1",
-            "max_frame_rate": "60",
+            "max_frame_rate": "102",
             "frame_rate_unit": "hertz",
-            "pixel_width": 0,
-            "pixel_height": 0,
-            "size_unit": "pixel",
+            "pixel_width": 7400,
+            "pixel_height": 7400,
+            "size_unit": "nanometer",
             "chroma": "Monochrome",
             "sensor_format": null,
             "format_unit": null,
@@ -96,7 +96,7 @@
          },
          "lens": {
             "device_type": "Lens",
-            "name": "Face forward lens",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "Edmund Optics",
@@ -107,9 +107,9 @@
                },
                "registry_identifier": "01j1gwp17"
             },
-            "model": null,
+            "model": "86604",
             "path_to_cad": null,
-            "notes": "Serial # or model # is 86604.",
+            "notes": null,
             "focal_length": "8.5",
             "focal_length_unit": "millimeter",
             "size": null,
@@ -118,7 +118,33 @@
             "wavelength_unit": "nanometer",
             "max_aperture": null
          },
-         "filter": null,
+         "filter": {
+            "device_type": "Filter",
+            "name": null,
+            "serial_number": null,
+            "manufacturer": {
+               "name": "Semrock",
+               "abbreviation": null,
+               "registry": null,
+               "registry_identifier": null
+            },
+            "model": "FF01-715_LP-25",
+            "path_to_cad": null,
+            "notes": null,
+            "filter_type": "Band pass",
+            "diameter": null,
+            "width": null,
+            "height": null,
+            "size_unit": "millimeter",
+            "thickness": null,
+            "thickness_unit": "millimeter",
+            "filter_wheel_index": null,
+            "cut_off_wavelength": null,
+            "cut_on_wavelength": null,
+            "center_wavelength": null,
+            "wavelength_unit": "nanometer",
+            "description": null
+         },
          "position": null
       },
       {
@@ -134,16 +160,16 @@
                "registry": null,
                "registry_identifier": null
             },
-            "model": null,
+            "model": "G-032",
             "path_to_cad": null,
-            "notes": null,
+            "notes": "Max frame rate is at maximum resolution.",
             "data_interface": "Ethernet",
             "computer_name": "127.0.0.1",
-            "max_frame_rate": "60",
+            "max_frame_rate": "102",
             "frame_rate_unit": "hertz",
-            "pixel_width": 0,
-            "pixel_height": 0,
-            "size_unit": "pixel",
+            "pixel_width": 7400,
+            "pixel_height": 7400,
+            "size_unit": "nanometer",
             "chroma": "Monochrome",
             "sensor_format": null,
             "format_unit": null,
@@ -153,7 +179,7 @@
          },
          "lens": {
             "device_type": "Lens",
-            "name": "Behavior lens",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "Navitar",
@@ -172,7 +198,33 @@
             "wavelength_unit": "nanometer",
             "max_aperture": null
          },
-         "filter": null,
+         "filter": {
+            "device_type": "Filter",
+            "name": null,
+            "serial_number": null,
+            "manufacturer": {
+               "name": "Semrock",
+               "abbreviation": null,
+               "registry": null,
+               "registry_identifier": null
+            },
+            "model": "FF01-747/33-25",
+            "path_to_cad": null,
+            "notes": null,
+            "filter_type": "Band pass",
+            "diameter": null,
+            "width": null,
+            "height": null,
+            "size_unit": "millimeter",
+            "thickness": null,
+            "thickness_unit": "millimeter",
+            "filter_wheel_index": null,
+            "cut_off_wavelength": null,
+            "cut_on_wavelength": null,
+            "center_wavelength": null,
+            "wavelength_unit": "nanometer",
+            "description": null
+         },
          "position": null
       },
       {
@@ -180,7 +232,7 @@
          "camera_target": "Eye",
          "camera": {
             "device_type": "Camera",
-            "name": "Eye",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "Allied",
@@ -188,16 +240,16 @@
                "registry": null,
                "registry_identifier": null
             },
-            "model": null,
+            "model": "G-032",
             "path_to_cad": null,
-            "notes": null,
+            "notes": "Max frame rate is at maximum resolution.",
             "data_interface": "Ethernet",
             "computer_name": "127.0.0.1",
-            "max_frame_rate": "60",
+            "max_frame_rate": "102",
             "frame_rate_unit": "hertz",
-            "pixel_width": 0,
-            "pixel_height": 0,
-            "size_unit": "pixel",
+            "pixel_width": 7400,
+            "pixel_height": 7400,
+            "size_unit": "nanometer",
             "chroma": "Monochrome",
             "sensor_format": null,
             "format_unit": null,
@@ -207,7 +259,7 @@
          },
          "lens": {
             "device_type": "Lens",
-            "name": "Eye lens",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "Infinity Photo-Optical",
@@ -215,9 +267,9 @@
                "registry": null,
                "registry_identifier": null
             },
-            "model": null,
+            "model": "213073",
             "path_to_cad": null,
-            "notes": null,
+            "notes": "Model number is SKU.",
             "focal_length": "6.0",
             "focal_length_unit": "millimeter",
             "size": null,
@@ -226,7 +278,33 @@
             "wavelength_unit": "nanometer",
             "max_aperture": null
          },
-         "filter": null,
+         "filter": {
+            "device_type": "Filter",
+            "name": null,
+            "serial_number": null,
+            "manufacturer": {
+               "name": "Semrock",
+               "abbreviation": null,
+               "registry": null,
+               "registry_identifier": null
+            },
+            "model": "FF01-850/10-25",
+            "path_to_cad": null,
+            "notes": null,
+            "filter_type": "Band pass",
+            "diameter": null,
+            "width": null,
+            "height": null,
+            "size_unit": "millimeter",
+            "thickness": null,
+            "thickness_unit": "millimeter",
+            "filter_wheel_index": null,
+            "cut_off_wavelength": null,
+            "cut_on_wavelength": null,
+            "center_wavelength": null,
+            "wavelength_unit": "nanometer",
+            "description": null
+         },
          "position": null
       }
    ],
@@ -236,7 +314,7 @@
          "ephys_assembly_name": "Ephys Assembly A",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": "Ephys Assembly Manipulator A",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -267,7 +345,7 @@
          "ephys_assembly_name": "Ephys Assembly B",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": "Ephys Assembly Manipulator B",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -298,7 +376,7 @@
          "ephys_assembly_name": "Ephys Assembly C",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": "Ephys Assembly Manipulator C",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -329,7 +407,7 @@
          "ephys_assembly_name": "Ephys Assembly D",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": "Ephys Assembly Manipulator D",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -360,7 +438,7 @@
          "ephys_assembly_name": "Ephys Assembly E",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": "Ephys Assembly Manipulator E",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -391,7 +469,7 @@
          "ephys_assembly_name": "Ephys Assembly F",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": "Ephys Assembly Manipulator F",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -426,7 +504,7 @@
          "laser_assembly_name": "Laser Assembly #0",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": "Laser Assembly Manipulator #0",
+            "name": null,
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -441,7 +519,7 @@
          "lasers": [
             {
                "device_type": "Laser",
-               "name": "Laser",
+               "name": "Laser #0",
                "serial_number": null,
                "manufacturer": {
                   "name": "Vortran",
@@ -449,7 +527,7 @@
                   "registry": null,
                   "registry_identifier": null
                },
-               "model": null,
+               "model": "Stradus 488-50",
                "path_to_cad": null,
                "notes": null,
                "wavelength": 488,
@@ -463,7 +541,7 @@
             },
             {
                "device_type": "Laser",
-               "name": "Laser",
+               "name": "Laser #1",
                "serial_number": null,
                "manufacturer": {
                   "name": "Vortran",
@@ -471,7 +549,7 @@
                   "registry": null,
                   "registry_identifier": null
                },
-               "model": null,
+               "model": "Stradus 633-80",
                "path_to_cad": null,
                "notes": null,
                "wavelength": 633,
@@ -490,7 +568,7 @@
    "light_sources": [
       {
          "device_type": "Light emitting diode",
-         "name": "LED #0",
+         "name": "Face forward LED",
          "serial_number": null,
          "manufacturer": {
             "name": "Other",
@@ -498,15 +576,15 @@
             "registry": null,
             "registry_identifier": null
          },
-         "model": null,
+         "model": "Osram-LZ4-40R308-0000",
          "path_to_cad": null,
-         "notes": "The wavelength value for this LED is unknown and is a placeholder.",
-         "wavelength": 1,
+         "notes": null,
+         "wavelength": 740,
          "wavelength_unit": "nanometer"
       },
       {
          "device_type": "Light emitting diode",
-         "name": "LED #1",
+         "name": "Body LED",
          "serial_number": null,
          "manufacturer": {
             "name": "Other",
@@ -514,14 +592,96 @@
             "registry": null,
             "registry_identifier": null
          },
-         "model": null,
+         "model": "Osram-LZ4-40R308-0000",
          "path_to_cad": null,
-         "notes": "The wavelength value for this LED is unknown and is a placeholder.",
-         "wavelength": 800,
+         "notes": null,
+         "wavelength": 740,
+         "wavelength_unit": "nanometer"
+      },
+      {
+         "device_type": "Light emitting diode",
+         "name": "Eye LED",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "Other",
+            "abbreviation": null,
+            "registry": null,
+            "registry_identifier": null
+         },
+         "model": "LED_Engin_Inc_LZ4-40R608-0000",
+         "path_to_cad": null,
+         "notes": null,
+         "wavelength": 850,
          "wavelength_unit": "nanometer"
       }
    ],
-   "detectors": [],
+   "detectors": [
+      {
+         "device_type": "Detector",
+         "name": "vsync photodiode",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "Thorlabs",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "04gsnvb07"
+         },
+         "model": "PDA25K",
+         "path_to_cad": null,
+         "notes": "Data interface is a placeholder. TODO: Add relative position on monitor?",
+         "detector_type": "other",
+         "data_interface": "USB",
+         "cooling": "air",
+         "immersion": null,
+         "chroma": null,
+         "sensor_width": null,
+         "sensor_height": null,
+         "size_unit": "pixel",
+         "bit_depth": null,
+         "bin_mode": "none",
+         "bin_width": null,
+         "bin_height": null,
+         "bin_unit": "pixel",
+         "gain": null,
+         "crop_width": null,
+         "crop_height": null,
+         "crop_unit": "pixel"
+      },
+      {
+         "device_type": "Detector",
+         "name": "microphone",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "Allied",
+            "abbreviation": null,
+            "registry": null,
+            "registry_identifier": null
+         },
+         "model": "MOM",
+         "path_to_cad": null,
+         "notes": "Data interface is a placeholder. Actual manufacturer is Dodotronics. Model number is SVC.",
+         "detector_type": "other",
+         "data_interface": "USB",
+         "cooling": "air",
+         "immersion": null,
+         "chroma": null,
+         "sensor_width": null,
+         "sensor_height": null,
+         "size_unit": "pixel",
+         "bit_depth": null,
+         "bin_mode": "none",
+         "bin_width": null,
+         "bin_height": null,
+         "bin_unit": "pixel",
+         "gain": null,
+         "crop_width": null,
+         "crop_height": null,
+         "crop_unit": "pixel"
+      }
+   ],
    "objectives": [],
    "filters": [],
    "lenses": [],
@@ -543,10 +703,10 @@
             },
             "registry_identifier": "026exqw73"
          },
-         "model": null,
+         "model": "NI-6682",
          "path_to_cad": null,
          "notes": null,
-         "data_interface": "USB",
+         "data_interface": "PCIe",
          "computer_name": "127.0.0.1",
          "channels": [
             {
@@ -710,6 +870,66 @@
                "event_based_sampling": false
             }
          ]
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "Behavior",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": "NI-6321",
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "USB",
+         "computer_name": "127.0.0.1",
+         "channels": []
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "BehaviorSync",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": "NI-6001",
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "PCIe",
+         "computer_name": "127.0.0.1",
+         "channels": []
+      },
+      {
+         "device_type": "DAQ Device",
+         "name": "Opto",
+         "serial_number": null,
+         "manufacturer": {
+            "name": "National Instruments",
+            "abbreviation": null,
+            "registry": {
+               "name": "Research Organization Registry",
+               "abbreviation": "ROR"
+            },
+            "registry_identifier": "026exqw73"
+         },
+         "model": "NI-9264",
+         "path_to_cad": null,
+         "notes": null,
+         "data_interface": "Ethernet",
+         "computer_name": "127.0.0.1",
+         "channels": []
       }
    ],
    "calibrations": [],

@@ -31,12 +31,18 @@ class DynamicRoutingTaskRigEtl(directory_context_rig.DirectoryContextRigEtl):
             task_resource_name: str = "DynamicRoutingTask.hdf5",
             monitor_name: str = "Stim",
             speaker_name: str = "Speaker",
+            behavior_daq_name: str = "Behavior",
+            behavior_sync_daq_name: str = "BehaviorSync",
+            opto_daq_name: str = "Opto",
             **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.task_resource_name = task_resource_name
         self.monitor_name = monitor_name
         self.speaker_name = speaker_name
+        self.behavior_daq_name = behavior_daq_name
+        self.behavior_sync_daq_name = behavior_sync_daq_name
+        self.opto_daq_name = opto_daq_name
 
     def _extract(self) -> ExtractContext:
         return ExtractContext(
@@ -57,78 +63,59 @@ class DynamicRoutingTaskRigEtl(directory_context_rig.DirectoryContextRigEtl):
             )
 
         # find replace
-        daqs = [
-            devices.DAQDevice(
-                name="Behavior",
-                manufacturer=devices.Manufacturer.NATIONAL_INSTRUMENTS,
-                computer_name="127.0.0.1",
-                data_interface=devices.DataInterface.USB,
-                channels=[
-                    devices.DAQChannel(
-                        device_name="Behavior",
-                        channel_name="solenoid",
-                        channel_type=devices.DaqChannelType.DO,
-                        port=extracted_source.task["rewardLine"][0],
-                        channel_index=extracted_source.task["rewardLine"][1],
-                    ),
-                    devices.DAQChannel(
-                        device_name="Behavior",
-                        channel_name="reward_sound",
-                        channel_type=devices.DaqChannelType.DO,
-                        port=extracted_source.task["rewardSoundLine"][0],
-                        channel_index=extracted_source.task["rewardSoundLine"][1],
-                    ),
-                    devices.DAQChannel(
-                        device_name="Behavior",
-                        channel_name="lick",
-                        channel_type=devices.DaqChannelType.DI,
-                        port=extracted_source.task["lickLine"][0],
-                        channel_index=extracted_source.task["lickLine"][1],
-                    ),
-                ]
+        behavior_daq_channels = [
+            devices.DAQChannel(
+                device_name="Behavior",
+                channel_name="solenoid",
+                channel_type=devices.DaqChannelType.DO,
+                port=extracted_source.task["rewardLine"][0],
+                channel_index=extracted_source.task["rewardLine"][1],
             ),
-            devices.DAQDevice(
-                name="BehaviorSync",
-                manufacturer=devices.Manufacturer.NATIONAL_INSTRUMENTS,
-                computer_name="127.0.0.1",
-                data_interface=devices.DataInterface.PCIE,
-                channels=[
-                    devices.DAQChannel(
-                        device_name="BehaviorSync",
-                        channel_name="frame_received",
-                        channel_type=devices.DaqChannelType.DO,
-                        port=extracted_source.task["frameSignalLine"][0],
-                        channel_index=extracted_source.task["frameSignalLine"][1],
-                    ),
-                    devices.DAQChannel(
-                        device_name="BehaviorSync",
-                        channel_name="acquisition",
-                        channel_type=devices.DaqChannelType.DO,
-                        port=extracted_source.task["acquisitionSignalLine"][0],
-                        channel_index=extracted_source.task["acquisitionSignalLine"][1],
-                    ),
-                ]
+            devices.DAQChannel(
+                device_name="Behavior",
+                channel_name="reward_sound",
+                channel_type=devices.DaqChannelType.DO,
+                port=extracted_source.task["rewardSoundLine"][0],
+                channel_index=extracted_source.task["rewardSoundLine"][1],
+            ),
+            devices.DAQChannel(
+                device_name="Behavior",
+                channel_name="lick",
+                channel_type=devices.DaqChannelType.DI,
+                port=extracted_source.task["lickLine"][0],
+                channel_index=extracted_source.task["lickLine"][1],
             ),
         ]
 
-        opto_channels = extracted_source.task["optoChannels"]
-        if opto_channels:
+        behavior_sync_daq_channels = [
+            devices.DAQChannel(
+                device_name="BehaviorSync",
+                channel_name="stim_frame",
+                channel_type=devices.DaqChannelType.DO,
+                port=extracted_source.task["frameSignalLine"][0],
+                channel_index=extracted_source.task["frameSignalLine"][1],
+            ),
+            devices.DAQChannel(
+                device_name="BehaviorSync",
+                channel_name="stim_running",
+                channel_type=devices.DaqChannelType.DO,
+                port=extracted_source.task["acquisitionSignalLine"][0],
+                channel_index=extracted_source.task["acquisitionSignalLine"][1],
+            ),
+        ]
+
+        task_opto_channels = extracted_source.task["optoChannels"]
+        opto_daq_channels = []
+        if task_opto_channels:
             opto_daq_device_name = "Opto"
-            opto_daq = devices.DAQDevice(
-                name=opto_daq_device_name,
-                manufacturer=devices.Manufacturer.NATIONAL_INSTRUMENTS,
-                computer_name="127.0.0.1",
-                data_interface=devices.DataInterface.ETH,
-                channels=[],
-            )
             channels = [
-                ch for dev in opto_channels
-                for ch in opto_channels[dev]
+                ch for dev in task_opto_channels
+                for ch in task_opto_channels[dev]
                 if not np.isnan(ch)
             ]
             sample_rate = float(extracted_source.task["optoSampleRate"][()])
             for idx, channel in enumerate(range(max(channels))):
-                opto_daq.channels.append(
+                opto_daq_channels.append(
                     devices.DAQChannel(
                         device_name=opto_daq_device_name,
                         channel_name=f"{opto_daq_device_name} #{idx}",
@@ -138,14 +125,17 @@ class DynamicRoutingTaskRigEtl(directory_context_rig.DirectoryContextRigEtl):
                         sample_rate=sample_rate,
                     )
                 )
-            daqs.append(opto_daq)
 
         # find replace daqs
-        for idx, current_daq in enumerate(extracted_source.current.daqs):
-            for d_idx, daq in enumerate(daqs):
-                if daq.name == current_daq.name:
-                    extracted_source.current.daqs[idx] = daqs.pop(d_idx)
-        extracted_source.current.daqs.extend(daqs)  # append daqs that werent already present 
+        for idx, daq in enumerate(extracted_source.current.daqs):
+            if daq.name == self.opto_daq_name:
+                daq.channels.extend(opto_daq_channels)
+            elif daq.name == self.behavior_daq_name:
+                daq.channels.extend(behavior_daq_channels)
+            elif daq.name == self.behavior_sync_daq_name:
+                daq.channels.extend(behavior_sync_daq_channels)
+            else:
+                pass 
 
         for idx, device in enumerate(extracted_source.current.stimulus_devices):
             if device.name == "Stim" and device.device_type == "Monitor":
