@@ -194,6 +194,7 @@ class FIBEtl(BaseEtl):
             notes=notes,
             data_streams=data_stream,
         )
+
         return ophys_session
 
     def _extract(self) -> ParsedInformation:
