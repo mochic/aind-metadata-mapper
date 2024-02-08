@@ -53,7 +53,7 @@ class TestSchemaWriter(unittest.TestCase):
                     "module_angle": -180.0,
                     "angle_unit": "degrees",
                     "notes": "Did not record arc or module angles, "
-                             "did not calibrate",
+                    "did not calibrate",
                 },
                 {
                     "assembly_name": "22437106",
@@ -61,7 +61,7 @@ class TestSchemaWriter(unittest.TestCase):
                     "module_angle": -180.0,
                     "angle_unit": "degrees",
                     "notes": "Did not record arc or module angles, "
-                             "did not calibrate",
+                    "did not calibrate",
                 },
                 {
                     "assembly_name": "22437107",
@@ -69,7 +69,7 @@ class TestSchemaWriter(unittest.TestCase):
                     "module_angle": -180.0,
                     "angle_unit": "degrees",
                     "notes": "Did not record arc or module angles, "
-                             "did not calibrate",
+                    "did not calibrate",
                 },
                 {
                     "assembly_name": "22438379",
@@ -77,7 +77,7 @@ class TestSchemaWriter(unittest.TestCase):
                     "module_angle": -180.0,
                     "angle_unit": "degrees",
                     "notes": "Did not record arc or module angles, "
-                             "did not calibrate",
+                    "did not calibrate",
                 },
             ],
             "daqs": "Basestation",
@@ -89,12 +89,11 @@ class TestSchemaWriter(unittest.TestCase):
                         "arc_angle": 5.3,
                         "module_angle": -27.1,
                         "angle_unit": "degrees",
-                        "coordinate_transform":
-                            "behavior/"
-                            "calibration_info_np2_2024_01_17T15_04_00.npy",
+                        "coordinate_transform": "behavior/"
+                        "calibration_info_np2_2024_01_17T15_04_00.npy",
                         "calibration_date": "2024-01-17T15:04:00+00:00",
                         "notes": "Easy insertion. Recorded 8 minutes, "
-                                 "serially, so separate from prior insertion.",
+                        "serially, so separate from prior insertion.",
                         "primary_targeted_structure": "AntComMid",
                         "targeted_ccf_coordinates": [
                             {
@@ -110,12 +109,11 @@ class TestSchemaWriter(unittest.TestCase):
                         "arc_angle": 14,
                         "module_angle": 20,
                         "angle_unit": "degrees",
-                        "coordinate_transform":
-                            "behavior/"
-                            "calibration_info_np2_2024_01_17T15_04_00.npy",
+                        "coordinate_transform": "behavior/"
+                        "calibration_info_np2_2024_01_17T15_04_00.npy",
                         "calibration_date": "2024-01-17T15:04:00+00:00",
                         "notes": "Easy insertion. Recorded 8 minutes, "
-                                 "serially, so separate from prior insertion.",
+                        "serially, so separate from prior insertion.",
                         "primary_targeted_structure": "VISp",
                         "targeted_ccf_coordinates": [
                             {
@@ -137,12 +135,11 @@ class TestSchemaWriter(unittest.TestCase):
                         "arc_angle": 5.3,
                         "module_angle": -27.1,
                         "angle_unit": "degrees",
-                        "coordinate_transform":
-                            "behavior/"
-                            "calibration_info_np2_2024_01_17T15_04_00.npy",
+                        "coordinate_transform": "behavior/"
+                        "calibration_info_np2_2024_01_17T15_04_00.npy",
                         "calibration_date": "2024-01-17T15:04:00+00:00",
                         "notes": "Easy insertion. Recorded 8 minutes, "
-                                 "serially, so separate from prior insertion.",
+                        "serially, so separate from prior insertion.",
                         "primary_targeted_structure": "AntComMid",
                         "targeted_ccf_coordinates": [
                             {
@@ -158,12 +155,11 @@ class TestSchemaWriter(unittest.TestCase):
                         "arc_angle": 14,
                         "module_angle": 20,
                         "angle_unit": "degrees",
-                        "coordinate_transform":
-                            "behavior/"
-                            "calibration_info_np2_2024_01_17T15_04_00.npy",
+                        "coordinate_transform": "behavior/"
+                        "calibration_info_np2_2024_01_17T15_04_00.npy",
                         "calibration_date": "2024-01-17T15:04:00+00:00",
                         "notes": "Easy insertion. Recorded 8 minutes, "
-                                 "serially, so separate from prior insertion.",
+                        "serially, so separate from prior insertion.",
                         "primary_targeted_structure": "VISp",
                         "targeted_ccf_coordinates": [
                             {
