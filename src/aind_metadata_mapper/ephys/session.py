@@ -139,6 +139,9 @@ class EphysEtl(BaseEtl):
             for x in stage_logs
         ]
         ephys_session["session_end_time"] = max(end_times)
+        session = Session(**ephys_session)
+        session.write_standard_file(prefix = 'ephys')
+
         return Session(**ephys_session)
 
     def _extract(self) -> ParsedInformation:

@@ -1,11 +1,12 @@
 {
    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/core/session.py",
-   "schema_version": "0.1.0",
+   "schema_version": "0.1.5",
+   "protocol_id": [],
    "experimenter_full_name": [
       "Al Dente"
    ],
    "session_start_time": "2023-04-04T10:37:28",
-   "session_end_time": "2024-01-18T12:20:49Z",
+   "session_end_time": "2023-04-06T13:47:57.558000",
    "session_type": "Receptive field mapping",
    "iacuc_protocol": "2109",
    "rig_id": "323_EPHYS2-RF_2024-01-18_01",
