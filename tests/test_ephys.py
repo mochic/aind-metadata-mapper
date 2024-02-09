@@ -8,7 +8,6 @@ from pathlib import Path
 from xml.dom import minidom
 
 from aind_data_schema.core.session import Session
-from aind_data_schema.models.modalities import Modality
 
 from aind_metadata_mapper.ephys.session import EphysEtl
 
@@ -36,7 +35,6 @@ class TestSchemaWriter(unittest.TestCase):
         # TODO: Add visual stimulus
         cls.experiment_data = {
             "experimenter_full_name": ["Al Dente"],
-            "session_end_time": "2024-01-18T12:20:49+00:00",
             "subject_id": "699889",
             "session_type": "Receptive field mapping",
             "iacuc_protocol": "2109",
@@ -127,7 +125,6 @@ class TestSchemaWriter(unittest.TestCase):
                     },
                     "mouse_platform_name": "Running Wheel",
                     "active_mouse_platform": False,
-                    "stream_modalities": [Modality.ECEPHYS],
                     "notes": "699889_2024-01-18_12-12-04",
                 },
                 {
@@ -173,7 +170,6 @@ class TestSchemaWriter(unittest.TestCase):
                     },
                     "mouse_platform_name": "Running Wheel",
                     "active_mouse_platform": False,
-                    "stream_modalities": [Modality.ECEPHYS],
                     "notes": "699889_2024-01-18_12-24-55; Surface Finding",
                 },
             ],

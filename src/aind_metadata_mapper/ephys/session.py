@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from aind_data_schema.core.session import Session
+from aind_data_schema.models.modalities import Modality
 
 from aind_metadata_mapper.core import BaseEtl
 
@@ -79,7 +80,6 @@ class EphysEtl(BaseEtl):
         ephys_session["experimenter_full_name"] = experiment_data[
             "experimenter_full_name"
         ]
-        ephys_session["session_end_time"] = experiment_data["session_end_time"]
         ephys_session["subject_id"] = experiment_data["subject_id"]
         ephys_session["session_type"] = experiment_data["session_type"]
         ephys_session["iacuc_protocol"] = experiment_data["iacuc_protocol"]
@@ -112,9 +112,6 @@ class EphysEtl(BaseEtl):
             session_stream["active_mouse_platform"] = data_stream[
                 "active_mouse_platform"
             ]
-            session_stream["stream_modalities"] = data_stream[
-                "stream_modalities"
-            ]
             session_stream["stick_microscopes"] = stick_microscopes
             session_stream["camera_names"] = camera_names
             session_stream["daq_names"] = [daqs]
@@ -126,6 +123,7 @@ class EphysEtl(BaseEtl):
                 probe = info[1][3:]  # remove SN
                 ephys_module = data_stream[f"ephys_module_{probe}"]
                 ephys_module["assembly_name"] = probe
+                ephys_module["stream_modalities"] = [Modality.ECEPHYS]
                 ephys_module["manipulator_coordinates"] = {
                     axis: info[i]
                     for axis, i in zip(["x", "y", "z"], [2, 3, 4])
@@ -136,6 +134,11 @@ class EphysEtl(BaseEtl):
 
             ephys_session["data_streams"].append(session_stream)
 
+        end_times = [
+            datetime.strptime(x[-1][0], "%Y/%m/%d %H:%M:%S.%f")
+            for x in stage_logs
+        ]
+        ephys_session["session_end_time"] = max(end_times)
         return Session(**ephys_session)
 
     def _extract(self) -> ParsedInformation:
