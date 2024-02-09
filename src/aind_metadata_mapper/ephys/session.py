@@ -112,6 +112,7 @@ class EphysEtl(BaseEtl):
             session_stream["active_mouse_platform"] = data_stream[
                 "active_mouse_platform"
             ]
+            session_stream["stream_modalities"] = [Modality.ECEPHYS]
             session_stream["stick_microscopes"] = stick_microscopes
             session_stream["camera_names"] = camera_names
             session_stream["daq_names"] = [daqs]
@@ -123,7 +124,6 @@ class EphysEtl(BaseEtl):
                 probe = info[1][3:]  # remove SN
                 ephys_module = data_stream[f"ephys_module_{probe}"]
                 ephys_module["assembly_name"] = probe
-                ephys_module["stream_modalities"] = [Modality.ECEPHYS]
                 ephys_module["manipulator_coordinates"] = {
                     axis: info[i]
                     for axis, i in zip(["x", "y", "z"], [2, 3, 4])
