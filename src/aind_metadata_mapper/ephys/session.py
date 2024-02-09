@@ -140,7 +140,7 @@ class EphysEtl(BaseEtl):
         ]
         ephys_session["session_end_time"] = max(end_times)
         session = Session(**ephys_session)
-        session.write_standard_file(prefix = 'ephys')
+        session.write_standard_file(prefix="ephys")
 
         return Session(**ephys_session)
 
