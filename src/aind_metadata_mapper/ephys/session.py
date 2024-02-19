@@ -51,6 +51,8 @@ class OpenEphysSession(Session):
 
 
 class StageLogRow(BaseModel):
+    """The expected columns in the stage log csv files."""
+
     log_timestamp: datetime = Field(...)
     probe_name: str = Field(...)
     coordinate1: Decimal
@@ -76,12 +78,15 @@ class StageLogRow(BaseModel):
 
 
 class StageLog(BaseModel):
+    """Container for csv file contents"""
+
     filename: str
     # We can consider changing this to an iterator if the log files are large
     contents: List[StageLogRow]
 
     @classmethod
     def from_csv_file(cls, csv_file_path: Path):
+        """Alternate class constructor from csv file path"""
         field_names = [f for f in StageLogRow.model_fields]
         with open(csv_file_path, "r") as f:
             reader = csv.DictReader(
@@ -94,6 +99,8 @@ class StageLog(BaseModel):
 
 
 class OpenEphysLog(BaseModel):
+    """Container for open ephys xml file documents."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     filename: str
@@ -102,6 +109,7 @@ class OpenEphysLog(BaseModel):
 
     @classmethod
     def from_xml_file(cls, xml_file_path: Path):
+        """Alternate class constructor from xml file path"""
         with open(xml_file_path, "r") as f:
             contents = parse(f)
         return cls(filename=xml_file_path.name, contents=contents)
@@ -117,6 +125,8 @@ class RawInformation:
 
 @dataclass(frozen=True)
 class StageLogProbeInfo:
+    """Probe information from stage logs"""
+
     probe_stream_start_time: datetime
     probe_stream_end_time: datetime
     manipulator_coordinates: Coordinates3d
@@ -124,6 +134,8 @@ class StageLogProbeInfo:
 
 @dataclass(frozen=True)
 class StageLogParsedInfo:
+    """Raw stage logs will be parsed into this model."""
+
     filename: str
     stream_start_time: datetime
     stream_end_time: datetime
@@ -131,6 +143,7 @@ class StageLogParsedInfo:
 
     @classmethod
     def from_stage_log(cls, stage_log: StageLog):
+        """Construct class from stage_log"""
         filename = stage_log.filename
         stream_start_time: Optional[datetime] = None
         stream_end_time: Optional[datetime] = None
@@ -183,11 +196,15 @@ class StageLogParsedInfo:
 
 @dataclass(frozen=True)
 class ParsedInformation:
+    """RawInformation will be parsed into this model to make it easier to
+    build a Session model."""
+
     parsed_stage_logs: List[StageLogParsedInfo]
     session_start_time: datetime
 
     @property
     def session_end_time(self):
+        """Compute the session end time based on log files."""
         session_end_time = max(
             [
                 parsed_log.stream_end_time
@@ -227,6 +244,7 @@ class EphysEtl(BaseEtl[OpenEphysSession, Dict[str, List[Path]]]):
         )
 
     def _extract(self) -> RawInformation:
+        """Extract logs from files."""
         stage_logs = []
         openephys_logs = []
         for stage_log in self.input_sources["stage_logs"]:
@@ -238,40 +256,19 @@ class EphysEtl(BaseEtl[OpenEphysSession, Dict[str, List[Path]]]):
             stage_logs=stage_logs, openephys_logs=openephys_logs
         )
 
-    # @staticmethod
-    # def _update_probe_map(probe_map: Dict[str, StageLogProbeInfo], row: StageLogRow) -> None:
-    #     probe_name = row.probe_name_no_prefix
-    #     map_key = probe_name
-    #     if probe_map.get(map_key) is None:
-    #         stream_start_time = row.log_timestamp
-    #         stream_end_time = row.log_timestamp
-    #         manipulator_coordinates = Coordinates3d(x=row.coordinate1, y=row.coordinate2, z=row.coordinate3)
-    #         probe_map[map_key] = StageLogProbeInfo(
-    #             stream_start_time=stream_start_time,
-    #             stream_end_time=stream_end_time,
-    #             manipulator_coordinates=manipulator_coordinates)
-    #     else:
-    #         old_info = probe_map[map_key]
-    #         if old_info.probe_stream_start_time <= row.log_timestamp:
-    #             manipulator_coordinates = old_info.manipulator_coordinates
-    #             stream_start_time = old_info.probe_stream_start_time
-    #             stream_end_time = row.log_timestamp
-    #         else:
-    #             manipulator_coordinates = Coordinates3d(
-    #                 x=row.coordinate1,
-    #                 y=row.coordinate2,
-    #                 z=row.coordinate3
-    #             )
-    #             stream_start_time = row.log_timestamp
-    #             stream_end_time = old_info.probe_stream_end_time
-    #         probe_map[map_key] = StageLogProbeInfo(
-    #             stream_start_time=stream_start_time,
-    #             stream_end_time=stream_end_time,
-    #             manipulator_coordinates=manipulator_coordinates)
-    #     return None
-
     @staticmethod
     def _parse_stage_logs(raw_info: RawInformation) -> ParsedInformation:
+        """
+        Parses raw information into a model that's easier to query
+        Parameters
+        ----------
+        raw_info : RawInformation
+
+        Returns
+        -------
+        ParsedInformation
+
+        """
         session_start_time_str = (
             raw_info.openephys_logs[0]
             .contents.getElementsByTagName("DATE")[0]

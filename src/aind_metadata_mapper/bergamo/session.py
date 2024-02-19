@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from aind_data_schema.core.session import (
@@ -35,6 +35,9 @@ from aind_metadata_mapper.core import BaseEtl
 
 
 class BergamoDetectorConfig(DetectorConfig):
+    """Overrides DetectorConfig class to mark some fields as Optional or sets
+    defaults."""
+
     # Fields with default values specific to Bergamo Sessions
     trigger_type: TriggerType = Field(TriggerType.INTERNAL)
     name: str = Field("PMT A", title="Name")
@@ -42,6 +45,9 @@ class BergamoDetectorConfig(DetectorConfig):
 
 
 class BergamoFieldOfView(FieldOfView):
+    """Overrides FieldOfView class to mark some fields as Optional or sets
+    defaults."""
+
     # Fields with default values specific to Bergamo Sessions
     index: int = Field(default=0, title="Index")
     imaging_depth: int = Field(default=150, title="Imaging depth (um)")
@@ -68,6 +74,9 @@ class BergamoFieldOfView(FieldOfView):
 
 
 class BergamoLaserConfig(LaserConfig):
+    """Overrides LaserConfig class to mark some fields as Optional or sets
+    defaults."""
+
     # Fields with default values specific to Bergamo Sessions
     name: str = Field(
         "Laser A", title="Name", description="Must match rig json"
@@ -79,6 +88,9 @@ class BergamoLaserConfig(LaserConfig):
 
 
 class BergamoPhotoStimulationGroup(PhotoStimulationGroup):
+    """Overrides PhotoStimulationGroup class to mark some fields as Optional or
+    sets defaults."""
+
     # Fields with default values specific to Bergamo Sessions
     group_index: int = Field(default=0, title="Group index")
     number_trials: int = Field(default=5, title="Number of trials")
@@ -98,6 +110,9 @@ class BergamoPhotoStimulationGroup(PhotoStimulationGroup):
 
 
 class BergamoPhotoStimulation(PhotoStimulation):
+    """Overrides PhotoStimulation class to mark some fields as Optional or
+    sets defaults."""
+
     # Fields with default values specific to Bergamo Sessions
     stimulus_name: str = Field(
         default="PhotoStimulation", title="Stimulus name"
@@ -115,6 +130,9 @@ class BergamoPhotoStimulation(PhotoStimulation):
 
 
 class BergamoStimulusEpoch(StimulusEpoch):
+    """Overrides StimulusEpoch class to mark some fields as Optional or
+    sets defaults."""
+
     # Required fields that will be parsed from files.
     stimulus: BergamoPhotoStimulation = Field(
         BergamoPhotoStimulation(), title="Stimulus"
@@ -122,6 +140,9 @@ class BergamoStimulusEpoch(StimulusEpoch):
 
 
 class BergamoStream(Stream):
+    """Overrides Stream class to mark some fields as Optional or
+    sets defaults."""
+
     # Fields with default values specific to Bergamo Sessions
     camera_names: List[str] = Field(default=["Side Camera"], title="Cameras")
     stream_modalities: List[Modality.ONE_OF] = Field(
@@ -141,6 +162,9 @@ class BergamoStream(Stream):
 
 
 class BergamoSession(Session):
+    """Overrides Session class to mark some fields as Optional or
+    sets defaults."""
+
     # Fields with default values specific to Bergamo Sessions
     iacuc_protocol: Optional[str] = Field(
         default="2115", title="IACUC protocol"
@@ -191,7 +215,7 @@ class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
 
     def __init__(
         self,
-        input_source: Path,
+        input_source: Union[Path, str],
         specific_model: BergamoSession,
         output_directory: Optional[Path] = None,
     ):
@@ -207,7 +231,7 @@ class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
           Model for a Bergamo session
         """
         super().__init__(
-            input_sources={"tiff_directory": input_source},
+            input_sources={"tiff_directory": Path(input_source)},
             output_directory=output_directory,
             specific_model=specific_model,
         )
@@ -434,10 +458,8 @@ class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
         """Extract metadata from bergamo session. If input source is a file,
         will extract data from file. If input source is a directory, will
         attempt to find a file."""
-        if isinstance(self.input_sources["tiff_directory"], str):
-            input_source = Path(self.input_sources["tiff_directory"])
-        else:
-            input_source = self.input_sources["tiff_directory"]
+
+        input_source = self.input_sources["tiff_directory"]
 
         if os.path.isfile(input_source):
             file_with_metadata = input_source

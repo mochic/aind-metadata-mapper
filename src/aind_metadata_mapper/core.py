@@ -124,7 +124,7 @@ class BaseEtl(ABC, Generic[_T, _V]):
         Run the etl job
         Returns
         -------
-        None
+        str
 
         """
         extracted = self._extract()

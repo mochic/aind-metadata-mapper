@@ -93,11 +93,16 @@ class TestOpenEphysSession(unittest.TestCase):
                 assembly_name="46121",
                 arc_angle=Decimal("5.3"),
                 module_angle=Decimal("-27.1"),
-                coordinate_transform="behavior/calibration_info_np2_2024_01_17T15_04_00.npy",
+                coordinate_transform=(
+                    "behavior/calibration_info_np2_2024_01_17T15_04_00.npy"
+                ),
                 calibration_date=datetime(
                     2024, 1, 17, 15, 4, 0, tzinfo=timezone.utc
                 ),
-                notes="Easy insertion. Recorded 8 minutes, serially, so separate from prior insertion.",
+                notes=(
+                    "Easy insertion. Recorded 8 minutes, serially, so separate"
+                    " from prior insertion."
+                ),
             ),
             OpenEphysModule(
                 ephys_probes=[EphysProbeConfig(name="46118")],
@@ -112,11 +117,16 @@ class TestOpenEphysSession(unittest.TestCase):
                 assembly_name="46118",
                 arc_angle=Decimal("14"),
                 module_angle=Decimal("20"),
-                coordinate_transform="behavior/calibration_info_np2_2024_01_17T15_04_00.npy",
+                coordinate_transform=(
+                    "behavior/calibration_info_np2_2024_01_17T15_04_00.npy"
+                ),
                 calibration_date=datetime(
                     2024, 1, 17, 15, 4, 0, tzinfo=timezone.utc
                 ),
-                notes="Easy insertion. Recorded 8 minutes, serially, so separate from prior insertion.",
+                notes=(
+                    "Easy insertion. Recorded 8 minutes, serially, so separate"
+                    " from prior insertion."
+                ),
             ),
         ]
 
@@ -312,6 +322,7 @@ class TestOpenEphysSession(unittest.TestCase):
         self.assertEqual(expected_parsed_info, parsed_info)
 
     def test_transform(self):
+        """Tests ephys data gets transformed correctly."""
         etl_job1 = EphysEtl(
             output_directory=RESOURCES_DIR,
             specific_model=self.specified_model,

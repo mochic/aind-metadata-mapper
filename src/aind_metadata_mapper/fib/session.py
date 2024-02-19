@@ -18,6 +18,9 @@ from aind_metadata_mapper.core import BaseEtl
 
 
 class FibStream(Stream):
+    """Overrides Stream class to mark some fields as Optional or sets
+    defaults."""
+
     # Fields that will be set by file information
     stream_start_time: Optional[datetime] = Field(
         None, title="Stream start time"
@@ -27,6 +30,9 @@ class FibStream(Stream):
 
 
 class FibSession(Session):
+    """Overrides Session class to mark some fields as Optional or sets
+    defaults."""
+
     # Fields that will be set by file information
     data_streams: List[FibStream]
 
@@ -148,4 +154,4 @@ class FIBEtl(BaseEtl[FibSession, Dict[str, str]]):
 
     def _extract(self) -> None:
         """In the future, we can parse the teensy files if needed."""
-        pass
+        pass  # pragma: no cover

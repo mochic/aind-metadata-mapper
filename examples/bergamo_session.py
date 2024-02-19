@@ -15,25 +15,25 @@ from aind_metadata_mapper.bergamo.session import (
 # fields as Optional. Those fields will be set by parsing files.
 
 example_bergamo_session = BergamoSession(
-            experimenter_full_name=["John Smith"],
-            subject_id="12345",
-            session_start_time=datetime(2020, 10, 10, 12, 5, 00),
-            session_end_time=datetime(2020, 10, 10, 13, 5, 00),
-            data_streams=[
-                BergamoStream(
-                    mouse_platform_name="Platform A",
-                    active_mouse_platform=False,
-                    stream_start_time=datetime(2020, 10, 10, 12, 6, 00),
-                    stream_end_time=datetime(2020, 10, 10, 13, 4, 00),
-                )
-            ],
-            stimulus_epochs=[
-                BergamoStimulusEpoch(
-                    stimulus_start_time=datetime(2020, 10, 10, 12, 7, 00),
-                    stimulus_end_time=datetime(2020, 10, 10, 13, 1, 00),
-                )
-            ],
+    experimenter_full_name=["John Smith"],
+    subject_id="12345",
+    session_start_time=datetime(2020, 10, 10, 12, 5, 00),
+    session_end_time=datetime(2020, 10, 10, 13, 5, 00),
+    data_streams=[
+        BergamoStream(
+            mouse_platform_name="Platform A",
+            active_mouse_platform=False,
+            stream_start_time=datetime(2020, 10, 10, 12, 6, 00),
+            stream_end_time=datetime(2020, 10, 10, 13, 4, 00),
         )
+    ],
+    stimulus_epochs=[
+        BergamoStimulusEpoch(
+            stimulus_start_time=datetime(2020, 10, 10, 12, 7, 00),
+            stimulus_end_time=datetime(2020, 10, 10, 13, 1, 00),
+        )
+    ],
+)
 
 etl_job = BergamoEtl(
     input_source=Path("/directory/of/tiff/files/"),

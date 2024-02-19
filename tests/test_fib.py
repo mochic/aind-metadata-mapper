@@ -10,7 +10,6 @@ from pathlib import Path
 from aind_data_schema.core.session import (
     DetectorConfig,
     FiberConnectionConfig,
-    LaserConfig,
     LightEmittingDiodeConfig,
     TriggerType,
 )
