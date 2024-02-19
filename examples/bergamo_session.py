@@ -4,30 +4,41 @@ from pathlib import Path
 
 from aind_metadata_mapper.bergamo.session import (
     BergamoEtl,
+    BergamoSession,
+    BergamoStimulusEpoch,
+    BergamoStream,
     RawImageInfo,
-    UserSettings,
 )
 
-# Check the UserSettings class for list of defaults that may need to override
-# This example just sets the required fields.
+# Create a BergamoSession. The BergamoSession inherits all the fields
+# from aind_data_schema.core.session.Session class, but marks a few required
+# fields as Optional. Those fields will be set by parsing files.
 
-user_settings = UserSettings(
-    experimenter_full_name=["John Smith"],
-    subject_id="12345",
-    session_start_time=datetime(2020, 10, 10, 12, 5, 00),
-    session_end_time=datetime(2020, 10, 10, 13, 5, 00),
-    stream_start_time=datetime(2020, 10, 10, 12, 6, 00),
-    stream_end_time=datetime(2020, 10, 10, 13, 4, 00),
-    stimulus_start_time=datetime(2020, 10, 10, 12, 7, 00),
-    stimulus_end_time=datetime(2020, 10, 10, 13, 1, 00),
-    mouse_platform_name="Platform A",
-    active_mouse_platform=False,
-)
+example_bergamo_session = BergamoSession(
+            experimenter_full_name=["John Smith"],
+            subject_id="12345",
+            session_start_time=datetime(2020, 10, 10, 12, 5, 00),
+            session_end_time=datetime(2020, 10, 10, 13, 5, 00),
+            data_streams=[
+                BergamoStream(
+                    mouse_platform_name="Platform A",
+                    active_mouse_platform=False,
+                    stream_start_time=datetime(2020, 10, 10, 12, 6, 00),
+                    stream_end_time=datetime(2020, 10, 10, 13, 4, 00),
+                )
+            ],
+            stimulus_epochs=[
+                BergamoStimulusEpoch(
+                    stimulus_start_time=datetime(2020, 10, 10, 12, 7, 00),
+                    stimulus_end_time=datetime(2020, 10, 10, 13, 1, 00),
+                )
+            ],
+        )
 
 etl_job = BergamoEtl(
     input_source=Path("/directory/of/tiff/files/"),
     output_directory=Path("/location/to/save/to/"),
-    additional_info=user_settings,
+    specific_model=example_bergamo_session,
 )
 
 # To crawl through the tiff directory and parse the headers, simply run:
