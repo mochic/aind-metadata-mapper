@@ -27,7 +27,7 @@ user_settings = UserSettings(
 etl_job = BergamoEtl(
     input_source=Path("/directory/of/tiff/files/"),
     output_directory=Path("/location/to/save/to/"),
-    user_settings=user_settings,
+    additional_info=user_settings,
 )
 
 # To crawl through the tiff directory and parse the headers, simply run:

@@ -1,16 +1,15 @@
 """Module to write valid OptoStim and Subject schemas"""
 
-import datetime
+from datetime import datetime, timedelta
 import re
-from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional, List
 
 from aind_data_schema.core.session import (
     DetectorConfig,
     FiberConnectionConfig,
-    LightEmittingDiodeConfig,
     Session,
-    Stream,
+    Stream, LIGHT_SOURCE_CONFIGS,
 )
 from aind_data_schema.models.modalities import Modality
 from aind_data_schema.models.stimulus import (
@@ -18,20 +17,37 @@ from aind_data_schema.models.stimulus import (
     PulseShape,
     StimulusEpoch,
 )
+from pydantic_settings import BaseSettings
+from pydantic import Field
 
 from aind_metadata_mapper.core import BaseEtl
 
 
-@dataclass(frozen=True)
-class ParsedInformation:
-    """RawImageInfo gets parsed into this data"""
+class UserSettings(BaseSettings):
+    teensy_str: str = Field(
+        ...,
+        description=(
+            "Parsed contents from teensy file. In the future, we can consider "
+            "replacing this and just parse the file ourselves."
+        )
+    )
+    # The following fields are required in the Session model, but can't be
+    # parsed from raw files. The user will have to supply these.
+    stream_start_time: datetime
+    subject_id: str
+    iacuc_protocol: str
+    rig_id: str
+    experimenter_full_name: List[str]
+    mouse_platform_name: str
+    active_mouse_platform: bool
+    light_sources: List[LIGHT_SOURCE_CONFIGS]
+    detectors: List[DetectorConfig]
+    fiber_connections: List[FiberConnectionConfig]
+    session_type: str
+    notes: Optional[str] = Field(default=None)
 
-    teensy_str: str
-    experiment_data: dict
-    start_datetime: datetime
 
-
-class FIBEtl(BaseEtl):
+class FIBEtl(BaseEtl[UserSettings]):
     """This class contains the methods to write OphysScreening data"""
 
     _dictionary_mapping = {
@@ -51,57 +67,36 @@ class FIBEtl(BaseEtl):
 
     def __init__(
         self,
-        output_directory: Path,
-        teensy_str: str,
-        experiment_data: dict,
-        start_datetime: datetime,
-        input_source: str = "",
+        additional_info: UserSettings,
+        output_directory: Optional[Path] = None,
     ):
         """
-        Class constructor for Base etl class.
+        Class constructor for FIBEtl class.
         Parameters
         ----------
-        input_source : Union[str, PathLike]
-          Can be a string or a Path
-        output_directory : Path
-          The directory where to save the json files.
-        user_settings: UserSettings
-          Variables for a particular session
+        additional_info : UserSettings
+          Variables for a particular session that can't be parsed from files
+          and need to be set manually.
+        output_directory : Optional[Path]
+          The directory where to save the metadata file. Default is None.
         """
-        super().__init__(input_source, output_directory)
-        self.teensy_str = teensy_str
-        self.experiment_data = experiment_data
-        self.start_datetime = start_datetime
+        super().__init__(output_directory=output_directory, additional_info=additional_info)
 
-    def _transform(self, extracted_source: ParsedInformation) -> Session:
+    def _transform(self, extracted_source: Optional[str] = None) -> Session:
         """
         Parses params from teensy string and creates ophys session model
         Parameters
         ----------
-        extracted_source : ParsedInformation
+        extracted_source : Optional[str]
+          In the future, if we parse the teensy from files, we can change this.
 
         Returns
         -------
         Session
 
         """
-        # Process data from dictionary keys
-
-        experiment_data = extracted_source.experiment_data
-        string_to_parse = extracted_source.teensy_str
-        start_datetime = extracted_source.start_datetime
-
-        labtracks_id = experiment_data["labtracks_id"]
-        iacuc_protocol = experiment_data["iacuc"]
-        rig_id = experiment_data["rig_id"]
-        experimenter_full_name = experiment_data["experimenter_name"]
-        mouse_platform_name = experiment_data["mouse_platform_name"]
-        active_mouse_platform = experiment_data["active_mouse_platform"]
-        light_source_list = experiment_data["light_source"]
-        detector_list = experiment_data["detectors"]
-        fiber_connections_list = experiment_data["fiber_connections"]
-        session_type = experiment_data["session_type"]
-        notes = experiment_data["notes"]
+        string_to_parse = self.additional_info.teensy_str
+        start_datetime = self.additional_info.probe_stream_start_time
 
         # Use regular expressions to extract the values
         frequency_match = re.search(self.frequency_regex, string_to_parse)
@@ -141,7 +136,7 @@ class FIBEtl(BaseEtl):
         experiment_duration = (
             opto_base + opto_duration + (opto_interval * trial_num)
         )
-        end_datetime = start_datetime + datetime.timedelta(
+        end_datetime = start_datetime + timedelta(
             seconds=experiment_duration
         )
         stimulus_epochs = StimulusEpoch(
@@ -150,57 +145,36 @@ class FIBEtl(BaseEtl):
             stimulus_end_time=end_datetime,
         )
 
-        # create light source instance
-        light_source = []
-        for ls in light_source_list:
-            diode = LightEmittingDiodeConfig(**ls)
-            light_source.append(diode)
-
-        # create detector instance
-        detectors = []
-        for d in detector_list:
-            camera = DetectorConfig(**d)
-            detectors.append(camera)
-
-        # create fiber connection instance
-        fiber_connections = []
-        for fc in fiber_connections_list:
-            cord = FiberConnectionConfig(**fc)
-            fiber_connections.append(cord)
-
         data_stream = [
             Stream(
                 stream_start_time=start_datetime,
                 stream_end_time=end_datetime,
-                light_sources=light_source,
+                light_sources=self.additional_info.light_sources,
                 stream_modalities=[Modality.FIB],
-                mouse_platform_name=mouse_platform_name,
-                active_mouse_platform=active_mouse_platform,
-                detectors=detectors,
-                fiber_connections=fiber_connections,
+                mouse_platform_name=self.additional_info.mouse_platform_name,
+                active_mouse_platform=self.additional_info.active_mouse_platform,
+                detectors=self.additional_info.detectors,
+                fiber_connections=self.additional_info.fiber_connections,
             )
         ]
 
         # and finally, create ophys session
+        # TODO: Handle situations where session is invalid?
         ophys_session = Session(
             stimulus_epochs=[stimulus_epochs],
-            subject_id=labtracks_id,
-            iacuc_protocol=iacuc_protocol,
+            subject_id=self.additional_info.subject_id,
+            iacuc_protocol=self.additional_info.iacuc_protocol,
             session_start_time=start_datetime,
             session_end_time=end_datetime,
-            rig_id=rig_id,
-            experimenter_full_name=experimenter_full_name,
-            session_type=session_type,
-            notes=notes,
+            rig_id=self.additional_info.rig_id,
+            experimenter_full_name=self.additional_info.experimenter_full_name,
+            session_type=self.additional_info.session_type,
+            notes=self.additional_info.notes,
             data_streams=data_stream,
         )
 
         return ophys_session
 
-    def _extract(self) -> ParsedInformation:
-        """Extract metadata from fib session."""
-        return ParsedInformation(
-            teensy_str=self.teensy_str,
-            experiment_data=self.experiment_data,
-            start_datetime=self.start_datetime,
-        )
+    def _extract(self) -> None:
+        """In the future, we can parse the teensy files if needed."""
+        pass
