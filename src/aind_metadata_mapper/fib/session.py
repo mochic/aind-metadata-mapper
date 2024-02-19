@@ -1,53 +1,37 @@
 """Module to write valid OptoStim and Subject schemas"""
 
-from datetime import datetime, timedelta
 import re
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, List
+from typing import Dict, List, Optional
 
-from aind_data_schema.core.session import (
-    DetectorConfig,
-    FiberConnectionConfig,
-    Session,
-    Stream, LIGHT_SOURCE_CONFIGS,
-)
+from aind_data_schema.core.session import Session, Stream
 from aind_data_schema.models.modalities import Modality
 from aind_data_schema.models.stimulus import (
     OptoStimulation,
     PulseShape,
     StimulusEpoch,
 )
-from pydantic_settings import BaseSettings
 from pydantic import Field
 
 from aind_metadata_mapper.core import BaseEtl
 
 
-class UserSettings(BaseSettings):
-    teensy_str: str = Field(
-        ...,
-        description=(
-            "Parsed contents from teensy file. In the future, we can consider "
-            "replacing this and just parse the file ourselves."
-        )
+class FibStream(Stream):
+    # Fields that will be set by file information
+    stream_start_time: Optional[datetime] = Field(
+        None, title="Stream start time"
     )
-    # The following fields are required in the Session model, but can't be
-    # parsed from raw files. The user will have to supply these.
-    stream_start_time: datetime
-    subject_id: str
-    iacuc_protocol: str
-    rig_id: str
-    experimenter_full_name: List[str]
-    mouse_platform_name: str
-    active_mouse_platform: bool
-    light_sources: List[LIGHT_SOURCE_CONFIGS]
-    detectors: List[DetectorConfig]
-    fiber_connections: List[FiberConnectionConfig]
-    session_type: str
-    notes: Optional[str] = Field(default=None)
+    stream_end_time: Optional[datetime] = Field(None, title="Stream stop time")
+    stream_modalities: List[Modality.ONE_OF] = [Modality.FIB]
 
 
-class FIBEtl(BaseEtl[UserSettings]):
+class FibSession(Session):
+    # Fields that will be set by file information
+    data_streams: List[FibStream]
+
+
+class FIBEtl(BaseEtl[FibSession, Dict[str, str]]):
     """This class contains the methods to write OphysScreening data"""
 
     _dictionary_mapping = {
@@ -67,7 +51,8 @@ class FIBEtl(BaseEtl[UserSettings]):
 
     def __init__(
         self,
-        additional_info: UserSettings,
+        teensy_str: str,
+        specific_model: FibSession,
         output_directory: Optional[Path] = None,
     ):
         """
@@ -80,7 +65,11 @@ class FIBEtl(BaseEtl[UserSettings]):
         output_directory : Optional[Path]
           The directory where to save the metadata file. Default is None.
         """
-        super().__init__(output_directory=output_directory, additional_info=additional_info)
+        super().__init__(
+            input_sources={"teensy_str": teensy_str},
+            output_directory=output_directory,
+            specific_model=specific_model,
+        )
 
     def _transform(self, extracted_source: Optional[str] = None) -> Session:
         """
@@ -95,8 +84,9 @@ class FIBEtl(BaseEtl[UserSettings]):
         Session
 
         """
-        string_to_parse = self.additional_info.teensy_str
-        start_datetime = self.additional_info.probe_stream_start_time
+        string_to_parse = self.input_sources["teensy_str"]
+        updated_session = self.specific_model.model_copy(deep=True)
+        # start_datetime = self.additional_info.probe_stream_start_time
 
         # Use regular expressions to extract the values
         frequency_match = re.search(self.frequency_regex, string_to_parse)
@@ -136,44 +126,25 @@ class FIBEtl(BaseEtl[UserSettings]):
         experiment_duration = (
             opto_base + opto_duration + (opto_interval * trial_num)
         )
-        end_datetime = start_datetime + timedelta(
-            seconds=experiment_duration
-        )
-        stimulus_epochs = StimulusEpoch(
-            stimulus=opto_stim,
-            stimulus_start_time=start_datetime,
-            stimulus_end_time=end_datetime,
+        updated_session.session_end_time = (
+            updated_session.session_start_time
+            + timedelta(seconds=experiment_duration)
         )
 
-        data_stream = [
-            Stream(
-                stream_start_time=start_datetime,
-                stream_end_time=end_datetime,
-                light_sources=self.additional_info.light_sources,
-                stream_modalities=[Modality.FIB],
-                mouse_platform_name=self.additional_info.mouse_platform_name,
-                active_mouse_platform=self.additional_info.active_mouse_platform,
-                detectors=self.additional_info.detectors,
-                fiber_connections=self.additional_info.fiber_connections,
-            )
-        ]
+        stimulus_epoch = StimulusEpoch(
+            stimulus=opto_stim,
+            stimulus_start_time=updated_session.session_start_time,
+            stimulus_end_time=updated_session.session_end_time,
+        )
+
+        data_stream = updated_session.data_streams[0]
+        data_stream.stream_start_time = updated_session.session_start_time
+        data_stream.stream_end_time = updated_session.session_end_time
+        updated_session.stimulus_epochs = [stimulus_epoch]
 
         # and finally, create ophys session
         # TODO: Handle situations where session is invalid?
-        ophys_session = Session(
-            stimulus_epochs=[stimulus_epochs],
-            subject_id=self.additional_info.subject_id,
-            iacuc_protocol=self.additional_info.iacuc_protocol,
-            session_start_time=start_datetime,
-            session_end_time=end_datetime,
-            rig_id=self.additional_info.rig_id,
-            experimenter_full_name=self.additional_info.experimenter_full_name,
-            session_type=self.additional_info.session_type,
-            notes=self.additional_info.notes,
-            data_streams=data_stream,
-        )
-
-        return ophys_session
+        return Session.model_validate(updated_session.model_dump())
 
     def _extract(self) -> None:
         """In the future, we can parse the teensy files if needed."""

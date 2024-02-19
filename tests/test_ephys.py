@@ -3,22 +3,22 @@
 import json
 import os
 import unittest
-from pathlib import Path
-from decimal import Decimal
 from datetime import datetime, timezone
+from decimal import Decimal
+from pathlib import Path
 
 from aind_data_schema.core.session import DomeModule, EphysProbeConfig
 from aind_data_schema.models.coordinates import CcfCoords, Coordinates3d
 
 from aind_metadata_mapper.ephys.session import (
     EphysEtl,
+    OpenEphysModule,
     OpenEphysSession,
     OpenEphysStream,
-    OpenEphysModule,
-    StageLogRow,
     ParsedInformation,
+    StageLogParsedInfo,
     StageLogProbeInfo,
-    StageLogParsedInfo
+    StageLogRow,
 )
 
 RESOURCES_DIR = (
@@ -228,32 +228,73 @@ class TestOpenEphysSession(unittest.TestCase):
         expected_parsed_info = ParsedInformation(
             parsed_stage_logs=[
                 StageLogParsedInfo(
-                    filename='newscale_main.csv',
+                    filename="newscale_main.csv",
                     stream_start_time=datetime(2023, 4, 4, 10, 37, 28, 815000),
                     stream_end_time=datetime(2023, 4, 6, 11, 47, 57, 558000),
                     probe_map={
-                        '46121': StageLogProbeInfo(
-                            probe_stream_start_time=datetime(2023, 4, 4, 10, 37, 28, 815000),
-                            probe_stream_end_time=datetime(2023, 4, 4, 10, 45, 38, 580000),
-                            manipulator_coordinates=Coordinates3d(x=Decimal('7520.0'), y=Decimal('7505.0'), z=Decimal('7493.0'))),
-                        '46118': StageLogProbeInfo(
-                            probe_stream_start_time=datetime(2023, 4, 6, 11, 47, 55, 990000),
-                            probe_stream_end_time=datetime(2023, 4, 6, 11, 47, 57, 558000),
-                            manipulator_coordinates=Coordinates3d(x=Decimal('7500.0'), y=Decimal('7499.5'), z=Decimal('7600.0')))}),
+                        "46121": StageLogProbeInfo(
+                            probe_stream_start_time=datetime(
+                                2023, 4, 4, 10, 37, 28, 815000
+                            ),
+                            probe_stream_end_time=datetime(
+                                2023, 4, 4, 10, 45, 38, 580000
+                            ),
+                            manipulator_coordinates=Coordinates3d(
+                                x=Decimal("7520.0"),
+                                y=Decimal("7505.0"),
+                                z=Decimal("7493.0"),
+                            ),
+                        ),
+                        "46118": StageLogProbeInfo(
+                            probe_stream_start_time=datetime(
+                                2023, 4, 6, 11, 47, 55, 990000
+                            ),
+                            probe_stream_end_time=datetime(
+                                2023, 4, 6, 11, 47, 57, 558000
+                            ),
+                            manipulator_coordinates=Coordinates3d(
+                                x=Decimal("7500.0"),
+                                y=Decimal("7499.5"),
+                                z=Decimal("7600.0"),
+                            ),
+                        ),
+                    },
+                ),
                 StageLogParsedInfo(
-                    filename='newscale_surface_finding.csv',
+                    filename="newscale_surface_finding.csv",
                     stream_start_time=datetime(2023, 4, 4, 12, 37, 28, 815000),
                     stream_end_time=datetime(2023, 4, 6, 13, 47, 57, 558000),
                     probe_map={
-                        '46121': StageLogProbeInfo(
-                        probe_stream_start_time=datetime(2023, 4, 4, 12, 37, 28, 815000),
-                        probe_stream_end_time=datetime(2023, 4, 4, 12, 45, 38, 580000),
-                        manipulator_coordinates=Coordinates3d(x=Decimal('7520.0'), y=Decimal('7505.0'), z=Decimal('7493.0'))),
-                        '46118': StageLogProbeInfo(
-                            probe_stream_start_time=datetime(2023, 4, 6, 13, 47, 55, 990000),
-                            probe_stream_end_time=datetime(2023, 4, 6, 13, 47, 57, 558000),
-                            manipulator_coordinates=Coordinates3d(x=Decimal('7500.0'), y=Decimal('7499.5'), z=Decimal('7600.0')))})],
-            session_start_time=datetime(2023, 4, 4, 10, 37, 28)
+                        "46121": StageLogProbeInfo(
+                            probe_stream_start_time=datetime(
+                                2023, 4, 4, 12, 37, 28, 815000
+                            ),
+                            probe_stream_end_time=datetime(
+                                2023, 4, 4, 12, 45, 38, 580000
+                            ),
+                            manipulator_coordinates=Coordinates3d(
+                                x=Decimal("7520.0"),
+                                y=Decimal("7505.0"),
+                                z=Decimal("7493.0"),
+                            ),
+                        ),
+                        "46118": StageLogProbeInfo(
+                            probe_stream_start_time=datetime(
+                                2023, 4, 6, 13, 47, 55, 990000
+                            ),
+                            probe_stream_end_time=datetime(
+                                2023, 4, 6, 13, 47, 57, 558000
+                            ),
+                            manipulator_coordinates=Coordinates3d(
+                                x=Decimal("7500.0"),
+                                y=Decimal("7499.5"),
+                                z=Decimal("7600.0"),
+                            ),
+                        ),
+                    },
+                ),
+            ],
+            session_start_time=datetime(2023, 4, 4, 10, 37, 28),
         )
 
         etl_job1 = EphysEtl(
@@ -283,7 +324,10 @@ class TestOpenEphysSession(unittest.TestCase):
         )
         raw_info = etl_job1._extract()
         actual_session = etl_job1._transform(raw_info)
-        self.assertEqual(self.expected_session_contents, json.loads(actual_session.model_dump_json()))
+        self.assertEqual(
+            self.expected_session_contents,
+            json.loads(actual_session.model_dump_json()),
+        )
 
 
 if __name__ == "__main__":

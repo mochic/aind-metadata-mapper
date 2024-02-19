@@ -10,8 +10,10 @@ from unittest.mock import MagicMock, patch
 
 from aind_metadata_mapper.bergamo.session import (
     BergamoEtl,
+    BergamoSession,
+    BergamoStimulusEpoch,
+    BergamoStream,
     RawImageInfo,
-    BergamoSession, BergamoStream, BergamoStimulusEpoch,
 )
 
 RESOURCES_DIR = (

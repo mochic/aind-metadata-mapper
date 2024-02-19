@@ -4,9 +4,18 @@ import json
 import os
 import unittest
 from datetime import datetime
+from decimal import Decimal
 from pathlib import Path
 
-from aind_metadata_mapper.fib.session import FIBEtl
+from aind_data_schema.core.session import (
+    DetectorConfig,
+    FiberConnectionConfig,
+    LaserConfig,
+    LightEmittingDiodeConfig,
+    TriggerType,
+)
+
+from aind_metadata_mapper.fib.session import FIBEtl, FibSession, FibStream
 
 RESOURCES_DIR = (
     Path(os.path.dirname(os.path.realpath(__file__))) / "resources" / "fib"
@@ -22,53 +31,46 @@ class TestSchemaWriter(unittest.TestCase):
     def setUpClass(cls):
         """Load record object and user settings before running tests."""
 
-        cls.example_experiment_data = {
-            "labtracks_id": "000000",
-            "experimenter_name": [
-                "john doe",
+        cls.example_input_session = FibSession(
+            session_start_time=datetime(1999, 10, 4),
+            experimenter_full_name=["john doe"],
+            session_type="Foraging_Photometry",
+            iacuc_protocol="2115",
+            rig_id="ophys_rig",
+            subject_id="000000",
+            data_streams=[
+                FibStream(
+                    mouse_platform_name="Disc",
+                    active_mouse_platform=False,
+                    light_sources=[
+                        LightEmittingDiodeConfig(
+                            name="470nm LED", excitation_power=Decimal("0.020")
+                        ),
+                        LightEmittingDiodeConfig(
+                            name="415nm LED", excitation_power=Decimal("0.020")
+                        ),
+                        LightEmittingDiodeConfig(
+                            name="565nm LED", excitation_power=Decimal("0.020")
+                        ),
+                    ],
+                    detectors=[
+                        DetectorConfig(
+                            name="Hamamatsu Camera",
+                            exposure_time=Decimal("10"),
+                            trigger_type=TriggerType.INTERNAL,
+                        )
+                    ],
+                    fiber_connections=[
+                        FiberConnectionConfig(
+                            patch_cord_name="Patch Cord A",
+                            patch_cord_output_power=Decimal("40"),
+                            fiber_name="Fiber A",
+                        )
+                    ],
+                )
             ],
-            "notes": "brabrabrabra....",  #
-            "experimental_mode": "c",
-            "save_dir": "",
-            "iacuc": "2115",
-            "rig_id": "ophys_rig",
-            "COMPort": "COM3",
-            "mouse_platform_name": "Disc",
-            "active_mouse_platform": False,
-            "light_source": [
-                {
-                    "name": "470nm LED",
-                    "excitation_power": 0.020,
-                    "excitation_power_unit": "milliwatt",
-                },
-                {
-                    "name": "415nm LED",
-                    "excitation_power": 0.020,
-                    "excitation_power_unit": "milliwatt",
-                },
-                {
-                    "name": "565nm LED",
-                    "excitation_power": 0.020,  # Set 0 for unused StimLED
-                    "excitation_power_unit": "milliwatt",
-                },
-            ],  # default light source
-            "detectors": [
-                {
-                    "name": "Hamamatsu Camera",
-                    "exposure_time": 10,
-                    "trigger_type": "Internal",
-                }
-            ],
-            "fiber_connections": [
-                {
-                    "patch_cord_name": "Patch Cord A",
-                    "patch_cord_output_power": 40,
-                    "output_power_unit": "microwatt",
-                    "fiber_name": "Fiber A",
-                }
-            ],
-            "session_type": "Foraging_Photometry",
-        }
+            notes="brabrabrabra....",
+        )
 
         with open(EXAMPLE_MD_PATH, "r") as f:
             raw_md_contents = f.read()
@@ -85,15 +87,11 @@ class TestSchemaWriter(unittest.TestCase):
         etl_job1 = FIBEtl(
             output_directory=RESOURCES_DIR,
             teensy_str=self.example_metadata,
-            experiment_data=self.example_experiment_data,
-            start_datetime=datetime(1999, 10, 4),
+            specific_model=self.example_input_session,
         )
-        parsed_info = etl_job1._extract()
-        self.assertEqual(self.example_metadata, parsed_info.teensy_str)
         self.assertEqual(
-            self.example_experiment_data, parsed_info.experiment_data
+            self.example_metadata, etl_job1.input_sources["teensy_str"]
         )
-        self.assertEqual(datetime(1999, 10, 4), parsed_info.start_datetime)
 
     def test_transform(self):
         """Tests that the teensy response maps correctly to ophys session."""
@@ -101,12 +99,13 @@ class TestSchemaWriter(unittest.TestCase):
         etl_job1 = FIBEtl(
             output_directory=RESOURCES_DIR,
             teensy_str=self.example_metadata,
-            experiment_data=self.example_experiment_data,
-            start_datetime=datetime(1999, 10, 4),
+            specific_model=self.example_input_session,
         )
-        parsed_info = etl_job1._extract()
-        actual_session = etl_job1._transform(parsed_info)
-        self.assertEqual(self.expected_session_contents, json.loads(actual_session.model_dump_json()))
+        actual_session = etl_job1._transform()
+        self.assertEqual(
+            self.expected_session_contents,
+            json.loads(actual_session.model_dump_json()),
+        )
 
 
 if __name__ == "__main__":

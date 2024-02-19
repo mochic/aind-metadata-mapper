@@ -8,6 +8,7 @@ import re
 import sys
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -28,7 +29,6 @@ from aind_data_schema.models.stimulus import (
 )
 from aind_data_schema.models.units import PowerUnit
 from pydantic import Field
-from decimal import Decimal
 from ScanImageTiffReader import ScanImageTiffReader
 
 from aind_metadata_mapper.core import BaseEtl
@@ -38,7 +38,7 @@ class BergamoDetectorConfig(DetectorConfig):
     # Fields with default values specific to Bergamo Sessions
     trigger_type: TriggerType = Field(TriggerType.INTERNAL)
     name: str = Field("PMT A", title="Name")
-    exposure_time: Decimal = Field(Decimal('0.1'), title="Exposure time (ms)")
+    exposure_time: Decimal = Field(Decimal("0.1"), title="Exposure time (ms)")
 
 
 class BergamoFieldOfView(FieldOfView):
@@ -47,10 +47,10 @@ class BergamoFieldOfView(FieldOfView):
     imaging_depth: int = Field(default=150, title="Imaging depth (um)")
     targeted_structure: str = Field(default="M1", title="Targeted structure")
     fov_coordinate_ml: Decimal = Field(
-        default=Decimal('1.5'), title="FOV coordinate ML"
+        default=Decimal("1.5"), title="FOV coordinate ML"
     )
     fov_coordinate_ap: Decimal = Field(
-        default=Decimal('1.5'), title="FOV coordinate AP"
+        default=Decimal("1.5"), title="FOV coordinate AP"
     )
     fov_reference: str = Field(
         default="Bregma",
@@ -103,7 +103,7 @@ class BergamoPhotoStimulation(PhotoStimulation):
         default="PhotoStimulation", title="Stimulus name"
     )
     inter_trial_interval: Decimal = Field(
-        default=Decimal('10'), title="Inter trial interval (s)"
+        default=Decimal("10"), title="Inter trial interval (s)"
     )
     number_groups: Optional[int] = Field(2, title="Number of groups")
 
@@ -192,8 +192,8 @@ class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
     def __init__(
         self,
         input_source: Path,
-        output_directory: Optional[Path],
         specific_model: BergamoSession,
+        output_directory: Optional[Path] = None,
     ):
         """
         Class constructor for Base etl class.

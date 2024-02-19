@@ -1,6 +1,7 @@
 {
    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/core/session.py",
    "schema_version": "0.1.4",
+   "protocol_id": [],
    "experimenter_full_name": [
       "john doe"
    ],
@@ -25,19 +26,19 @@
             {
                "device_type": "LightEmittingDiode",
                "name": "470nm LED",
-               "excitation_power": "0.02",
+               "excitation_power": "0.020",
                "excitation_power_unit": "milliwatt"
             },
             {
                "device_type": "LightEmittingDiode",
                "name": "415nm LED",
-               "excitation_power": "0.02",
+               "excitation_power": "0.020",
                "excitation_power_unit": "milliwatt"
             },
             {
                "device_type": "LightEmittingDiode",
                "name": "565nm LED",
-               "excitation_power": "0.02",
+               "excitation_power": "0.020",
                "excitation_power_unit": "milliwatt"
             }
          ],
@@ -104,6 +105,5 @@
    "reward_delivery": null,
    "reward_consumed_total": null,
    "reward_consumed_unit": "microliter",
-   "notes": "brabrabrabra....",
-   "protocol_id": []
+   "notes": "brabrabrabra...."
 }

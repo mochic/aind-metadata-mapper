@@ -3,14 +3,20 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, Optional, Union, List, TypeVar, Generic
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 from aind_data_schema.base import AindCoreModel
-from pydantic import ValidationError, BaseModel
+from pydantic import BaseModel, ValidationError
 
-
-_T = TypeVar('_T', bound=BaseModel)
-_V = TypeVar('_V', bound=Union[Optional[Dict[str, str]], Optional[Dict[str, Path]], Optional[Dict[str, List[Path]]]])
+_T = TypeVar("_T", bound=BaseModel)
+_V = TypeVar(
+    "_V",
+    bound=Union[
+        Optional[Dict[str, str]],
+        Optional[Dict[str, Path]],
+        Optional[Dict[str, List[Path]]],
+    ],
+)
 
 
 class BaseEtl(ABC, Generic[_T, _V]):
@@ -18,10 +24,10 @@ class BaseEtl(ABC, Generic[_T, _V]):
     loading input sources into a json file saved locally."""
 
     def __init__(
-            self,
-            input_sources: _V = None,
-            output_directory: Optional[Path] = None,
-            specific_model: Optional[_T] = None
+        self,
+        input_sources: _V = None,
+        output_directory: Optional[Path] = None,
+        specific_model: Optional[_T] = None,
     ):
         """
         Class constructor for Base etl class.

@@ -1,18 +1,17 @@
 """Module to write valid ephys schemas"""
 
+import csv
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from pathlib import Path
+from typing import Dict, List, Optional, Union
+from xml.dom.minidom import Document, parse
 
-from aind_data_schema.core.session import Session, Stream, EphysModule
+from aind_data_schema.core.session import EphysModule, Session, Stream
 from aind_data_schema.models.coordinates import Coordinates3d
 from aind_data_schema.models.modalities import Modality
-from typing import List, Optional, Dict, Union
-from xml.dom.minidom import parse, Document
-import csv
-from decimal import Decimal
-
-from pydantic import Field, BaseModel, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from aind_metadata_mapper.core import BaseEtl
 
@@ -46,7 +45,9 @@ class OpenEphysSession(Session):
     # The following are required fields in the Stream that we will parse
     # from files or set manually.
     data_streams: List[OpenEphysStream] = Field(default=[])
-    session_start_time: Optional[datetime] = Field(None, title="Session start time")
+    session_start_time: Optional[datetime] = Field(
+        None, title="Session start time"
+    )
 
 
 class StageLogRow(BaseModel):
@@ -71,7 +72,7 @@ class StageLogRow(BaseModel):
     def probe_name_no_prefix(self) -> str:
         """Strips the prefix off the probe name. For example, 'SN12345' gets
         mapped to just '12345'"""
-        return self.probe_name.replace('SN', '')
+        return self.probe_name.replace("SN", "")
 
 
 class StageLog(BaseModel):
@@ -83,12 +84,16 @@ class StageLog(BaseModel):
     def from_csv_file(cls, csv_file_path: Path):
         field_names = [f for f in StageLogRow.model_fields]
         with open(csv_file_path, "r") as f:
-            reader = csv.DictReader(f, fieldnames=field_names, skipinitialspace=True)
-            return cls(filename=csv_file_path.name, contents = [StageLogRow(**row) for row in reader])
+            reader = csv.DictReader(
+                f, fieldnames=field_names, skipinitialspace=True
+            )
+            return cls(
+                filename=csv_file_path.name,
+                contents=[StageLogRow(**row) for row in reader],
+            )
 
 
 class OpenEphysLog(BaseModel):
-
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     filename: str
@@ -136,7 +141,7 @@ class StageLogParsedInfo:
             manipulator_coordinates = Coordinates3d(
                 x=stage_log_row.coordinate1,
                 y=stage_log_row.coordinate2,
-                z=stage_log_row.coordinate3
+                z=stage_log_row.coordinate3,
             )
             if stream_start_time is None or log_timestamp < stream_start_time:
                 stream_start_time = log_timestamp
@@ -144,7 +149,11 @@ class StageLogParsedInfo:
                 stream_end_time = log_timestamp
 
             if probe_map.get(probe_name_no_prefix) is None:
-                probe_map[probe_name_no_prefix] = StageLogProbeInfo(probe_stream_end_time=log_timestamp, probe_stream_start_time=log_timestamp, manipulator_coordinates=manipulator_coordinates)
+                probe_map[probe_name_no_prefix] = StageLogProbeInfo(
+                    probe_stream_end_time=log_timestamp,
+                    probe_stream_start_time=log_timestamp,
+                    manipulator_coordinates=manipulator_coordinates,
+                )
             else:
                 old_info = probe_map[probe_name_no_prefix]
                 if log_timestamp < old_info.probe_stream_start_time:
@@ -152,15 +161,24 @@ class StageLogParsedInfo:
                     new_probe_stream_end_time = old_info.probe_stream_end_time
                     new_manipulator_coordinates = manipulator_coordinates
                 else:
-                    new_probe_stream_start_time = old_info.probe_stream_start_time
+                    new_probe_stream_start_time = (
+                        old_info.probe_stream_start_time
+                    )
                     new_probe_stream_end_time = log_timestamp
-                    new_manipulator_coordinates = old_info.manipulator_coordinates
+                    new_manipulator_coordinates = (
+                        old_info.manipulator_coordinates
+                    )
                 probe_map[probe_name_no_prefix] = StageLogProbeInfo(
                     probe_stream_start_time=new_probe_stream_start_time,
                     probe_stream_end_time=new_probe_stream_end_time,
-                    manipulator_coordinates=new_manipulator_coordinates
+                    manipulator_coordinates=new_manipulator_coordinates,
                 )
-        return cls(stream_start_time=stream_start_time, stream_end_time=stream_end_time, probe_map=probe_map, filename=filename)
+        return cls(
+            stream_start_time=stream_start_time,
+            stream_end_time=stream_end_time,
+            probe_map=probe_map,
+            filename=filename,
+        )
 
 
 @dataclass(frozen=True)
@@ -170,7 +188,12 @@ class ParsedInformation:
 
     @property
     def session_end_time(self):
-        session_end_time = max([parsed_log.stream_end_time for parsed_log in self.parsed_stage_logs])
+        session_end_time = max(
+            [
+                parsed_log.stream_end_time
+                for parsed_log in self.parsed_stage_logs
+            ]
+        )
         return session_end_time
 
 
@@ -249,12 +272,23 @@ class EphysEtl(BaseEtl[OpenEphysSession, Dict[str, List[Path]]]):
 
     @staticmethod
     def _parse_stage_logs(raw_info: RawInformation) -> ParsedInformation:
-        session_start_time_str = (raw_info.openephys_logs[0].contents.getElementsByTagName("DATE")[0].firstChild.nodeValue)
-        session_start_time = datetime.strptime(session_start_time_str, "%d %b %Y %H:%M:%S")
+        session_start_time_str = (
+            raw_info.openephys_logs[0]
+            .contents.getElementsByTagName("DATE")[0]
+            .firstChild.nodeValue
+        )
+        session_start_time = datetime.strptime(
+            session_start_time_str, "%d %b %Y %H:%M:%S"
+        )
         parsed_stage_logs = []
         for stage_log in raw_info.stage_logs:
-            parsed_stage_logs.append(StageLogParsedInfo.from_stage_log(stage_log=stage_log))
-        return ParsedInformation(session_start_time=session_start_time, parsed_stage_logs=parsed_stage_logs)
+            parsed_stage_logs.append(
+                StageLogParsedInfo.from_stage_log(stage_log=stage_log)
+            )
+        return ParsedInformation(
+            session_start_time=session_start_time,
+            parsed_stage_logs=parsed_stage_logs,
+        )
 
     def _transform(self, extracted_source: RawInformation) -> Session:
         """
@@ -277,15 +311,23 @@ class EphysEtl(BaseEtl[OpenEphysSession, Dict[str, List[Path]]]):
         updated_model.session_end_time = parsed_info.session_end_time
 
         data_streams = updated_model.data_streams
-        for data_stream, parsed_stage_log_info in zip(data_streams, parsed_info.parsed_stage_logs):
-            data_stream.stream_start_time = parsed_stage_log_info.stream_start_time
+        for data_stream, parsed_stage_log_info in zip(
+            data_streams, parsed_info.parsed_stage_logs
+        ):
+            data_stream.stream_start_time = (
+                parsed_stage_log_info.stream_start_time
+            )
             data_stream.stream_end_time = parsed_stage_log_info.stream_end_time
             probe_map = parsed_stage_log_info.probe_map
             ephys_modules = data_stream.ephys_modules
             for ephys_module in ephys_modules:
                 probe_name = ephys_module.ephys_probes[0].name
                 probe_info = probe_map.get(probe_name)
-                manipulator_coordinates = None if probe_info is None else probe_info.manipulator_coordinates
+                manipulator_coordinates = (
+                    None
+                    if probe_info is None
+                    else probe_info.manipulator_coordinates
+                )
                 ephys_module.manipulator_coordinates = manipulator_coordinates
 
         # TODO: If model does not validate return object as is?
