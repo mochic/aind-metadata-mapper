@@ -8,9 +8,9 @@ import re
 import sys
 from dataclasses import dataclass
 from datetime import datetime
-from decimal import Decimal
+from os import PathLike
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 from aind_data_schema.core.session import (
@@ -20,171 +20,70 @@ from aind_data_schema.core.session import (
     Modality,
     Session,
     Stream,
-    TriggerType,
 )
 from aind_data_schema.models.stimulus import (
     PhotoStimulation,
     PhotoStimulationGroup,
     StimulusEpoch,
 )
-from aind_data_schema.models.units import PowerUnit
-from pydantic import Field
+from aind_data_schema.models.units import PowerUnit, SizeUnit
+from pydantic_settings import BaseSettings
 from ScanImageTiffReader import ScanImageTiffReader
 
 from aind_metadata_mapper.core import BaseEtl
 
 
-class BergamoDetectorConfig(DetectorConfig):
-    """Overrides DetectorConfig class to mark some fields as Optional or sets
-    defaults."""
+class UserSettings(BaseSettings):
+    """Data that needs to be input by user. Can be pulled from env vars with
+    BERGAMO prefix or set explicitly."""
 
-    # Fields with default values specific to Bergamo Sessions
-    trigger_type: TriggerType = Field(TriggerType.INTERNAL)
-    name: str = Field("PMT A", title="Name")
-    exposure_time: Decimal = Field(Decimal("0.1"), title="Exposure time (ms)")
+    experimenter_full_name: List[str]
+    subject_id: str
+    # TODO: Look into if the following can be extracted from tif directory
+    session_start_time: datetime
+    session_end_time: datetime
+    stream_start_time: datetime
+    stream_end_time: datetime
+    stimulus_start_time: datetime
+    stimulus_end_time: datetime
 
+    # TODO: Look into whether defaults can be set for these fields
+    mouse_platform_name: str
+    active_mouse_platform: bool
 
-class BergamoFieldOfView(FieldOfView):
-    """Overrides FieldOfView class to mark some fields as Optional or sets
-    defaults."""
+    # Data that might change but can have default values
+    session_type: str = "BCI"
+    iacuc_protocol: str = "2115"
+    rig_id: str = "Bergamo photostim."
+    camera_names: Tuple[str] = ("Side Camera",)
+    laser_a_name: str = "Laser A"
+    laser_a_wavelength: int = 920
+    laser_a_wavelength_unit: SizeUnit = SizeUnit.NM
+    detector_a_name: str = "PMT A"
+    detector_a_exposure_time: float = 0.1
+    detector_a_trigger_type: str = "Internal"
+    fov_0_index: int = 0
+    fov_0_imaging_depth: int = 150
+    fov_0_targeted_structure: str = "M1"
+    fov_0_coordinate_ml: float = 1.5
+    fov_0_coordinate_ap: float = 1.5
+    fov_0_reference: str = "Bregma"
+    fov_0_magnification: str = "16x"
+    photo_stim_inter_trial_interval: int = 10
+    photo_stim_groups: List[Dict[str, int]] = [
+        {"group_index": 0, "number_trials": 5},
+        {"group_index": 0, "number_trials": 5},
+    ]
 
-    # Fields with default values specific to Bergamo Sessions
-    index: int = Field(default=0, title="Index")
-    imaging_depth: int = Field(default=150, title="Imaging depth (um)")
-    targeted_structure: str = Field(default="M1", title="Targeted structure")
-    fov_coordinate_ml: Decimal = Field(
-        default=Decimal("1.5"), title="FOV coordinate ML"
-    )
-    fov_coordinate_ap: Decimal = Field(
-        default=Decimal("1.5"), title="FOV coordinate AP"
-    )
-    fov_reference: str = Field(
-        default="Bregma",
-        title="FOV reference",
-        description="Reference for ML/AP coordinates",
-    )
-    magnification: str = Field(default="16x", title="Magnification")
+    @property
+    def num_of_photo_stim_groups(self):
+        """Compute number of photo stimulation groups from list of groups"""
+        return len(self.photo_stim_groups)
 
-    # Required fields that will be parsed from files.
-    fov_width: Optional[int] = Field(None, title="FOV width (pixels)")
-    fov_height: Optional[int] = Field(None, title="FOV height (pixels)")
-    fov_scale_factor: Optional[Decimal] = Field(
-        None, title="FOV scale factor (um/pixel)"
-    )
+    class Config:
+        """Config to set env var prefix to BERGAMO"""
 
-
-class BergamoLaserConfig(LaserConfig):
-    """Overrides LaserConfig class to mark some fields as Optional or sets
-    defaults."""
-
-    # Fields with default values specific to Bergamo Sessions
-    name: str = Field(
-        "Laser A", title="Name", description="Must match rig json"
-    )
-    wavelength: int = Field(920, title="Wavelength (nm)")
-    excitation_power_unit: PowerUnit = Field(
-        PowerUnit.PERCENT, title="Excitation power unit"
-    )
-
-
-class BergamoPhotoStimulationGroup(PhotoStimulationGroup):
-    """Overrides PhotoStimulationGroup class to mark some fields as Optional or
-    sets defaults."""
-
-    # Fields with default values specific to Bergamo Sessions
-    group_index: int = Field(default=0, title="Group index")
-    number_trials: int = Field(default=5, title="Number of trials")
-
-    # Required fields that will be parsed from files.
-    number_of_neurons: Optional[int] = Field(None, title="Number of neurons")
-    stimulation_laser_power: Optional[Decimal] = Field(
-        None, title="Stimulation laser power (mW)"
-    )
-    number_spirals: Optional[int] = Field(None, title="Number of spirals")
-    spiral_duration: Optional[Decimal] = Field(
-        None, title="Spiral duration (s)"
-    )
-    inter_spiral_interval: Optional[Decimal] = Field(
-        None, title="Inter trial interval (s)"
-    )
-
-
-class BergamoPhotoStimulation(PhotoStimulation):
-    """Overrides PhotoStimulation class to mark some fields as Optional or
-    sets defaults."""
-
-    # Fields with default values specific to Bergamo Sessions
-    stimulus_name: str = Field(
-        default="PhotoStimulation", title="Stimulus name"
-    )
-    inter_trial_interval: Decimal = Field(
-        default=Decimal("10"), title="Inter trial interval (s)"
-    )
-    number_groups: Optional[int] = Field(2, title="Number of groups")
-
-    # Required fields that will be parsed from files.
-    groups: List[BergamoPhotoStimulationGroup] = Field(
-        [BergamoPhotoStimulationGroup(), BergamoPhotoStimulationGroup()],
-        title="Groups",
-    )
-
-
-class BergamoStimulusEpoch(StimulusEpoch):
-    """Overrides StimulusEpoch class to mark some fields as Optional or
-    sets defaults."""
-
-    # Required fields that will be parsed from files.
-    stimulus: BergamoPhotoStimulation = Field(
-        BergamoPhotoStimulation(), title="Stimulus"
-    )
-
-
-class BergamoStream(Stream):
-    """Overrides Stream class to mark some fields as Optional or
-    sets defaults."""
-
-    # Fields with default values specific to Bergamo Sessions
-    camera_names: List[str] = Field(default=["Side Camera"], title="Cameras")
-    stream_modalities: List[Modality.ONE_OF] = Field(
-        default=[Modality.POPHYS], title="Modalities"
-    )
-
-    # Required fields that will be parsed from files.
-    light_sources: List[BergamoLaserConfig] = Field(
-        default=[BergamoLaserConfig()], title="Light Sources"
-    )
-    detectors: List[BergamoDetectorConfig] = Field(
-        default=[BergamoDetectorConfig()], title="Detectors"
-    )
-    ophys_fovs: List[BergamoFieldOfView] = Field(
-        default=[BergamoFieldOfView()], title="Fields of view"
-    )
-
-
-class BergamoSession(Session):
-    """Overrides Session class to mark some fields as Optional or
-    sets defaults."""
-
-    # Fields with default values specific to Bergamo Sessions
-    iacuc_protocol: Optional[str] = Field(
-        default="2115", title="IACUC protocol"
-    )
-    session_type: str = Field(default="BCI", title="Session type")
-    rig_id: str = Field(default="Bergamo photostim.", title="Rig ID")
-
-    # Required fields that will be parsed from files.
-
-    data_streams: List[BergamoStream] = Field(
-        ...,
-        title="Data streams",
-        description=(
-            "A data stream is a collection of devices that are recorded"
-            " simultaneously. Each session can include"
-            " multiple streams (e.g., if the manipulators are moved to a new"
-            " location)"
-        ),
-    )
-    stimulus_epochs: List[BergamoStimulusEpoch] = Field(..., title="Stimulus")
+        env_prefix = "BERGAMO_"
 
 
 @dataclass(frozen=True)
@@ -210,32 +109,28 @@ class ParsedMetadata:
     movie_start_time: datetime
 
 
-class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
+class BergamoEtl(BaseEtl):
     """Class to manage transforming bergamo data files into a Session object"""
 
     def __init__(
         self,
-        input_source: Union[Path, str],
-        specific_model: BergamoSession,
-        output_directory: Optional[Path] = None,
+        input_source: Union[str, PathLike],
+        output_directory: Path,
+        user_settings: UserSettings,
     ):
         """
         Class constructor for Base etl class.
         Parameters
         ----------
-        input_source : Path
-          Directory of tiff files to parse
-        output_directory : Optional[Path]
-          The directory where to save the metadata file. Default is None.
-        specific_model : BergamoSession
-          Model for a Bergamo session
+        input_source : Union[str, PathLike]
+          Can be a string or a Path
+        output_directory : Path
+          The directory where to save the json files.
+        user_settings: UserSettings
+          Variables for a particular session
         """
-        super().__init__(
-            input_sources={"tiff_directory": Path(input_source)},
-            output_directory=output_directory,
-            specific_model=specific_model,
-        )
-        self.input_source = input_source
+        super().__init__(input_source, output_directory)
+        self.user_settings = user_settings
 
     @staticmethod
     def _flat_dict_to_nested(flat: dict, key_delim: str = ".") -> dict:
@@ -458,8 +353,10 @@ class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
         """Extract metadata from bergamo session. If input source is a file,
         will extract data from file. If input source is a directory, will
         attempt to find a file."""
-
-        input_source = self.input_sources["tiff_directory"]
+        if isinstance(self.input_source, str):
+            input_source = Path(self.input_source)
+        else:
+            input_source = self.input_source
 
         if os.path.isfile(input_source):
             file_with_metadata = input_source
@@ -495,73 +392,156 @@ class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
             "photostimRoiGroups"
         ]
 
-        updated_session = self.specific_model.model_copy(deep=True)
-
-        # Update data_streams with information from files
-        data_stream = updated_session.data_streams[0]
-        light_sources = data_stream.light_sources[0]
-        light_sources.excitation_power = Decimal(
-            str(siHeader.metadata["hBeams"]["powers"][1:-1].split()[0])
+        data_stream = Stream(
+            mouse_platform_name=self.user_settings.mouse_platform_name,
+            active_mouse_platform=self.user_settings.active_mouse_platform,
+            stream_start_time=self.user_settings.stream_start_time,
+            stream_end_time=self.user_settings.stream_end_time,
+            stream_modalities=[Modality.POPHYS],
+            camera_names=list(self.user_settings.camera_names),
+            light_sources=[
+                LaserConfig(
+                    name=self.user_settings.laser_a_name,
+                    wavelength=self.user_settings.laser_a_wavelength,
+                    wavelength_unit=self.user_settings.laser_a_wavelength_unit,
+                    excitation_power=int(
+                        siHeader.metadata["hBeams"]["powers"][1:-1].split()[0]
+                    ),
+                    excitation_power_unit=PowerUnit.PERCENT,
+                ),
+            ],
+            detectors=[
+                DetectorConfig(
+                    name=self.user_settings.detector_a_name,
+                    exposure_time=self.user_settings.detector_a_exposure_time,
+                    trigger_type=self.user_settings.detector_a_trigger_type,
+                ),
+            ],
+            ophys_fovs=[
+                FieldOfView(
+                    index=self.user_settings.fov_0_index,
+                    imaging_depth=self.user_settings.fov_0_imaging_depth,
+                    targeted_structure=(
+                        self.user_settings.fov_0_targeted_structure
+                    ),
+                    fov_coordinate_ml=self.user_settings.fov_0_coordinate_ml,
+                    fov_coordinate_ap=self.user_settings.fov_0_coordinate_ap,
+                    fov_reference=self.user_settings.fov_0_reference,
+                    fov_width=int(
+                        siHeader.metadata["hRoiManager"]["pixelsPerLine"]
+                    ),
+                    fov_height=int(
+                        siHeader.metadata["hRoiManager"]["linesPerFrame"]
+                    ),
+                    magnification=self.user_settings.fov_0_magnification,
+                    fov_scale_factor=float(
+                        siHeader.metadata["hRoiManager"]["scanZoomFactor"]
+                    ),
+                    frame_rate=float(
+                        siHeader.metadata["hRoiManager"]["scanFrameRate"]
+                    ),
+                ),
+            ],
         )
-        field_of_view = data_stream.ophys_fovs[0]
-        field_of_view.fov_width = int(
-            siHeader.metadata["hRoiManager"]["pixelsPerLine"]
+        return Session(
+            experimenter_full_name=self.user_settings.experimenter_full_name,
+            session_start_time=self.user_settings.session_start_time,
+            session_end_time=self.user_settings.session_end_time,
+            subject_id=self.user_settings.subject_id,
+            session_type=self.user_settings.session_type,
+            iacuc_protocol=self.user_settings.iacuc_protocol,
+            rig_id=self.user_settings.rig_id,
+            data_streams=[data_stream],
+            stimulus_epochs=[
+                StimulusEpoch(
+                    stimulus=PhotoStimulation(
+                        stimulus_name="PhotoStimulation",
+                        number_groups=(
+                            self.user_settings.num_of_photo_stim_groups
+                        ),
+                        groups=[
+                            PhotoStimulationGroup(
+                                group_index=(
+                                    self.user_settings.photo_stim_groups[0][
+                                        "group_index"
+                                    ]
+                                ),
+                                number_of_neurons=int(
+                                    np.array(
+                                        photostim_groups[0]["rois"][1][
+                                            "scanfields"
+                                        ]["slmPattern"]
+                                    ).shape[0]
+                                ),
+                                stimulation_laser_power=int(
+                                    photostim_groups[0]["rois"][1][
+                                        "scanfields"
+                                    ]["powers"]
+                                ),
+                                number_trials=(
+                                    self.user_settings.photo_stim_groups[0][
+                                        "number_trials"
+                                    ]
+                                ),
+                                number_spirals=int(
+                                    photostim_groups[0]["rois"][1][
+                                        "scanfields"
+                                    ]["repetitions"]
+                                ),
+                                spiral_duration=photostim_groups[0]["rois"][1][
+                                    "scanfields"
+                                ]["duration"],
+                                inter_spiral_interval=photostim_groups[0][
+                                    "rois"
+                                ][2]["scanfields"]["duration"],
+                            ),
+                            PhotoStimulationGroup(
+                                group_index=(
+                                    self.user_settings.photo_stim_groups[1][
+                                        "group_index"
+                                    ]
+                                ),
+                                number_of_neurons=int(
+                                    np.array(
+                                        photostim_groups[0]["rois"][1][
+                                            "scanfields"
+                                        ]["slmPattern"]
+                                    ).shape[0]
+                                ),
+                                stimulation_laser_power=int(
+                                    photostim_groups[0]["rois"][1][
+                                        "scanfields"
+                                    ]["powers"]
+                                ),
+                                number_trials=(
+                                    self.user_settings.photo_stim_groups[1][
+                                        "number_trials"
+                                    ]
+                                ),
+                                number_spirals=int(
+                                    photostim_groups[0]["rois"][1][
+                                        "scanfields"
+                                    ]["repetitions"]
+                                ),
+                                spiral_duration=photostim_groups[0]["rois"][1][
+                                    "scanfields"
+                                ]["duration"],
+                                inter_spiral_interval=photostim_groups[0][
+                                    "rois"
+                                ][2]["scanfields"]["duration"],
+                            ),
+                        ],
+                        inter_trial_interval=(
+                            self.user_settings.photo_stim_inter_trial_interval
+                        ),
+                    ),
+                    stimulus_start_time=(
+                        self.user_settings.stimulus_start_time
+                    ),
+                    stimulus_end_time=self.user_settings.stimulus_end_time,
+                )
+            ],
         )
-        field_of_view.fov_height = int(
-            siHeader.metadata["hRoiManager"]["linesPerFrame"]
-        )
-        field_of_view.fov_scale_factor = Decimal(
-            str(siHeader.metadata["hRoiManager"]["scanZoomFactor"])
-        )
-        field_of_view.frame_rate = Decimal(
-            str(siHeader.metadata["hRoiManager"]["scanFrameRate"])
-        )
-
-        # Update stimulus_epochs with information from files
-        stimulus_epoch = updated_session.stimulus_epochs[0]
-        stimulus_epoch_stimulus = stimulus_epoch.stimulus
-        stimulus_epoch_stimulus_groups = stimulus_epoch_stimulus.groups
-        group0 = stimulus_epoch_stimulus_groups[0]
-        group0.number_of_neurons = int(
-            np.array(
-                photostim_groups[0]["rois"][1]["scanfields"]["slmPattern"]
-            ).shape[0]
-        )
-        group0.stimulation_laser_power = Decimal(
-            str(photostim_groups[0]["rois"][1]["scanfields"]["powers"])
-        )
-        group0.number_spirals = int(
-            photostim_groups[0]["rois"][1]["scanfields"]["repetitions"]
-        )
-        group0.spiral_duration = Decimal(
-            str(photostim_groups[0]["rois"][1]["scanfields"]["duration"])
-        )
-        group0.inter_spiral_interval = Decimal(
-            str(photostim_groups[0]["rois"][2]["scanfields"]["duration"])
-        )
-
-        group1 = stimulus_epoch_stimulus_groups[1]
-        # TODO: These indexes are the same as the ones above. Check if this
-        #  is correct.
-        group1.number_of_neurons = int(
-            np.array(
-                photostim_groups[0]["rois"][1]["scanfields"]["slmPattern"]
-            ).shape[0]
-        )
-        group1.stimulation_laser_power = Decimal(
-            str(photostim_groups[0]["rois"][1]["scanfields"]["powers"])
-        )
-        group1.number_spirals = int(
-            photostim_groups[0]["rois"][1]["scanfields"]["repetitions"]
-        )
-        group1.spiral_duration = Decimal(
-            str(photostim_groups[0]["rois"][1]["scanfields"]["duration"])
-        )
-        group1.inter_spiral_interval = Decimal(
-            str(photostim_groups[0]["rois"][2]["scanfields"]["duration"])
-        )
-
-        return Session.model_validate(updated_session.model_dump())
 
     @classmethod
     def from_args(cls, args: list):
@@ -593,19 +573,31 @@ class BergamoEtl(BaseEtl[BergamoSession, Dict[str, Path]]):
             ),
         )
         parser.add_argument(
-            "-s",
-            "--specific-model",
+            "-u",
+            "--user-settings",
             required=True,
-            type=str,
-            help="JSON serialized string of a BergamoSession model",
+            type=json.loads,
+            help=(
+                r"""
+                Custom settings defined by the user defined as a json
+                 string. For example: -u
+                 '{"experimenter_full_name":["John Smith","Jane Smith"],
+                 "subject_id":"12345",
+                 "session_start_time":"2023-10-10T10:10:10",
+                 "session_end_time":"2023-10-10T18:10:10",
+                 "stream_start_time": "2023-10-10T11:10:10",
+                 "stream_end_time":"2023-10-10T17:10:10",
+                 "stimulus_start_time":"12:10:10",
+                 "stimulus_end_time":"13:10:10"}'
+                """
+            ),
         )
         job_args = parser.parse_args(args)
+        user_settings_from_args = UserSettings(**job_args.user_settings)
         return cls(
             input_source=Path(job_args.input_source),
             output_directory=Path(job_args.output_directory),
-            specific_model=BergamoSession.model_validate_json(
-                job_args.specified_model
-            ),
+            user_settings=user_settings_from_args,
         )
 
 

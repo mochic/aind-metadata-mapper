@@ -6,16 +6,12 @@ import os
 import unittest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, call, patch
-
-from aind_data_schema.core.session import Session
+from unittest.mock import MagicMock, patch
 
 from aind_metadata_mapper.bergamo.session import (
     BergamoEtl,
-    BergamoSession,
-    BergamoStimulusEpoch,
-    BergamoStream,
     RawImageInfo,
+    UserSettings,
 )
 
 RESOURCES_DIR = (
@@ -42,31 +38,23 @@ class TestBergamoEtl(unittest.TestCase):
         cls.example_metadata = raw_md_contents
         cls.example_description0 = raw_des0_contents
         cls.example_shape = [347, 512, 512]
-        cls.example_bergamo_session = BergamoSession(
+        cls.example_user_settings = UserSettings(
+            mouse_platform_name="some_mouse_platform_name",
+            active_mouse_platform=True,
             experimenter_full_name=["John Smith", "Jane Smith"],
             subject_id="12345",
             session_start_time=datetime(2023, 10, 10, 14, 0, 0),
             session_end_time=datetime(2023, 10, 10, 17, 0, 0),
-            data_streams=[
-                BergamoStream(
-                    mouse_platform_name="some_mouse_platform_name",
-                    active_mouse_platform=True,
-                    stream_start_time=datetime(2023, 10, 10, 15, 0, 0),
-                    stream_end_time=datetime(2023, 10, 10, 16, 0, 0),
-                )
-            ],
-            stimulus_epochs=[
-                BergamoStimulusEpoch(
-                    stimulus_start_time=datetime(2023, 10, 10, 15, 15, 0),
-                    stimulus_end_time=datetime(2023, 10, 10, 15, 45, 0),
-                )
-            ],
+            stream_start_time=datetime(2023, 10, 10, 15, 0, 0),
+            stream_end_time=datetime(2023, 10, 10, 16, 0, 0),
+            stimulus_start_time=datetime(2023, 10, 10, 15, 15, 0),
+            stimulus_end_time=datetime(2023, 10, 10, 15, 45, 0),
         )
         cls.expected_session = expected_session_contents
 
     @patch("aind_metadata_mapper.bergamo.session.ScanImageTiffReader")
     def test_extract(self, mock_reader: MagicMock):
-        """Tests that the raw image info is extracted correctly."""
+        """Tests that the raw image info is extracted correcetly."""
         mock_context = mock_reader.return_value.__enter__.return_value
         mock_context.metadata.return_value = self.example_metadata
         mock_context.description.return_value = self.example_description0
@@ -75,7 +63,7 @@ class TestBergamoEtl(unittest.TestCase):
         etl_job1 = BergamoEtl(
             input_source=RESOURCES_DIR,
             output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
+            user_settings=self.example_user_settings,
         )
         raw_image_info1 = etl_job1._extract()
         self.assertEqual(2310025, len(raw_image_info1.metadata))
@@ -86,7 +74,7 @@ class TestBergamoEtl(unittest.TestCase):
         etl_job2 = BergamoEtl(
             input_source=EXAMPLE_IMG_PATH,
             output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
+            user_settings=self.example_user_settings,
         )
         raw_image_info2 = etl_job2._extract()
         self.assertEqual(2310025, len(raw_image_info2.metadata))
@@ -97,7 +85,7 @@ class TestBergamoEtl(unittest.TestCase):
         etl_job3 = BergamoEtl(
             input_source=str(EXAMPLE_IMG_PATH),
             output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
+            user_settings=self.example_user_settings,
         )
         raw_image_info3 = etl_job3._extract()
         self.assertEqual(2310025, len(raw_image_info3.metadata))
@@ -106,9 +94,9 @@ class TestBergamoEtl(unittest.TestCase):
 
         # Test error is raised if no tif file in dir
         etl_job4 = BergamoEtl(
-            input_source=(RESOURCES_DIR / ".."),
+            input_source=str(RESOURCES_DIR / ".."),
             output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
+            user_settings=self.example_user_settings,
         )
         with self.assertRaises(FileNotFoundError) as e:
             etl_job4._extract()
@@ -167,7 +155,7 @@ class TestBergamoEtl(unittest.TestCase):
         etl_job1 = BergamoEtl(
             input_source=RESOURCES_DIR,
             output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
+            user_settings=self.example_user_settings,
         )
         actual_parsed_data = etl_job1._parse_raw_image_info(raw_image_info)
         mock_log.assert_called_once_with(
@@ -207,7 +195,7 @@ class TestBergamoEtl(unittest.TestCase):
         etl_job1 = BergamoEtl(
             input_source=RESOURCES_DIR,
             output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
+            user_settings=self.example_user_settings,
         )
         actual_session = etl_job1._transform(raw_image_info)
         self.assertEqual(
@@ -217,119 +205,6 @@ class TestBergamoEtl(unittest.TestCase):
             "Multiple planes not handled in metadata collection. "
             "HANDLE ME!!!: KeyError('userZs')"
         )
-
-    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
-    @patch("aind_metadata_mapper.bergamo.session.ScanImageTiffReader")
-    @patch("logging.error")
-    @patch("logging.debug")
-    def test_run_job(
-        self,
-        mock_log_debug: MagicMock,
-        mock_log_error: MagicMock,
-        mock_reader: MagicMock,
-        mock_file_write: MagicMock,
-    ):
-        """Tests run_job command"""
-        mock_context = mock_reader.return_value.__enter__.return_value
-        mock_context.metadata.return_value = self.example_metadata
-        mock_context.description.return_value = self.example_description0
-        mock_context.shape.return_value = self.example_shape
-        etl_job = BergamoEtl(
-            input_source=EXAMPLE_IMG_PATH,
-            output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
-        )
-        response = etl_job.run_job()
-        self.assertEqual(
-            f"Successfully wrote file to {RESOURCES_DIR}", response
-        )
-        mock_file_write.assert_called_once_with(output_directory=RESOURCES_DIR)
-        mock_log_error.assert_called_once_with(
-            "Multiple planes not handled in metadata collection. "
-            "HANDLE ME!!!: KeyError('userZs')"
-        )
-        mock_log_debug.assert_called_once_with(
-            "No validation errors detected."
-        )
-
-    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
-    @patch("aind_metadata_mapper.bergamo.session.ScanImageTiffReader")
-    @patch("logging.error")
-    @patch("logging.debug")
-    def test_run_job_write_error(
-        self,
-        mock_log_debug: MagicMock,
-        mock_log_error: MagicMock,
-        mock_reader: MagicMock,
-        mock_file_write: MagicMock,
-    ):
-        """Tests run_job command when an error writing the file occurs"""
-        mock_context = mock_reader.return_value.__enter__.return_value
-        mock_context.metadata.return_value = self.example_metadata
-        mock_context.description.return_value = self.example_description0
-        mock_context.shape.return_value = self.example_shape
-        etl_job = BergamoEtl(
-            input_source=EXAMPLE_IMG_PATH,
-            output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
-        )
-
-        mock_file_write.side_effect = Exception("An error happened!")
-
-        response = etl_job.run_job()
-        self.assertEqual(f"Error writing file to: {RESOURCES_DIR}", response)
-        mock_file_write.assert_called_once_with(output_directory=RESOURCES_DIR)
-        mock_log_error.assert_has_calls(
-            [
-                call(
-                    "Multiple planes not handled in metadata collection."
-                    " HANDLE ME!!!: KeyError('userZs')"
-                ),
-                call("Error writing file: An error happened!"),
-            ]
-        )
-        mock_log_debug.assert_called_once_with(
-            "No validation errors detected."
-        )
-
-    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
-    @patch("aind_metadata_mapper.bergamo.session.ScanImageTiffReader")
-    @patch("logging.error")
-    def test_run_job_no_write(
-        self,
-        mock_log: MagicMock,
-        mock_reader: MagicMock,
-        mock_file_write: MagicMock,
-    ):
-        """Tests run_job command"""
-        mock_context = mock_reader.return_value.__enter__.return_value
-        mock_context.metadata.return_value = self.example_metadata
-        mock_context.description.return_value = self.example_description0
-        mock_context.shape.return_value = self.example_shape
-        etl_job = BergamoEtl(
-            input_source=EXAMPLE_IMG_PATH,
-            output_directory=None,
-            specific_model=self.example_bergamo_session,
-        )
-        response = etl_job.run_job()
-        self.assertEqual(self.expected_session, json.loads(response))
-        mock_file_write.assert_not_called()
-        mock_log.assert_called_once_with(
-            "Multiple planes not handled in metadata collection. "
-            "HANDLE ME!!!: KeyError('userZs')"
-        )
-
-    @patch("logging.warning")
-    def test_model_validator(self, mock_log: MagicMock):
-        """Tests run_validation_check outputs correctly on invalid model"""
-        etl_job = BergamoEtl(
-            input_source=RESOURCES_DIR,
-            output_directory=RESOURCES_DIR,
-            specific_model=self.example_bergamo_session,
-        )
-
-        etl_job._run_validation_check(Session.model_construct())
-        mock_log.assert_called_once()
 
 
 if __name__ == "__main__":
