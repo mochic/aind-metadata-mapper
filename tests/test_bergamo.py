@@ -6,7 +6,9 @@ import os
 import unittest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
+
+from aind_data_schema.core.session import Session
 
 from aind_metadata_mapper.bergamo.session import (
     BergamoEtl,
@@ -205,6 +207,88 @@ class TestBergamoEtl(unittest.TestCase):
             "Multiple planes not handled in metadata collection. "
             "HANDLE ME!!!: KeyError('userZs')"
         )
+
+    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
+    @patch("aind_metadata_mapper.bergamo.session.ScanImageTiffReader")
+    @patch("logging.error")
+    @patch("logging.debug")
+    def test_run_job(
+        self,
+        mock_log_debug: MagicMock,
+        mock_log_error: MagicMock,
+        mock_reader: MagicMock,
+        mock_file_write: MagicMock,
+    ):
+        """Tests run_job command"""
+        mock_context = mock_reader.return_value.__enter__.return_value
+        mock_context.metadata.return_value = self.example_metadata
+        mock_context.description.return_value = self.example_description0
+        mock_context.shape.return_value = self.example_shape
+        etl_job = BergamoEtl(
+            input_source=RESOURCES_DIR,
+            output_directory=RESOURCES_DIR,
+            user_settings=self.example_user_settings,
+        )
+        etl_job.run_job()
+        mock_file_write.assert_called_once_with(output_directory=RESOURCES_DIR)
+        mock_log_error.assert_called_once_with(
+            "Multiple planes not handled in metadata collection. "
+            "HANDLE ME!!!: KeyError('userZs')"
+        )
+        mock_log_debug.assert_called_once_with(
+            "No validation errors detected."
+        )
+
+    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
+    @patch("aind_metadata_mapper.bergamo.session.ScanImageTiffReader")
+    @patch("logging.error")
+    @patch("logging.debug")
+    def test_run_job_write_error(
+        self,
+        mock_log_debug: MagicMock,
+        mock_log_error: MagicMock,
+        mock_reader: MagicMock,
+        mock_file_write: MagicMock,
+    ):
+        """Tests run_job command when an error writing the file occurs"""
+        mock_context = mock_reader.return_value.__enter__.return_value
+        mock_context.metadata.return_value = self.example_metadata
+        mock_context.description.return_value = self.example_description0
+        mock_context.shape.return_value = self.example_shape
+        etl_job = BergamoEtl(
+            input_source=RESOURCES_DIR,
+            output_directory=RESOURCES_DIR,
+            user_settings=self.example_user_settings,
+        )
+        mock_file_write.side_effect = Exception("An error happened!")
+
+        with self.assertRaises(Exception) as e:
+            etl_job.run_job()
+        self.assertEqual("An error happened!", str(e.exception))
+        mock_file_write.assert_called_once_with(output_directory=RESOURCES_DIR)
+        mock_log_error.assert_has_calls(
+            [
+                call(
+                    "Multiple planes not handled in metadata collection."
+                    " HANDLE ME!!!: KeyError('userZs')"
+                )
+            ]
+        )
+        mock_log_debug.assert_called_once_with(
+            "No validation errors detected."
+        )
+
+    @patch("logging.warning")
+    def test_model_validator(self, mock_log: MagicMock):
+        """Tests run_validation_check outputs correctly on invalid model"""
+        etl_job = BergamoEtl(
+            input_source=RESOURCES_DIR,
+            output_directory=RESOURCES_DIR,
+            user_settings=self.example_user_settings,
+        )
+
+        etl_job._run_validation_check(Session.model_construct())
+        mock_log.assert_called_once()
 
 
 if __name__ == "__main__":
