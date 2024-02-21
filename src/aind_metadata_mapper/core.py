@@ -11,6 +11,7 @@ from aind_data_schema.base import AindCoreModel
 from pydantic import ValidationError
 
 
+# TODO: Deprecated class
 class BaseEtl(ABC):
     """Base etl class. Defines interface for extracting, transforming, and
     loading input sources into a json file saved locally."""
