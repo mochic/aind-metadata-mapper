@@ -2,7 +2,6 @@ import unittest
 import pathlib
 import h5py  # type: ignore
 
-from aind_data_schema.core import rig  # type: ignore
 from aind_metadata_mapper.neuropixels import dynamic_routing_task  # type: ignore
 
 from . import utils as test_utils
@@ -12,13 +11,8 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl(self):
-        expected = rig.Rig.model_validate_json(
-            pathlib.Path(
-                "./tests/resources/neuropixels"
-                "/dynamic_routing_task_rig.expected.json"
-            ).read_text()
-        )
-        for calibration in expected.calibrations:
+        # get expected calibration dates for tests
+        for calibration in self.expected.calibrations:
             if calibration.device_name == "Speaker":
                 expected_sound_calibration_date = calibration.calibration_date
                 break
@@ -31,24 +25,23 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
         # else:
         #     raise Exception("Water calibration not found")
         
-        task = h5py.File(
-            pathlib.Path(
-                "./tests/resources/neuropixels/"
-                "/DynamicRouting1_690706_20231130_131725.hdf5"
-            ),
-            "r",
-        )
         etl = dynamic_routing_task.DynamicRoutingTaskRigEtl(
             self.input_source,
             self.output_dir,
-            task=task,
-            modification_date=expected.modification_date,
+            task=h5py.File(
+                pathlib.Path(
+                    "./tests/resources/neuropixels/"
+                    "DynamicRouting1_690706_20231130_131725.hdf5"
+                ),
+                "r",
+            ),
+            modification_date=self.expected.modification_date,
             sound_calibration_date=expected_sound_calibration_date,
             # water_calibration_date=expected_water_calibration_date,
         )
         etl.run_job()
 
-        assert self.load_updated() == expected
+        assert self.load_updated() == self.expected
 
     def setUp(self):
         """Moves required test resources to testing directory.
@@ -61,8 +54,8 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
                     "./tests/resources/neuropixels/rig.partial.json"
                 ),
                 pathlib.Path(
-                    "./tests/resources/neuropixels"
-                    "/dynamic_routing_task_rig.expected.json"
+                    "./tests/resources/neuropixels/"
+                    "dynamic_routing_task_rig.expected.json"
                 ),
             )
 

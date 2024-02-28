@@ -57,8 +57,8 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 setter=lambda item, name, value: setattr(item.camera, name, value),
                 computer_name=self.hostname,
                 serial_number=serial_number,
-                pixel_height=height,
-                pixel_width=width,
+                sensor_height=height,
+                sensor_width=width,
                 size_unit="pixel",
             )
 

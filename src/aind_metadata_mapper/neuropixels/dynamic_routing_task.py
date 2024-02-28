@@ -224,5 +224,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         #     water_calibration,
         # )
 
+        # laser
+        # laser_calibration = devices.Calibration()
+
         # can't add reward calibration yet, due to aind-data-schema reward delivery bug
         return super()._transform(extracted_source.current)

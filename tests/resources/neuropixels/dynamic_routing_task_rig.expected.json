@@ -1,15 +1,17 @@
 {
    "describedBy": "https://raw.githubusercontent.com/AllenNeuralDynamics/aind-data-schema/main/src/aind_data_schema/core/rig.py",
-   "schema_version": "0.2.0",
-   "rig_id": "NP.2_0.1.0",
-   "modification_date": "2024-01-24",
+   "schema_version": "0.2.16",
+   "rig_id": "NP.2_240227",
+   "modification_date": "2024-02-27",
    "mouse_platform": {
       "device_type": "Disc",
-      "name": null,
+      "name": "Mouse Platform",
       "serial_number": null,
       "manufacturer": null,
       "model": null,
       "path_to_cad": null,
+      "port_index": null,
+      "additional_settings": {},
       "notes": null,
       "surface_material": null,
       "date_surface_replaced": null,
@@ -36,6 +38,8 @@
          },
          "model": "PA248",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "refresh_rate": 60,
          "width": 1920,
@@ -59,8 +63,69 @@
          },
          "model": "SPK-I-81345",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "position": null
+      },
+      {
+         "device_type": "Reward delivery",
+         "stage_type": null,
+         "reward_spouts": [
+            {
+               "device_type": "Reward spout",
+               "name": "Reward Spout",
+               "serial_number": null,
+               "manufacturer": {
+                  "name": "Other",
+                  "abbreviation": null,
+                  "registry": null,
+                  "registry_identifier": null
+               },
+               "model": null,
+               "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
+               "notes": null,
+               "side": "Center",
+               "spout_diameter": "0.5",
+               "spout_diameter_unit": "millimeter",
+               "spout_position": null,
+               "solenoid_valve": {
+                  "device_type": "Solenoid Valve",
+                  "name": "Solenoid Valve",
+                  "serial_number": null,
+                  "manufacturer": {
+                     "name": "Other",
+                     "abbreviation": null,
+                     "registry": null,
+                     "registry_identifier": null
+                  },
+                  "model": null,
+                  "path_to_cad": null,
+                  "port_index": null,
+                  "additional_settings": {},
+                  "notes": null
+               },
+               "lick_sensor": {
+                  "device_type": "Lick Sensor",
+                  "name": "Lick Sensor",
+                  "serial_number": null,
+                  "manufacturer": {
+                     "name": "Other",
+                     "abbreviation": null,
+                     "registry": null,
+                     "registry_identifier": null
+                  },
+                  "model": null,
+                  "path_to_cad": null,
+                  "port_index": null,
+                  "additional_settings": {},
+                  "notes": null
+               },
+               "lick_sensor_type": "Capacitive"
+            }
+         ]
       }
    ],
    "cameras": [
@@ -68,8 +133,8 @@
          "camera_assembly_name": "Face forward",
          "camera_target": "Face forward",
          "camera": {
-            "device_type": "Camera",
-            "name": "Face forward",
+            "device_type": "Detector",
+            "name": "Face forward camera",
             "serial_number": null,
             "manufacturer": {
                "name": "Allied",
@@ -79,24 +144,38 @@
             },
             "model": "G-032",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": "Max frame rate is at maximum resolution.",
+            "detector_type": "Camera",
             "data_interface": "Ethernet",
+            "cooling": "Air",
             "computer_name": "127.0.0.1",
             "max_frame_rate": "102",
             "frame_rate_unit": "hertz",
-            "pixel_width": 7400,
-            "pixel_height": 7400,
-            "size_unit": "nanometer",
+            "immersion": null,
             "chroma": "Monochrome",
+            "sensor_width": 7400,
+            "sensor_height": 7400,
+            "size_unit": "nanometer",
             "sensor_format": null,
-            "format_unit": null,
+            "sensor_format_unit": null,
+            "bit_depth": null,
+            "bin_mode": "None",
+            "bin_width": null,
+            "bin_height": null,
+            "bin_unit": "pixel",
+            "gain": null,
+            "crop_width": null,
+            "crop_height": null,
+            "crop_unit": "pixel",
             "recording_software": null,
             "driver": null,
             "driver_version": null
          },
          "lens": {
             "device_type": "Lens",
-            "name": null,
+            "name": "Face forward lens",
             "serial_number": null,
             "manufacturer": {
                "name": "Edmund Optics",
@@ -109,6 +188,8 @@
             },
             "model": "86604",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null,
             "focal_length": "8.5",
             "focal_length_unit": "millimeter",
@@ -120,7 +201,7 @@
          },
          "filter": {
             "device_type": "Filter",
-            "name": null,
+            "name": "Face forward filter",
             "serial_number": null,
             "manufacturer": {
                "name": "Semrock",
@@ -130,8 +211,10 @@
             },
             "model": "FF01-715_LP-25",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null,
-            "filter_type": "Band pass",
+            "filter_type": "Long pass",
             "diameter": null,
             "width": null,
             "height": null,
@@ -151,8 +234,8 @@
          "camera_assembly_name": "Behavior",
          "camera_target": "Body",
          "camera": {
-            "device_type": "Camera",
-            "name": "Behavior",
+            "device_type": "Detector",
+            "name": "Behavior camera",
             "serial_number": null,
             "manufacturer": {
                "name": "Allied",
@@ -162,24 +245,38 @@
             },
             "model": "G-032",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": "Max frame rate is at maximum resolution.",
+            "detector_type": "Camera",
             "data_interface": "Ethernet",
+            "cooling": "Air",
             "computer_name": "127.0.0.1",
             "max_frame_rate": "102",
             "frame_rate_unit": "hertz",
-            "pixel_width": 7400,
-            "pixel_height": 7400,
-            "size_unit": "nanometer",
+            "immersion": null,
             "chroma": "Monochrome",
+            "sensor_width": 7400,
+            "sensor_height": 7400,
+            "size_unit": "nanometer",
             "sensor_format": null,
-            "format_unit": null,
+            "sensor_format_unit": null,
+            "bit_depth": null,
+            "bin_mode": "None",
+            "bin_width": null,
+            "bin_height": null,
+            "bin_unit": "pixel",
+            "gain": null,
+            "crop_width": null,
+            "crop_height": null,
+            "crop_unit": "pixel",
             "recording_software": null,
             "driver": null,
             "driver_version": null
          },
          "lens": {
             "device_type": "Lens",
-            "name": null,
+            "name": "Behavior lens",
             "serial_number": null,
             "manufacturer": {
                "name": "Navitar",
@@ -189,6 +286,8 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null,
             "focal_length": "6.0",
             "focal_length_unit": "millimeter",
@@ -200,7 +299,7 @@
          },
          "filter": {
             "device_type": "Filter",
-            "name": null,
+            "name": "Behavior filter",
             "serial_number": null,
             "manufacturer": {
                "name": "Semrock",
@@ -210,6 +309,8 @@
             },
             "model": "FF01-747/33-25",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null,
             "filter_type": "Band pass",
             "diameter": null,
@@ -231,8 +332,8 @@
          "camera_assembly_name": "Eye",
          "camera_target": "Eye",
          "camera": {
-            "device_type": "Camera",
-            "name": null,
+            "device_type": "Detector",
+            "name": "Eye camera",
             "serial_number": null,
             "manufacturer": {
                "name": "Allied",
@@ -242,24 +343,38 @@
             },
             "model": "G-032",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": "Max frame rate is at maximum resolution.",
+            "detector_type": "Camera",
             "data_interface": "Ethernet",
+            "cooling": "Air",
             "computer_name": "127.0.0.1",
             "max_frame_rate": "102",
             "frame_rate_unit": "hertz",
-            "pixel_width": 7400,
-            "pixel_height": 7400,
-            "size_unit": "nanometer",
+            "immersion": null,
             "chroma": "Monochrome",
+            "sensor_width": 7400,
+            "sensor_height": 7400,
+            "size_unit": "nanometer",
             "sensor_format": null,
-            "format_unit": null,
+            "sensor_format_unit": null,
+            "bit_depth": null,
+            "bin_mode": "None",
+            "bin_width": null,
+            "bin_height": null,
+            "bin_unit": "pixel",
+            "gain": null,
+            "crop_width": null,
+            "crop_height": null,
+            "crop_unit": "pixel",
             "recording_software": null,
             "driver": null,
             "driver_version": null
          },
          "lens": {
             "device_type": "Lens",
-            "name": null,
+            "name": "Eye lens",
             "serial_number": null,
             "manufacturer": {
                "name": "Infinity Photo-Optical",
@@ -269,6 +384,8 @@
             },
             "model": "213073",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": "Model number is SKU.",
             "focal_length": "6.0",
             "focal_length_unit": "millimeter",
@@ -280,7 +397,7 @@
          },
          "filter": {
             "device_type": "Filter",
-            "name": null,
+            "name": "Eye filter",
             "serial_number": null,
             "manufacturer": {
                "name": "Semrock",
@@ -290,6 +407,8 @@
             },
             "model": "FF01-850/10-25",
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null,
             "filter_type": "Band pass",
             "diameter": null,
@@ -314,7 +433,7 @@
          "ephys_assembly_name": "Ephys Assembly A",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": null,
+            "name": "Ephys Assembly A Manipulator",
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -324,6 +443,8 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null
          },
          "probes": [
@@ -334,6 +455,8 @@
                "manufacturer": null,
                "model": null,
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "probe_model": "Neuropixels 1.0",
                "lasers": [],
@@ -345,7 +468,7 @@
          "ephys_assembly_name": "Ephys Assembly B",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": null,
+            "name": "Ephys Assembly B Manipulator",
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -355,6 +478,8 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null
          },
          "probes": [
@@ -365,6 +490,8 @@
                "manufacturer": null,
                "model": null,
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "probe_model": "Neuropixels 1.0",
                "lasers": [],
@@ -376,7 +503,7 @@
          "ephys_assembly_name": "Ephys Assembly C",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": null,
+            "name": "Ephys Assembly C Manipulator",
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -386,6 +513,8 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null
          },
          "probes": [
@@ -396,6 +525,8 @@
                "manufacturer": null,
                "model": null,
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "probe_model": "Neuropixels 1.0",
                "lasers": [],
@@ -407,7 +538,7 @@
          "ephys_assembly_name": "Ephys Assembly D",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": null,
+            "name": "Ephys Assembly D Manipulator",
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -417,6 +548,8 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null
          },
          "probes": [
@@ -427,6 +560,8 @@
                "manufacturer": null,
                "model": null,
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "probe_model": "Neuropixels 1.0",
                "lasers": [],
@@ -438,7 +573,7 @@
          "ephys_assembly_name": "Ephys Assembly E",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": null,
+            "name": "Ephys Assembly E Manipulator",
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -448,6 +583,8 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null
          },
          "probes": [
@@ -458,6 +595,8 @@
                "manufacturer": null,
                "model": null,
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "probe_model": "Neuropixels 1.0",
                "lasers": [],
@@ -469,7 +608,7 @@
          "ephys_assembly_name": "Ephys Assembly F",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": null,
+            "name": "Ephys Assembly F Manipulator",
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -479,6 +618,8 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null
          },
          "probes": [
@@ -489,6 +630,8 @@
                "manufacturer": null,
                "model": null,
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "probe_model": "Neuropixels 1.0",
                "lasers": [],
@@ -504,7 +647,7 @@
          "laser_assembly_name": "Laser Assembly #0",
          "manipulator": {
             "device_type": "Manipulator",
-            "name": null,
+            "name": "Laser Assembly #0 Manipulator",
             "serial_number": null,
             "manufacturer": {
                "name": "New Scale Technologies",
@@ -514,12 +657,14 @@
             },
             "model": null,
             "path_to_cad": null,
+            "port_index": null,
+            "additional_settings": {},
             "notes": null
          },
          "lasers": [
             {
                "device_type": "Laser",
-               "name": "Laser #0",
+               "name": "Laser Assembly #0 Laser #0",
                "serial_number": null,
                "manufacturer": {
                   "name": "Vortran",
@@ -529,6 +674,8 @@
                },
                "model": "Stradus 488-50",
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "wavelength": 488,
                "wavelength_unit": "nanometer",
@@ -541,7 +688,7 @@
             },
             {
                "device_type": "Laser",
-               "name": "Laser #1",
+               "name": "Laser Assembly #0 Laser #1",
                "serial_number": null,
                "manufacturer": {
                   "name": "Vortran",
@@ -551,6 +698,8 @@
                },
                "model": "Stradus 633-80",
                "path_to_cad": null,
+               "port_index": null,
+               "additional_settings": {},
                "notes": null,
                "wavelength": 633,
                "wavelength_unit": "nanometer",
@@ -576,8 +725,10 @@
             "registry": null,
             "registry_identifier": null
          },
-         "model": "Osram-LZ4-40R308-0000",
+         "model": "LZ4-40R308-0000",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "wavelength": 740,
          "wavelength_unit": "nanometer"
@@ -592,8 +743,10 @@
             "registry": null,
             "registry_identifier": null
          },
-         "model": "Osram-LZ4-40R308-0000",
+         "model": "LZ4-40R308-0000",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "wavelength": 740,
          "wavelength_unit": "nanometer"
@@ -608,9 +761,11 @@
             "registry": null,
             "registry_identifier": null
          },
-         "model": "LED_Engin_Inc_LZ4-40R608-0000",
+         "model": "LZ4-40R608-0000",
          "path_to_cad": null,
-         "notes": null,
+         "port_index": null,
+         "additional_settings": {},
+         "notes": "Manufacturer is LED Engin which is now ams-osram.",
          "wavelength": 850,
          "wavelength_unit": "nanometer"
       }
@@ -631,24 +786,34 @@
          },
          "model": "PDA25K",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": "Data interface is a placeholder. TODO: Add relative position on monitor?",
-         "detector_type": "other",
+         "detector_type": "Other",
          "data_interface": "USB",
-         "cooling": "air",
+         "cooling": "Air",
+         "computer_name": null,
+         "max_frame_rate": null,
+         "frame_rate_unit": "hertz",
          "immersion": null,
          "chroma": null,
          "sensor_width": null,
          "sensor_height": null,
          "size_unit": "pixel",
+         "sensor_format": null,
+         "sensor_format_unit": null,
          "bit_depth": null,
-         "bin_mode": "none",
+         "bin_mode": "None",
          "bin_width": null,
          "bin_height": null,
          "bin_unit": "pixel",
          "gain": null,
          "crop_width": null,
          "crop_height": null,
-         "crop_unit": "pixel"
+         "crop_unit": "pixel",
+         "recording_software": null,
+         "driver": null,
+         "driver_version": null
       },
       {
          "device_type": "Detector",
@@ -662,24 +827,34 @@
          },
          "model": "MOM",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": "Data interface is a placeholder. Actual manufacturer is Dodotronics. Model number is SVC.",
-         "detector_type": "other",
+         "detector_type": "Other",
          "data_interface": "USB",
-         "cooling": "air",
+         "cooling": "Air",
+         "computer_name": null,
+         "max_frame_rate": null,
+         "frame_rate_unit": "hertz",
          "immersion": null,
          "chroma": null,
          "sensor_width": null,
          "sensor_height": null,
          "size_unit": "pixel",
+         "sensor_format": null,
+         "sensor_format_unit": null,
          "bit_depth": null,
-         "bin_mode": "none",
+         "bin_mode": "None",
          "bin_width": null,
          "bin_height": null,
          "bin_unit": "pixel",
          "gain": null,
          "crop_width": null,
          "crop_height": null,
-         "crop_unit": "pixel"
+         "crop_unit": "pixel",
+         "recording_software": null,
+         "driver": null,
+         "driver_version": null
       }
    ],
    "objectives": [],
@@ -703,12 +878,16 @@
             },
             "registry_identifier": "026exqw73"
          },
-         "model": "NI-6682",
+         "model": "NI-6612",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "data_interface": "PCIe",
          "computer_name": "127.0.0.1",
-         "channels": []
+         "channels": [],
+         "firmware_version": null,
+         "hardware_version": null
       },
       {
          "device_type": "DAQ Device",
@@ -723,8 +902,10 @@
             },
             "registry_identifier": "026exqw73"
          },
-         "model": "NI-6321",
+         "model": "NI-6323",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "data_interface": "USB",
          "computer_name": "127.0.0.1",
@@ -759,7 +940,9 @@
                "sample_rate_unit": "hertz",
                "event_based_sampling": null
             }
-         ]
+         ],
+         "firmware_version": null,
+         "hardware_version": null
       },
       {
          "device_type": "DAQ Device",
@@ -776,6 +959,8 @@
          },
          "model": "NI-6001",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "data_interface": "PCIe",
          "computer_name": "127.0.0.1",
@@ -800,7 +985,9 @@
                "sample_rate_unit": "hertz",
                "event_based_sampling": null
             }
-         ]
+         ],
+         "firmware_version": null,
+         "hardware_version": null
       },
       {
          "device_type": "DAQ Device",
@@ -817,6 +1004,8 @@
          },
          "model": "NI-9264",
          "path_to_cad": null,
+         "port_index": null,
+         "additional_settings": {},
          "notes": null,
          "data_interface": "Ethernet",
          "computer_name": "127.0.0.1",
@@ -851,12 +1040,14 @@
                "sample_rate_unit": "hertz",
                "event_based_sampling": null
             }
-         ]
+         ],
+         "firmware_version": null,
+         "hardware_version": null
       }
    ],
    "calibrations": [
       {
-         "calibration_date": "2024-01-24T14:06:16.837711",
+         "calibration_date": "2024-02-28T13:18:08.911416",
          "device_name": "Speaker",
          "description": "sound_volume = log(1 - ((dB - c) / a)) / b;dB is sound pressure",
          "input": {},
@@ -869,14 +1060,20 @@
       }
    ],
    "ccf_coordinate_transform": null,
+   "origin": null,
+   "rig_axes": null,
    "modalities": [
-      {
-         "name": "Trained behavior",
-         "abbreviation": "trained-behavior"
-      },
       {
          "name": "Behavior videos",
          "abbreviation": "behavior-videos"
+      },
+      {
+         "name": "Extracellular electrophysiology",
+         "abbreviation": "ecephys"
+      },
+      {
+         "name": "Behavior",
+         "abbreviation": "behavior"
       }
    ],
    "notes": null

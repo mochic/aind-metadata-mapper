@@ -1,11 +1,15 @@
 """Shared utilities"""
+import logging
 import typing
 import pathlib
+import datetime
 import configparser
-import enum
 from xml.etree import ElementTree
 
 from . import NeuropixelsRigException
+
+
+logger = logging.getLogger(__name__)
 
 
 def find_elements(et: ElementTree.ElementTree, name: str) -> \
@@ -63,3 +67,23 @@ def find_replace_or_append(
             break
     else:
         iterable.append(update)
+
+
+def update_rig_id(
+    rig_id: str,
+    modification_date: datetime.date,
+) -> str:
+    """Rig id is expected to a string of the of the format:
+        <ROOM ID>_<RIG ID>_<MODIFICATION DATE (YYMMDD)>
+    
+    Notes
+    -----
+    - This function supports rig_id that are not postfixed with a room id
+    """
+    parts = rig_id.split("_")
+    logger.debug("Parsed rig_id parts: %s" % parts)
+    return "_".join([
+        *parts[:-1],
+        modification_date.strftime("%y%m%d"),
+    ])
+    

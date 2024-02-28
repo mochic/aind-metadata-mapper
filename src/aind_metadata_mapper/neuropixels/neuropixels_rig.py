@@ -7,6 +7,7 @@ import typing
 from aind_data_schema.core import rig  # type: ignore
 
 from ..core import BaseEtl
+from . import utils
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ class NeuropixelsRigEtl(BaseEtl):
         """Extracts rig-related information from config files.
         """
         return rig.Rig.model_validate_json(
-            self.input_source.read_text()
+            self.input_source.read_text(),
         )
 
     def _transform(self, extracted_source: rig.Rig) -> rig.Rig:
@@ -58,5 +59,10 @@ class NeuropixelsRigEtl(BaseEtl):
         else:
             extracted_source.modification_date = \
                 datetime.date.today()
+        
+        extracted_source.rig_id = utils.update_rig_id(
+            extracted_source.rig_id,
+            extracted_source.modification_date,
+        )
         
         return extracted_source

@@ -12,7 +12,7 @@ class SyncRigEtl(unittest.TestCase):
 
     def test_etl(self):
         etl = sync_rig.SyncRigEtl(
-            self.input_dir,
+            self.input_source,
             self.output_dir,
             yaml.safe_load(
                 pathlib.Path(
@@ -29,7 +29,7 @@ class SyncRigEtl(unittest.TestCase):
         """Moves required test resources to testing directory.
         """
         # test directory
-        self.input_dir, self.output_dir, self.expected, self.load_updated, \
+        self.input_source, self.output_dir, self.expected, self.load_updated, \
                 self._cleanup = \
             utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
