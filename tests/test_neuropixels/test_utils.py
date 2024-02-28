@@ -1,7 +1,7 @@
 import unittest
 import datetime
 
-from aind_metadata_mapper.neuropixels import utils
+from aind_metadata_mapper.neuropixels import utils  # type: ignore
 
 
 class Utils(unittest.TestCase):
