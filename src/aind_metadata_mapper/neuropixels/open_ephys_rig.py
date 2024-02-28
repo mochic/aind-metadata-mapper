@@ -1,7 +1,6 @@
 import typing
 import logging
 import pathlib
-from xml.etree import ElementTree
 from aind_data_schema.core import rig  # type: ignore
 from . import neuropixels_rig, utils, NeuropixelsRigException
 
