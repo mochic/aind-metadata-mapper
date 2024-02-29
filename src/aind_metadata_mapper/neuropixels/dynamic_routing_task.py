@@ -36,8 +36,10 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             behavior_sync_daq_name: str = "BehaviorSync",
             opto_daq_name: str = "Opto",
             reward_delivery_name: str = "Reward delivery",
+            laser_name: str = "Laser Assembly #0 Laser #0",
             sound_calibration_date: typing.Optional[datetime.date] = None,
             reward_calibration_date: typing.Optional[datetime.date] = None,
+            laser_calibration_date: typing.Optional[datetime.date] = None,
             **kwargs,
     ):
         super().__init__(input_source, output_directory, **kwargs)
@@ -50,6 +52,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         self.reward_delivery_name = reward_delivery_name
         self.sound_calibration_date = sound_calibration_date
         self.reward_calibration_date = reward_calibration_date
+        self.laser_name = laser_name
+        self.laser_calibration_date = laser_calibration_date
 
     def _extract(self) -> ExtractContext:
         return ExtractContext(
@@ -164,68 +168,75 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         )
 
         # calibrations
+        default_calibration_date = datetime.datetime.now()
+
         # sound
-        sound_calibration = devices.Calibration(
-            calibration_date=self.sound_calibration_date or \
-                datetime.datetime.now(),
-            device_name=self.speaker_name,
-            input={},
-            output={
-                "a": extracted_source.task["soundCalibrationFit"][0],
-                "b": extracted_source.task["soundCalibrationFit"][1],
-                "c": extracted_source.task["soundCalibrationFit"][2],
-            },
-            description=(
-                "sound_volume = log(1 - ((dB - c) / a)) / b;"
-                "dB is sound pressure"
-            ),
-            notes=(
-                "Calibration date is a placeholder. "
-            ),
-        )
         utils.find_replace_or_append(
             extracted_source.current.calibrations,
             [
                 ("device_name", self.speaker_name),
             ],
-            sound_calibration,
+            devices.Calibration(
+                calibration_date=self.sound_calibration_date or \
+                    default_calibration_date,
+                device_name=self.speaker_name,
+                input={},
+                output={
+                    "a": extracted_source.task["soundCalibrationFit"][0],
+                    "b": extracted_source.task["soundCalibrationFit"][1],
+                    "c": extracted_source.task["soundCalibrationFit"][2],
+                },
+                description=(
+                    "sound_volume = log(1 - ((dB - c) / a)) / b;"
+                    "dB is sound pressure"
+                ),
+                notes=(
+                    "Calibration date is a placeholder. "
+                ),
+            ),
         )
-        # for idx, current_calibration in \
-        #         enumerate(extracted_source.current.calibrations):
-        #     if sound_calibration.device_name == current_calibration.device_name:
-        #         extracted_source.current.calibrations[idx] = sound_calibration
-        #         break
-        # else:
-        #     extracted_source.current.calibrations.append(sound_calibration)
 
         # water
-        # water_calibration = devices.Calibration(
-        #     calibration_date=self.reward_calibration_date or \
-        #         datetime.datetime.now(),
-        #     device_name=self.reward_delivery_name,
-        #     input={},
-        #     output={
-        #         "intercept": extracted_source.task["waterCalibrationFit"][0],
-        #         "slope": extracted_source.task["waterCalibrationFit"][1],
-        #     },
-        #     description=(
-        #         "water_volume = slope * (licks - intercept);"
-        #         "licks is the number of lick events"
-        #     ),
-        #     notes=(
-        #         "Calibration date is a placeholder. "
-        #     ),
-        # )
-        # utils.find_replace_or_append(
-        #     extracted_source.current.calibrations,
-        #     [
-        #         ("device_name", self.reward_delivery_name),
-        #     ],
-        #     water_calibration,
-        # )
+        task_water_calibration_intercept = \
+            extracted_source.task["waterCalibrationIntercept"][()]
+        task_water_calibration_slope = \
+            extracted_source.task["waterCalibrationSlope"][()]
+        if np.isnan(task_water_calibration_intercept):
+            water_calibration_intercept = 0
+        else:
+            water_calibration_intercept = task_water_calibration_intercept
+        if np.isnan(task_water_calibration_slope):
+            water_calibration_slope = 0
+        else:
+            water_calibration_slope = task_water_calibration_slope
 
-        # laser
-        # laser_calibration = devices.Calibration()
+        utils.find_replace_or_append(
+            extracted_source.current.calibrations,
+            [
+                ("device_name", self.reward_delivery_name),
+            ],
+            devices.Calibration(
+                calibration_date=self.reward_calibration_date or \
+                    default_calibration_date,
+                device_name=self.reward_delivery_name,
+                input={
+                    "intercept": water_calibration_intercept,
+                    "slope": water_calibration_slope,
+                },
+                output={
+                    "solonoid_open_time": extracted_source.task["solenoidOpenTime"][()],
+                },
+                description=(
+                    "solenoid open time (ms) = slope * expected water volume (mL) + intercept;"
+                    "licks is the number of lick events"
+                ),
+                notes=(
+                    "Calibration date is a placeholder. "
+                    "If intercept and slope are 0, "
+                    "their requisite values are missing but "
+                    "solenoid open time should still be accurate."
+                ),
+            ),
+        )
 
-        # can't add reward calibration yet, due to aind-data-schema reward delivery bug
         return super()._transform(extracted_source.current)

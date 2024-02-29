@@ -18,13 +18,13 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
                 break
         else:
             raise Exception("Sound calibration not found")
-        # for calibration in expected.calibrations:
-        #     if calibration.device_name == "water":
-        #         expected_water_calibration_date = calibration.calibration_date
-        #         break
-        # else:
-        #     raise Exception("Water calibration not found")
-        
+        for calibration in self.expected.calibrations:
+            if calibration.device_name == "Reward delivery":
+                expected_water_calibration_date = calibration.calibration_date
+                break
+        else:
+            raise Exception("Water calibration not found")
+
         etl = dynamic_routing_task.DynamicRoutingTaskRigEtl(
             self.input_source,
             self.output_dir,
@@ -37,7 +37,7 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
             ),
             modification_date=self.expected.modification_date,
             sound_calibration_date=expected_sound_calibration_date,
-            # water_calibration_date=expected_water_calibration_date,
+            reward_calibration_date=expected_water_calibration_date,
         )
         etl.run_job()
 
