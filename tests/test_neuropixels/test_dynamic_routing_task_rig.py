@@ -28,12 +28,9 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
         etl = dynamic_routing_task.DynamicRoutingTaskRigEtl(
             self.input_source,
             self.output_dir,
-            task=h5py.File(
-                pathlib.Path(
-                    "./tests/resources/neuropixels/"
-                    "DynamicRouting1_690706_20231130_131725.hdf5"
-                ),
-                "r",
+            task_source=pathlib.Path(
+                "./tests/resources/neuropixels/"
+                "DynamicRouting1_690706_20231130_131725.hdf5"
             ),
             modification_date=self.expected.modification_date,
             sound_calibration_date=expected_sound_calibration_date,
