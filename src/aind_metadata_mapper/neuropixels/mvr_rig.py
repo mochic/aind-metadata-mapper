@@ -14,20 +14,18 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def __init__(self, 
             input_source: pathlib.Path,
             output_directory: pathlib.Path,
-            mvr_config: typing.Any,
+            mvr_config_source: pathlib.Path,
             mvr_mapping: dict[str, str],
-            hostname: str = "localhost",
             **kwargs
     ):
         super().__init__(input_source, output_directory, **kwargs)
-        self.hostname = hostname
         self.mvr_mapping = mvr_mapping
-        self.mvr_config = mvr_config
+        self.mvr_config_source = mvr_config_source
 
     def _extract(self) -> ExtractContext:
         return ExtractContext(
             current=super()._extract(),
-            mvr_config=self.mvr_config,
+            mvr_config=utils.load_config(self.mvr_config_source),
         )
 
     def _transform(
@@ -55,7 +53,6 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     ("camera_assembly_name", assembly_name, ),
                 ],
                 setter=lambda item, name, value: setattr(item.camera, name, value),
-                computer_name=self.hostname,
                 serial_number=serial_number,
                 sensor_height=height,
                 sensor_width=width,

@@ -1,6 +1,5 @@
 import unittest
 import pathlib
-import yaml  # type: ignore
 
 from aind_metadata_mapper.neuropixels import sync_rig  # type: ignore
 
@@ -14,11 +13,7 @@ class SyncRigEtl(unittest.TestCase):
         etl = sync_rig.SyncRigEtl(
             self.input_source,
             self.output_dir,
-            yaml.safe_load(
-                pathlib.Path(
-                    "./tests/resources/neuropixels/sync.yml",
-                ).read_text()
-            ),
+            pathlib.Path("./tests/resources/neuropixels/sync.yml"),
             modification_date=self.expected.modification_date,
         )
         etl.run_job()

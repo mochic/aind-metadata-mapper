@@ -1,7 +1,7 @@
 import unittest
 import pathlib
 
-from aind_metadata_mapper.neuropixels import mvr_rig, utils  # type: ignore
+from aind_metadata_mapper.neuropixels import mvr_rig  # type: ignore
 
 from . import utils as test_utils
 
@@ -13,17 +13,14 @@ class TestMvrRigEtl(unittest.TestCase):
         etl = mvr_rig.MvrRigEtl(
             self.input_source,
             self.output_dir,
-            utils.load_config(
-                pathlib.Path(
-                    "./tests/resources/neuropixels/mvr.ini",
-                )
+            pathlib.Path(
+                "./tests/resources/neuropixels/mvr.ini",
             ),
             mvr_mapping={
                 "Camera 1": "Behavior",
                 "Camera 2": "Eye",
                 "Camera 3": "Face forward",
             },
-            hostname="localhost",
             modification_date=self.expected.modification_date,
         )
         etl.run_job()
@@ -41,7 +38,7 @@ class TestMvrRigEtl(unittest.TestCase):
                     "./tests/resources/neuropixels/rig.partial.json",
                 ),
                 pathlib.Path(
-                "./tests/resources/neuropixels/mvr_rig.expected.json"
+                    "./tests/resources/neuropixels/mvr_rig.expected.json"
                 ),
             )
 

@@ -1,7 +1,9 @@
 import typing
 import pathlib
+import yaml  # type: ignore
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
+
 from . import neuropixels_rig, NeuropixelsRigException
 
 
@@ -15,18 +17,18 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def __init__(self, 
             input_source: pathlib.Path,
             output_directory: pathlib.Path,
-            config: typing.Any,
+            config_source: pathlib.Path,
             sync_daq_name: str = "Sync",
             **kwargs
     ):
         super().__init__(input_source, output_directory, **kwargs)
-        self.config = config
+        self.config_source = config_source
         self.sync_daq_name = sync_daq_name
 
     def _extract(self) -> ExtractContext:
         return ExtractContext(
             current=super()._extract(),
-            config=self.config,
+            config=yaml.safe_load(self.config_source.read_text()),
         )
 
     def _transform(

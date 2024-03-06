@@ -1,7 +1,9 @@
 import typing
 import logging
 import pathlib
+from xml.etree import ElementTree
 from aind_data_schema.core import rig  # type: ignore
+
 from . import neuropixels_rig, utils, NeuropixelsRigException
 
 
@@ -15,7 +17,7 @@ SUPPORTED_SETTINGS_VERSIONS = (
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
-    settings: typing.Any
+    settings_list: list[typing.Any] = []
 
 
 class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
@@ -23,25 +25,26 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def __init__(self, 
             input_source: pathlib.Path,
             output_directory: pathlib.Path,
-            open_ephys_settings: typing.Any,
+            open_ephys_settings_sources: list[pathlib.Path],
             probe_manipulator_serial_numbers: typing.Optional[dict] = None,
             **kwargs
     ):
         super().__init__(input_source, output_directory, **kwargs)
-        self.open_ephys_settings = open_ephys_settings
+        self.open_ephys_settings_sources = open_ephys_settings_sources
         self.probe_manipulator_serial_numbers = probe_manipulator_serial_numbers
 
     def _extract(self) -> ExtractContext:
         return ExtractContext(
             current=super()._extract(),
-            settings=self.open_ephys_settings,
+            settings_list=[
+                ElementTree.fromstring(source.read_text())
+                for source in self.open_ephys_settings_sources
+            ],
         )
 
-    def _transform(
-            self,
-            extracted_source: ExtractContext) -> rig.Rig:
-        version_elements = utils.find_elements(
-            extracted_source.settings, "version")
+    def _transform_settings(self, current: rig.Rig, settings: typing.Any) -> \
+            rig.Rig:
+        version_elements = utils.find_elements(settings, "version")
         version = next(version_elements).text
         if version not in SUPPORTED_SETTINGS_VERSIONS:
             logger.warn(
@@ -49,9 +52,9 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 % (version, SUPPORTED_SETTINGS_VERSIONS, )
             )
 
-        for element in utils.find_elements(extracted_source.settings, "np_probe"):
+        for element in utils.find_elements(settings, "np_probe"):
             probe_name = element.get("custom_probe_name")
-            for ephys_assembly in extracted_source.current.ephys_assemblies:
+            for ephys_assembly in current.ephys_assemblies:
                 if self.probe_manipulator_serial_numbers and \
                         ephys_assembly.ephys_assembly_name in \
                         self.probe_manipulator_serial_numbers:
@@ -70,5 +73,13 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     break
                 except NeuropixelsRigException:
                     pass
+        
+        return current
+
+    def _transform(
+            self,
+            extracted_source: ExtractContext) -> rig.Rig:
+        for settings in extracted_source.settings_list:
+            self._transform_settings(extracted_source.current, settings)
 
         return super()._transform(extracted_source.current)

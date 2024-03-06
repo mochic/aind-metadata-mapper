@@ -1,6 +1,5 @@
 import unittest
 import pathlib
-from xml.etree import ElementTree
 
 from aind_metadata_mapper.neuropixels import open_ephys_rig  # type: ignore
 
@@ -14,11 +13,9 @@ class TestOpenEphysRigEtl(unittest.TestCase):
         etl = open_ephys_rig.OpenEphysRigEtl(
             self.input_source,
             self.output_dir,
-            open_ephys_settings=ElementTree.fromstring(
-                pathlib.Path(
-                    "./tests/resources/neuropixels/settings.xml",
-                ).read_text()
-            ),
+            open_ephys_settings_sources=[
+                pathlib.Path("./tests/resources/neuropixels/settings.xml"),
+            ],
             probe_manipulator_serial_numbers={
                 'Ephys Assembly A': 'SN45356',
                 'Ephys Assembly B': 'SN45484',
