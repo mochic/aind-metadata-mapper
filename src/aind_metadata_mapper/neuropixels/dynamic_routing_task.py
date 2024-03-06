@@ -3,6 +3,7 @@ import logging
 import datetime
 import numpy as np
 import pathlib
+import h5py
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
 from . import neuropixels_rig, utils
@@ -29,7 +30,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def __init__(self, 
             input_source: pathlib.Path,
             output_directory: pathlib.Path,
-            task: typing.Any,
+            task_source: pathlib.Path,
             monitor_name: str = "Stim",
             speaker_name: str = "Speaker",
             behavior_daq_name: str = "Behavior",
@@ -43,7 +44,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             **kwargs,
     ):
         super().__init__(input_source, output_directory, **kwargs)
-        self.task = task
+        self.task_source = task_source
         self.monitor_name = monitor_name
         self.speaker_name = speaker_name
         self.behavior_daq_name = behavior_daq_name
@@ -58,17 +59,20 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def _extract(self) -> ExtractContext:
         return ExtractContext(
             current=super()._extract(),
-            task=self.task,
+            task=h5py.File(self.task_source, "r"),
         )
 
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
-        version = extracted_source.task["githubTaskScript"][()]
-        if version not in SUPPORTED_VERSIONS:
-            logger.warn(
-                f"Unsupported task version: {version}",
-            )
+        try:
+            version = extracted_source.task["githubTaskScript"][()]
+            if version not in SUPPORTED_VERSIONS:
+                logger.warn(
+                    f"Unsupported task version: {version}",
+                )
+        except KeyError:
+            logger.warn("No task version found")
 
         # find replace
         behavior_daq_channels = [
