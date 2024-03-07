@@ -31,7 +31,11 @@ def extract_paired_values(h5_file: h5py.File, *paths: list[str]) -> \
             value = None
             for part in path:
                 value = h5_file[part]
-            values.append(value[()])
+            
+            if isinstance(value, h5py.Dataset):
+                values.append(value[()])
+            else:
+                values.append(value)
         except KeyError:
             logger.warning(f"Key not found: {part}")
             return None
@@ -107,10 +111,11 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ["rewardLine"],
         )
         if extracted_reward_line is not None:
+            logger.debug("Updating reward line on %s" % self.behavior_daq_name)
             port, channel_index = extracted_reward_line[0]
             behavior_daq_channels.append(
                 devices.DAQChannel(
-                    device_name="Behavior",
+                    device_name=self.behavior_daq_name,
                     channel_name="solenoid",
                     channel_type=devices.DaqChannelType.DO,
                     port=port,
@@ -123,10 +128,12 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ["rewardSoundLine"],
         )
         if extracted_reward_sound_line is not None:
+            logger.debug(
+                "Updating reward sound line on %s" % self.behavior_daq_name)
             port, channel_index = extracted_reward_sound_line[0]
             behavior_daq_channels.append(
                 devices.DAQChannel(
-                    device_name="Behavior",
+                    device_name=self.behavior_daq_name,
                     channel_name="reward_sound",
                     channel_type=devices.DaqChannelType.DO,
                     port=port,
@@ -139,10 +146,12 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ["lickLine"],
         )
         if extracted_lick_line is not None:
+            logger.debug(
+                "Updating lick line on %s" % self.behavior_daq_name)
             port, channel_index = extracted_lick_line[0]
             behavior_daq_channels.append(
                 devices.DAQChannel(
-                    device_name="Behavior",
+                    device_name=self.behavior_daq_name,
                     channel_name="lick",
                     channel_type=devices.DaqChannelType.DI,
                     port=port,
@@ -157,10 +166,13 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ["frameSignalLine"],
         )
         if extracted_frame_signal_line is not None:
+            logger.debug(
+                "Updating frame signal line on %s" % 
+                self.behavior_sync_daq_name)
             port, channel_index = extracted_frame_signal_line[0]
             behavior_sync_daq_channels.append(
                 devices.DAQChannel(
-                    device_name="BehaviorSync",
+                    device_name=self.behavior_sync_daq_name,
                     channel_name="stim_frame",
                     channel_type=devices.DaqChannelType.DO,
                     port=port,
@@ -173,10 +185,13 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ["acquisitionSignalLine"],
         )
         if extracted_acquisition_signal_line is not None:
+            logger.debug(
+                "Updating acquisition signal line on %s" % 
+                self.behavior_sync_daq_name)
             port, channel_index = extracted_acquisition_signal_line[0]
             behavior_sync_daq_channels.append(
                 devices.DAQChannel(
-                    device_name="BehaviorSync",
+                    device_name=self.behavior_sync_daq_name,
                     channel_name="stim_running",
                     channel_type=devices.DaqChannelType.DO,
                     port=port,
@@ -193,10 +208,10 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         )
 
         if extracted_opto is not None:
+            logger.debug("Updating %s" % self.opto_daq_name)
             opto_channels, opto_sample_rate = extracted_opto
             opto_daq_channels = []
             if opto_channels:
-                opto_daq_device_name = "Opto"
                 channels = [
                     ch for dev in opto_channels
                     for ch in opto_channels[dev]
@@ -206,8 +221,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 for idx, channel in enumerate(range(max(channels))):
                     opto_daq_channels.append(
                         devices.DAQChannel(
-                            device_name=opto_daq_device_name,
-                            channel_name=f"{opto_daq_device_name} #{idx}",
+                            device_name=self.opto_daq_name,
+                            channel_name=f"{self.opto_daq_name} #{idx}",
                             channel_type=devices.DaqChannelType.AO,
                             port=0,
                             channel_index=channel,
@@ -260,6 +275,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ["wheelRadius"],
         )
         if extracted_wheel_radius is not None:
+            logger.debug("Updating wheel information")
             extracted_source.current.mouse_platform.radius = \
                 extracted_wheel_radius[0]
             extracted_source.current.mouse_platform.radius_unit = \
@@ -278,6 +294,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ["soundCalibrationFit"],
         )
         if extracted_sound_calibration_fit is not None:
+            logger.debug("Updating sound calibration")
             sound_calibration_fit  = extracted_sound_calibration_fit[0]
             utils.find_replace_or_append(
                 extracted_source.current.calibrations,
@@ -311,6 +328,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         )
 
         if extracted_solenoid_open_time is not None:
+            logger.debug("Updating reward delivery calibration")
             solenoid_open_time = extracted_solenoid_open_time[0]
             extracted_water_calibration_fit = extract_paired_values(
                 extracted_source.task,
