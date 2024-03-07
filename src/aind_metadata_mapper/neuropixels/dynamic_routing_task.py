@@ -3,7 +3,7 @@ import logging
 import datetime
 import numpy as np
 import pathlib
-import h5py
+import h5py  # type: ignore
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
 from . import neuropixels_rig, utils
@@ -20,6 +20,23 @@ class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 SUPPORTED_VERSIONS = [
     b'https://raw.githubusercontent.com/samgale/DynamicRoutingTask//9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py',
 ]
+
+
+def extract_paired_values(h5_file: h5py.File, *paths: list[str]) -> \
+        typing.Union[list[typing.Any], None]:
+    values = []
+    for path in paths:
+        value = None
+        try:
+            value = None
+            for part in path:
+                value = h5_file[part]
+            values.append(value[()])
+        except KeyError:
+            logger.warning(f"Key not found: {part}")
+            return None
+
+    return values
 
 
 class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
@@ -62,81 +79,141 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             task=h5py.File(self.task_source, "r"),
         )
 
+    # def _extract_daq_channel(
+    #         self,
+    #         extracted_source: ExtractContext,
+    #     ) -> devices.DAQChannel:
+    #     pass
+
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
-        try:
-            version = extracted_source.task["githubTaskScript"][()]
+        extracted_version = extract_paired_values(
+            extracted_source.task,
+            ["githubTaskScript"],
+        )
+        if extracted_version is not None:
+            version = extracted_version[0]
             if version not in SUPPORTED_VERSIONS:
-                logger.warn(
+                logger.warning(
                     f"Unsupported task version: {version}",
                 )
-        except KeyError:
-            logger.warn("No task version found")
 
         # find replace
-        behavior_daq_channels = [
-            devices.DAQChannel(
-                device_name="Behavior",
-                channel_name="solenoid",
-                channel_type=devices.DaqChannelType.DO,
-                port=extracted_source.task["rewardLine"][0],
-                channel_index=extracted_source.task["rewardLine"][1],
-            ),
-            devices.DAQChannel(
-                device_name="Behavior",
-                channel_name="reward_sound",
-                channel_type=devices.DaqChannelType.DO,
-                port=extracted_source.task["rewardSoundLine"][0],
-                channel_index=extracted_source.task["rewardSoundLine"][1],
-            ),
-            devices.DAQChannel(
-                device_name="Behavior",
-                channel_name="lick",
-                channel_type=devices.DaqChannelType.DI,
-                port=extracted_source.task["lickLine"][0],
-                channel_index=extracted_source.task["lickLine"][1],
-            ),
-        ]
+        behavior_daq_channels = []
 
-        behavior_sync_daq_channels = [
-            devices.DAQChannel(
-                device_name="BehaviorSync",
-                channel_name="stim_frame",
-                channel_type=devices.DaqChannelType.DO,
-                port=extracted_source.task["frameSignalLine"][0],
-                channel_index=extracted_source.task["frameSignalLine"][1],
-            ),
-            devices.DAQChannel(
-                device_name="BehaviorSync",
-                channel_name="stim_running",
-                channel_type=devices.DaqChannelType.DO,
-                port=extracted_source.task["acquisitionSignalLine"][0],
-                channel_index=extracted_source.task["acquisitionSignalLine"][1],
-            ),
-        ]
-
-        task_opto_channels = extracted_source.task["optoChannels"]
-        opto_daq_channels = []
-        if task_opto_channels:
-            opto_daq_device_name = "Opto"
-            channels = [
-                ch for dev in task_opto_channels
-                for ch in task_opto_channels[dev]
-                if not np.isnan(ch)
-            ]
-            sample_rate = float(extracted_source.task["optoSampleRate"][()])
-            for idx, channel in enumerate(range(max(channels))):
-                opto_daq_channels.append(
-                    devices.DAQChannel(
-                        device_name=opto_daq_device_name,
-                        channel_name=f"{opto_daq_device_name} #{idx}",
-                        channel_type=devices.DaqChannelType.AO,
-                        port=0,
-                        channel_index=channel,
-                        sample_rate=sample_rate,
-                    )
+        extracted_reward_line = extract_paired_values(
+            extracted_source.task,
+            ["rewardLine"],
+        )
+        if extracted_reward_line is not None:
+            port, channel_index = extracted_reward_line[0]
+            behavior_daq_channels.append(
+                devices.DAQChannel(
+                    device_name="Behavior",
+                    channel_name="solenoid",
+                    channel_type=devices.DaqChannelType.DO,
+                    port=port,
+                    channel_index=channel_index,
                 )
+            )
+
+        extracted_reward_sound_line = extract_paired_values(
+            extracted_source.task,
+            ["rewardSoundLine"],
+        )
+        if extracted_reward_sound_line is not None:
+            port, channel_index = extracted_reward_sound_line[0]
+            behavior_daq_channels.append(
+                devices.DAQChannel(
+                    device_name="Behavior",
+                    channel_name="reward_sound",
+                    channel_type=devices.DaqChannelType.DO,
+                    port=port,
+                    channel_index=channel_index,
+                )
+            )
+
+        extracted_lick_line = extract_paired_values(
+            extracted_source.task,
+            ["lickLine"],
+        )
+        if extracted_lick_line is not None:
+            port, channel_index = extracted_lick_line[0]
+            behavior_daq_channels.append(
+                devices.DAQChannel(
+                    device_name="Behavior",
+                    channel_name="lick",
+                    channel_type=devices.DaqChannelType.DI,
+                    port=port,
+                    channel_index=channel_index,
+                )
+            )
+
+        behavior_sync_daq_channels = []
+
+        extracted_frame_signal_line = extract_paired_values(
+            extracted_source.task,
+            ["frameSignalLine"],
+        )
+        if extracted_frame_signal_line is not None:
+            port, channel_index = extracted_frame_signal_line[0]
+            behavior_sync_daq_channels.append(
+                devices.DAQChannel(
+                    device_name="BehaviorSync",
+                    channel_name="stim_frame",
+                    channel_type=devices.DaqChannelType.DO,
+                    port=port,
+                    channel_index=channel_index,
+                )
+            )
+
+        extracted_acquisition_signal_line = extract_paired_values(
+            extracted_source.task,
+            ["acquisitionSignalLine"],
+        )
+        if extracted_acquisition_signal_line is not None:
+            port, channel_index = extracted_acquisition_signal_line[0]
+            behavior_sync_daq_channels.append(
+                devices.DAQChannel(
+                    device_name="BehaviorSync",
+                    channel_name="stim_running",
+                    channel_type=devices.DaqChannelType.DO,
+                    port=port,
+                    channel_index=channel_index,
+                )
+            )
+
+        opto_daq_channels = []
+
+        extracted_opto = extract_paired_values(
+            extracted_source.task,
+            ["optoChannels"],
+            ["optoSampleRate"],
+        )
+
+        if extracted_opto is not None:
+            opto_channels, opto_sample_rate = extracted_opto
+            opto_daq_channels = []
+            if opto_channels:
+                opto_daq_device_name = "Opto"
+                channels = [
+                    ch for dev in opto_channels
+                    for ch in opto_channels[dev]
+                    if not np.isnan(ch)
+                ]
+                sample_rate = float(opto_sample_rate)
+                for idx, channel in enumerate(range(max(channels))):
+                    opto_daq_channels.append(
+                        devices.DAQChannel(
+                            device_name=opto_daq_device_name,
+                            channel_name=f"{opto_daq_device_name} #{idx}",
+                            channel_type=devices.DaqChannelType.AO,
+                            port=0,
+                            channel_index=channel,
+                            sample_rate=sample_rate,
+                        )
+                    )
 
         # find replace daqs
         for idx, daq in enumerate(extracted_source.current.daqs):
@@ -147,100 +224,141 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             elif daq.name == self.behavior_sync_daq_name:
                 daq.channels.extend(behavior_sync_daq_channels)
             else:
-                pass 
+                pass
 
-        for idx, device in enumerate(extracted_source.current.stimulus_devices):
-            if device.name == "Stim" and device.device_type == "Monitor":
-                device.viewing_distance = \
-                    float(extracted_source.task["monDistance"][()])
-                device.viewing_distance_unit = devices.SizeUnit.CM
-                device.height = int(extracted_source.task["monSizePix"][1])
-                device.width = int(extracted_source.task["monSizePix"][0])
-                device.size_unit = devices.SizeUnit.PX
-                extracted_source.current.stimulus_devices[idx] = \
-                    devices.Monitor.model_validate(
-                        device.__dict__
-                    )
-                break
-
-        extracted_source.current.mouse_platform.radius = \
-            extracted_source.task["wheelRadius"][()]
-        extracted_source.current.mouse_platform.radius_unit = \
-            devices.SizeUnit.CM
-        extracted_source.current.mouse_platform = devices.Disc.model_validate(
-            extracted_source.current.mouse_platform.__dict__
+        # monitor information
+        extracted_monitor_values = extract_paired_values(
+            extracted_source.task,
+            ["monDistance"],
+            ["monSizePix"],
         )
+        if extracted_monitor_values is not None:
+            monitor_distance, monitor_size = extracted_monitor_values
+            for idx, device in \
+                    enumerate(extracted_source.current.stimulus_devices):
+                if device.name == "Stim" and device.device_type == "Monitor":
+                    if monitor_distance is not None:
+                        device.viewing_distance = float(monitor_distance)
+                        device.viewing_distance_unit = devices.SizeUnit.CM
+                    
+                    if monitor_size is not None:
+                        width, height = monitor_size
+                        if not np.isnan(width) and not np.isnan(height):
+                            device.width = int(width)
+                            device.height = int(height)
+                            device.size_unit = devices.SizeUnit.PX
+                    
+                    extracted_source.current.stimulus_devices[idx] = \
+                        devices.Monitor.model_validate(
+                            device.__dict__
+                        )
+                    break
+
+        # wheel info
+        extracted_wheel_radius = extract_paired_values(
+            extracted_source.task,
+            ["wheelRadius"],
+        )
+        if extracted_wheel_radius is not None:
+            extracted_source.current.mouse_platform.radius = \
+                extracted_wheel_radius[0]
+            extracted_source.current.mouse_platform.radius_unit = \
+                devices.SizeUnit.CM
+            extracted_source.current.mouse_platform = \
+                devices.Disc.model_validate(
+                    extracted_source.current.mouse_platform.__dict__
+                )
 
         # calibrations
         default_calibration_date = datetime.datetime.now()
 
         # sound
-        utils.find_replace_or_append(
-            extracted_source.current.calibrations,
-            [
-                ("device_name", self.speaker_name),
-            ],
-            devices.Calibration(
-                calibration_date=self.sound_calibration_date or \
-                    default_calibration_date,
-                device_name=self.speaker_name,
-                input={},
-                output={
-                    "a": extracted_source.task["soundCalibrationFit"][0],
-                    "b": extracted_source.task["soundCalibrationFit"][1],
-                    "c": extracted_source.task["soundCalibrationFit"][2],
-                },
-                description=(
-                    "sound_volume = log(1 - ((dB - c) / a)) / b;"
-                    "dB is sound pressure"
-                ),
-                notes=(
-                    "Calibration date is a placeholder. "
-                ),
-            ),
+        extracted_sound_calibration_fit = extract_paired_values(
+            extracted_source.task,
+            ["soundCalibrationFit"],
         )
+        if extracted_sound_calibration_fit is not None:
+            sound_calibration_fit  = extracted_sound_calibration_fit[0]
+            utils.find_replace_or_append(
+                extracted_source.current.calibrations,
+                [
+                    ("device_name", self.speaker_name),
+                ],
+                devices.Calibration(
+                    calibration_date=self.sound_calibration_date or \
+                        default_calibration_date,
+                    device_name=self.speaker_name,
+                    input={},
+                    output={
+                        "a": sound_calibration_fit[0],
+                        "b": sound_calibration_fit[1],
+                        "c": sound_calibration_fit[2],
+                    },
+                    description=(
+                        "sound_volume = log(1 - ((dB - c) / a)) / b;"
+                        "dB is sound pressure"
+                    ),
+                    notes=(
+                        "Calibration date is a placeholder. "
+                    ),
+                ),
+            )
 
         # water
-        task_water_calibration_intercept = \
-            extracted_source.task["waterCalibrationIntercept"][()]
-        task_water_calibration_slope = \
-            extracted_source.task["waterCalibrationSlope"][()]
-        if np.isnan(task_water_calibration_intercept):
-            water_calibration_intercept = 0
-        else:
-            water_calibration_intercept = task_water_calibration_intercept
-        if np.isnan(task_water_calibration_slope):
-            water_calibration_slope = 0
-        else:
-            water_calibration_slope = task_water_calibration_slope
-
-        utils.find_replace_or_append(
-            extracted_source.current.calibrations,
-            [
-                ("device_name", self.reward_delivery_name),
-            ],
-            devices.Calibration(
-                calibration_date=self.reward_calibration_date or \
-                    default_calibration_date,
-                device_name=self.reward_delivery_name,
-                input={
-                    "intercept": water_calibration_intercept,
-                    "slope": water_calibration_slope,
-                },
-                output={
-                    "solonoid_open_time": extracted_source.task["solenoidOpenTime"][()],
-                },
-                description=(
-                    "solenoid open time (ms) = slope * expected water volume (mL) + intercept;"
-                    "licks is the number of lick events"
-                ),
-                notes=(
-                    "Calibration date is a placeholder. "
-                    "If intercept and slope are 0, "
-                    "their requisite values are missing but "
-                    "solenoid open time should still be accurate."
-                ),
-            ),
+        extracted_solenoid_open_time = extract_paired_values(
+            extracted_source.task,
+            ["solenoidOpenTime"],
         )
+
+        if extracted_solenoid_open_time is not None:
+            solenoid_open_time = extracted_solenoid_open_time[0]
+            extracted_water_calibration_fit = extract_paired_values(
+                extracted_source.task,
+                ["waterCalibrationSlope"],
+                ["waterCalibrationIntercept"],
+            )
+            if extracted_water_calibration_fit is not None:
+                task_water_calibration_slope, task_water_calibration_intercept = \
+                    extracted_water_calibration_fit
+                if np.isnan(task_water_calibration_intercept):
+                    water_calibration_intercept = 0
+                else:
+                    water_calibration_intercept = task_water_calibration_intercept
+                if np.isnan(task_water_calibration_slope):
+                    water_calibration_slope = 0
+                else:
+                    water_calibration_slope = task_water_calibration_slope
+            else:
+                water_calibration_intercept = 0
+                water_calibration_slope = 0
+
+            utils.find_replace_or_append(
+                extracted_source.current.calibrations,
+                [
+                    ("device_name", self.reward_delivery_name),
+                ],
+                devices.Calibration(
+                    calibration_date=self.reward_calibration_date or \
+                        default_calibration_date,
+                    device_name=self.reward_delivery_name,
+                    input={
+                        "intercept": water_calibration_intercept,
+                        "slope": water_calibration_slope,
+                    },
+                    output={
+                        "solonoid_open_time": solenoid_open_time,
+                    },
+                    description=(
+                        "solenoid open time (ms) = slope * expected water volume (mL) + intercept;"
+                        "licks is the number of lick events"
+                    ),
+                    notes=(
+                        "Calibration date is a placeholder. "
+                        "If intercept and slope are 0, "
+                        "their requisite values are missing but "
+                        "solenoid open time should still be accurate."
+                    ),
+                ),
+            )
 
         return super()._transform(extracted_source.current)
