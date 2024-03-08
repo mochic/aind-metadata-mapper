@@ -72,6 +72,8 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     )
                     break
                 except NeuropixelsRigException:
+                    logger.debug("Error finding probe: %s" % probe_name)
+                except Exception:
                     logger.debug(
                         "Error updating probe: %s" % probe_name, exc_info=True)
         
