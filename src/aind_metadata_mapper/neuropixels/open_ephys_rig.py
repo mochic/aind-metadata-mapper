@@ -72,7 +72,8 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     )
                     break
                 except NeuropixelsRigException:
-                    pass
+                    logger.debug(
+                        "Error updating probe: %s" % probe_name, exc_info=True)
         
         return current
 

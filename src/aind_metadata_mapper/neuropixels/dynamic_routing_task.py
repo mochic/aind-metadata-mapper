@@ -83,12 +83,6 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             task=h5py.File(self.task_source, "r"),
         )
 
-    # def _extract_daq_channel(
-    #         self,
-    #         extracted_source: ExtractContext,
-    #     ) -> devices.DAQChannel:
-    #     pass
-
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
@@ -364,11 +358,10 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                         "slope": water_calibration_slope,
                     },
                     output={
-                        "solonoid_open_time": solenoid_open_time,
+                        "solenoid_open_time": solenoid_open_time,
                     },
                     description=(
-                        "solenoid open time (ms) = slope * expected water volume (mL) + intercept;"
-                        "licks is the number of lick events"
+                        "solenoid open time (ms) = slope * expected water volume (mL) + intercept"
                     ),
                     notes=(
                         "Calibration date is a placeholder. "
