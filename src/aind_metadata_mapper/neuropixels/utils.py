@@ -12,7 +12,7 @@ from . import NeuropixelsRigException
 logger = logging.getLogger(__name__)
 
 
-def find_elements(et: ElementTree.ElementTree, name: str) -> \
+def find_elements(et: ElementTree.Element, name: str) -> \
     typing.Generator[ElementTree.Element, None, None]:
     """
     

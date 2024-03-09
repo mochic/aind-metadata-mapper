@@ -15,7 +15,7 @@
        "notes": null,
        "surface_material": null,
        "date_surface_replaced": null,
-       "radius": "4.69",
+       "radius": "16.5",
        "radius_unit": "centimeter",
        "output": null,
        "encoder": null,
@@ -42,10 +42,10 @@
           "additional_settings": {},
           "notes": null,
           "refresh_rate": 60,
-          "width": 1920,
-          "height": 1200,
+          "width": 0,
+          "height": 0,
           "size_unit": "pixel",
-          "viewing_distance": "15.3",
+          "viewing_distance": "10.0",
           "viewing_distance_unit": "centimeter",
           "position": null,
           "contrast": null,
@@ -434,7 +434,7 @@
           "manipulator": {
              "device_type": "Manipulator",
              "name": "Ephys Assembly A Manipulator",
-             "serial_number": null,
+             "serial_number": "SN45356",
              "manufacturer": {
                 "name": "New Scale Technologies",
                 "abbreviation": null,
@@ -451,9 +451,9 @@
              {
                 "device_type": "Ephys probe",
                 "name": "ProbeA",
-                "serial_number": null,
+                "serial_number": "18005114152",
                 "manufacturer": null,
-                "model": null,
+                "model": "Neuropixels 1.0",
                 "path_to_cad": null,
                 "port_index": null,
                 "additional_settings": {},
@@ -469,7 +469,7 @@
           "manipulator": {
              "device_type": "Manipulator",
              "name": "Ephys Assembly B Manipulator",
-             "serial_number": null,
+             "serial_number": "SN45484",
              "manufacturer": {
                 "name": "New Scale Technologies",
                 "abbreviation": null,
@@ -486,9 +486,9 @@
              {
                 "device_type": "Ephys probe",
                 "name": "ProbeB",
-                "serial_number": null,
+                "serial_number": "18005114151",
                 "manufacturer": null,
-                "model": null,
+                "model": "Neuropixels 1.0",
                 "path_to_cad": null,
                 "port_index": null,
                 "additional_settings": {},
@@ -504,7 +504,7 @@
           "manipulator": {
              "device_type": "Manipulator",
              "name": "Ephys Assembly C Manipulator",
-             "serial_number": null,
+             "serial_number": "SN45485",
              "manufacturer": {
                 "name": "New Scale Technologies",
                 "abbreviation": null,
@@ -521,9 +521,9 @@
              {
                 "device_type": "Ephys probe",
                 "name": "ProbeC",
-                "serial_number": null,
+                "serial_number": "18005102491",
                 "manufacturer": null,
-                "model": null,
+                "model": "Neuropixels 1.0",
                 "path_to_cad": null,
                 "port_index": null,
                 "additional_settings": {},
@@ -539,7 +539,7 @@
           "manipulator": {
              "device_type": "Manipulator",
              "name": "Ephys Assembly D Manipulator",
-             "serial_number": null,
+             "serial_number": "SN45359",
              "manufacturer": {
                 "name": "New Scale Technologies",
                 "abbreviation": null,
@@ -556,9 +556,9 @@
              {
                 "device_type": "Ephys probe",
                 "name": "ProbeD",
-                "serial_number": null,
+                "serial_number": "19192719021",
                 "manufacturer": null,
-                "model": null,
+                "model": "Neuropixels 1.0",
                 "path_to_cad": null,
                 "port_index": null,
                 "additional_settings": {},
@@ -574,7 +574,7 @@
           "manipulator": {
              "device_type": "Manipulator",
              "name": "Ephys Assembly E Manipulator",
-             "serial_number": null,
+             "serial_number": "SN45482",
              "manufacturer": {
                 "name": "New Scale Technologies",
                 "abbreviation": null,
@@ -591,9 +591,9 @@
              {
                 "device_type": "Ephys probe",
                 "name": "ProbeE",
-                "serial_number": null,
+                "serial_number": "18005114452",
                 "manufacturer": null,
-                "model": null,
+                "model": "Neuropixels 1.0",
                 "path_to_cad": null,
                 "port_index": null,
                 "additional_settings": {},
@@ -609,7 +609,7 @@
           "manipulator": {
              "device_type": "Manipulator",
              "name": "Ephys Assembly F Manipulator",
-             "serial_number": null,
+             "serial_number": "SN45361",
              "manufacturer": {
                 "name": "New Scale Technologies",
                 "abbreviation": null,
@@ -626,9 +626,9 @@
              {
                 "device_type": "Ephys probe",
                 "name": "ProbeF",
-                "serial_number": null,
+                "serial_number": "19192719061",
                 "manufacturer": null,
-                "model": null,
+                "model": "Neuropixels 1.0",
                 "path_to_cad": null,
                 "port_index": null,
                 "additional_settings": {},
@@ -962,21 +962,7 @@
           "hardware_version": null
        }
     ],
-    "calibrations": [
-       {
-          "calibration_date": "2024-02-28T20:56:26.052939",
-          "device_name": "Reward delivery",
-          "description": "solenoid open time (ms) = slope * expected water volume (mL) + intercept",
-          "input": {
-             "intercept": 0,
-             "slope": 0
-          },
-          "output": {
-             "solenoid_open_time": 0.03
-          },
-          "notes": "Calibration date is a placeholder. If intercept and slope are 0, their requisite values are missing but solenoid open time should still be accurate."
-       }
-    ],
+    "calibrations": [],
     "ccf_coordinate_transform": null,
     "origin": null,
     "rig_axes": null,
