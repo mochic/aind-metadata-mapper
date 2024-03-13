@@ -17,7 +17,7 @@ readme = "README.md"
 dynamic = ["version"]
 
 dependencies = [
-    "aind-data-schema==0.26.7",
+    "aind-data-schema==0.27.6",
     "scanimage-tiff-reader==1.4.1.4",
     "pydantic-settings>=2.0"
 ]
