@@ -4,7 +4,7 @@ import yaml  # type: ignore
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
 
-from . import neuropixels_rig, NeuropixelsRigException
+from . import neuropixels_rig, NeuropixelsRigException, utils
 
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
@@ -55,5 +55,13 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 "Sync daq not found on current rig. name=%s" %
                 self.sync_daq_name
             )
+
+        self.update_software(
+            extracted_source.current,
+            rig.Software(
+                name="Sync",
+                version=extracted_source.config["Version"],
+            )
+        )
 
         return super()._transform(extracted_source.current)

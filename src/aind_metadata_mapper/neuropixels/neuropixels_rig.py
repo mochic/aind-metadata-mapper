@@ -49,6 +49,46 @@ class NeuropixelsRigEtl(BaseEtl):
             self.input_source.read_text(),
         )
 
+    def update_software(
+        self,
+        current: rig.Rig,
+        software_name: str,
+        version: typing.Optional[str] = None,
+    ) -> rig.Rig:
+        """Updates the software of the rig.
+
+        Parameters
+        ----------
+        software : Software
+          The software to update.
+
+        Returns
+        -------
+        Rig
+          The updated rig.
+        """
+        if version is None:
+            logger.debug(
+                "No version detected/provided for software: %s" % software_name)
+            software = rig.Software(
+                name=software_name,
+                version="0.0.0",
+                notes="No version detected/provided.",
+            )
+        else:
+            software = rig.Software(
+                name=software_name,
+                version=version,
+            )
+        utils.find_replace_or_append(
+            current.software,
+            filters=[
+                ("name", software_name, ),
+            ],
+            update=software,
+        )
+        return current
+
     def _transform(self, extracted_source: rig.Rig) -> rig.Rig:
         """Transforms extracted rig context into aind-data-schema rig.Rig
         instance.

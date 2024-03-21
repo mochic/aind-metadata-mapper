@@ -10,11 +10,6 @@ from . import neuropixels_rig, utils, NeuropixelsRigException
 
 logger = logging.getLogger(__name__)
 
-# the format of open_ephys settings.xml will vary based on version
-SUPPORTED_SETTINGS_VERSIONS = (
-    "0.6.6",
-)
-
 
 class ExtractedProbe(pydantic.BaseModel):
 
@@ -26,6 +21,7 @@ class ExtractedProbe(pydantic.BaseModel):
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
     probes: list[ExtractedProbe]
+    versions: list[typing.Union[str, None]]
 
 
 class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
@@ -43,27 +39,27 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
     def _extract(self) -> ExtractContext:
         current = super()._extract()
+        versions = []
         probes = []
         for source in self.open_ephys_settings_sources:
+            parsed = ElementTree.fromstring(source.read_text())
+            versions.append(self._extract_version(parsed))
             probes.extend(self._extract_probes(
                 current,
-                ElementTree.fromstring(source.read_text()),
+                parsed,
             ))
         return ExtractContext(
             current=current,
             probes=probes,
+            versions=versions,
         )
+
+    def _extract_version(self, settings: ElementTree.Element) -> typing.Union[str, None]:
+        version_elements = utils.find_elements(settings, "version")
+        return next(version_elements).text
 
     def _extract_probes(self, current: rig.Rig,
             settings: ElementTree.Element) -> list[ExtractedProbe]:
-        version_elements = utils.find_elements(settings, "version")
-        version = next(version_elements).text
-        if version not in SUPPORTED_SETTINGS_VERSIONS:
-            logger.warn(
-                "Unsupported open ephys settings version: %s. Supported versions: %s"
-                % (version, SUPPORTED_SETTINGS_VERSIONS, )
-            )
-
         probes = []
         for element in utils.find_elements(settings, "np_probe"):
             probe_name = element.get("custom_probe_name")
@@ -122,19 +118,6 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ))
         return probes
 
-    def _extract(self) -> ExtractContext:
-        current = super()._extract()
-        probes = []
-        for source in self.open_ephys_settings_sources:
-            probes.extend(self._extract_probes(
-                current,
-                ElementTree.fromstring(source.read_text()),
-            ))
-        return ExtractContext(
-            current=current,
-            probes=probes,
-        )
-
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
@@ -163,5 +146,20 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     pass
             else:
                 logger.warning("No probe found in rig for: %s" % probe.name)
+
+        version = None  # default version if None was scraped
+        # uses version of first settings file, TODO: handle multiple versions?
+        for v in extracted_source.versions:
+            if v is not None:
+                version = v
+                break
+
+        self.update_software(
+            extracted_source.current,
+            rig.Software(
+                name="Open Ephys",
+                version=version,
+            ),
+        )
 
         return super()._transform(extracted_source.current)

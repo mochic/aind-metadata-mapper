@@ -59,4 +59,9 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 size_unit="pixel",
             )
 
+        self.update_software(
+            extracted_source.current,
+            "MVR",
+        )
+
         return super()._transform(extracted_source.current)
