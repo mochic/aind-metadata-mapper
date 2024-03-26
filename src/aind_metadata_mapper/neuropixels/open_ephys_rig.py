@@ -118,9 +118,18 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ))
         return probes
 
+    def _transform_ephys_assembly(
+        self,
+        ephys_assembly_name: str,
+        ephys_assembly_updates: dict[str, typing.Any],
+        probe_updates: list[dict[str, typing.Any]], 
+    ):
+        pass
+
     def _transform(
-            self,
-            extracted_source: ExtractContext) -> rig.Rig:
+        self,
+        extracted_source: ExtractContext,
+    ) -> rig.Rig:
         # update manipulator serial numbers
         for ephys_assembly in extracted_source.current.ephys_assemblies:
             if self.probe_manipulator_serial_numbers and \

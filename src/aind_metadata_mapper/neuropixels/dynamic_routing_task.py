@@ -224,6 +224,41 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                         )
                     )
 
+        extracted_galvo = extract_paired_values(
+            extracted_source.task,
+            ["galvoChannels"],
+            ["optoSampleRate"],
+        )
+        if extracted_galvo is not None:
+            logger.debug("Updating %s" % self.opto_daq_name)
+            galvo_channels, opto_sample_rate = extracted_galvo
+            n_galvo_channels = len(galvo_channels)
+            if n_galvo_channels < 2:
+                logger.warning(
+                    "Not enough galvo channels found. Expected 2, found %s" % 
+                    n_galvo_channels
+                )
+            
+            sample_rate = float(opto_sample_rate)
+            opto_daq_channels.extend([
+                devices.DAQChannel(
+                    device_name=self.opto_daq_name,
+                    channel_name=f"{self.opto_daq_name} galvo x",
+                    channel_type=devices.DaqChannelType.AO,
+                    port=0,
+                    channel_index=galvo_channels[0],
+                    sample_rate=sample_rate,
+                ),
+                devices.DAQChannel(
+                    device_name=self.opto_daq_name,
+                    channel_name=f"{self.opto_daq_name} galvo y",
+                    channel_type=devices.DaqChannelType.AO,
+                    port=0,
+                    channel_index=galvo_channels[1],
+                    sample_rate=sample_rate,
+                ),
+            ])
+
         # find replace daqs
         for idx, daq in enumerate(extracted_source.current.daqs):
             if daq.name == self.opto_daq_name:

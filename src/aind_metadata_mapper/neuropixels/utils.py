@@ -4,7 +4,9 @@ import typing
 import pathlib
 import datetime
 import configparser
+import enum
 from xml.etree import ElementTree
+from aind_data_schema.core import rig
 
 from . import NeuropixelsRigException
 
@@ -87,3 +89,32 @@ def update_rig_id(
         modification_date.strftime("%y%m%d"),
     ])
     
+
+def update_pydantic_model(current, **updates: dict[str, typing.Any]):
+    copied = current.model_copy()
+    for prop_name, prop_value in updates.items():
+        setattr(copied, prop_name, prop_value)
+    
+    return copied.model_validate()
+
+
+class UpdateMode(enum.Enum):
+    
+    REPLACE = enum.auto()
+    APPEND = enum.auto()
+    UPDATE = enum.auto()
+
+
+def update_model(rig: rig.Rig, model: str) -> rig.Rig:
+    for idx, item in enumerate(items):
+        if all([
+            getattr(item, prop_name, None) == prop_value
+            for prop_name, prop_value in filters
+        ]):
+            for prop_name, prop_value in updates.items():
+                setter(item, prop_name, prop_value)
+            break
+    else:
+        raise NeuropixelsRigException("Failed to find matching item. filters: %s" % filters)
+
+    return rig

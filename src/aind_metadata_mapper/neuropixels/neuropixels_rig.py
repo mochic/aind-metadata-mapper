@@ -83,7 +83,7 @@ class NeuropixelsRigEtl(BaseEtl):
         utils.find_replace_or_append(
             current.software,
             filters=[
-                ("name", software_name, ),
+                ("name", software.name, ),
             ],
             update=software,
         )
