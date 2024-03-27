@@ -376,6 +376,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             extracted_source.current,
             "DynamicRoutingTask",
             version=extracted_source.version,
+            # mode="REPLACE",
         )
 
         return super()._transform(extracted_source.current)

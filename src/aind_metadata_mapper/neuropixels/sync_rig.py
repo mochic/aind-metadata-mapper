@@ -34,27 +34,46 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
-        for daq in extracted_source.current.daqs:
-            if daq.name == self.sync_daq_name:
-                daq.channels = [
-                    devices.DAQChannel(
-                        channel_name=name,
-                        channel_type="Digital Input",
-                        device_name=self.sync_daq_name,
-                        event_based_sampling=False,
-                        channel_index=line,
-                        sample_rate=extracted_source.config["freq"],
-                        sample_rate_unit="hertz",
-                    )
-                    for line, name in 
-                    extracted_source.config["line_labels"].items()
-                ]
-                break
-        else:
-            raise NeuropixelsRigException(
-                "Sync daq not found on current rig. name=%s" %
-                self.sync_daq_name
-            )
+        utils.find_update(
+            extracted_source.current.daqs,
+            [
+                ("name", self.sync_daq_name),
+            ],
+            channels=[
+                devices.DAQChannel(
+                    channel_name=name,
+                    channel_type="Digital Input",
+                    device_name=self.sync_daq_name,
+                    event_based_sampling=False,
+                    channel_index=line,
+                    sample_rate=extracted_source.config["freq"],
+                    sample_rate_unit="hertz",
+                )
+                for line, name in 
+                extracted_source.config["line_labels"].items()
+            ]
+        )
+        # for daq in extracted_source.current.daqs:
+        #     if daq.name == self.sync_daq_name:
+        #         daq.channels = [
+        #             devices.DAQChannel(
+        #                 channel_name=name,
+        #                 channel_type="Digital Input",
+        #                 device_name=self.sync_daq_name,
+        #                 event_based_sampling=False,
+        #                 channel_index=line,
+        #                 sample_rate=extracted_source.config["freq"],
+        #                 sample_rate_unit="hertz",
+        #             )
+        #             for line, name in 
+        #             extracted_source.config["line_labels"].items()
+        #         ]
+        #         break
+        # else:
+        #     raise NeuropixelsRigException(
+        #         "Sync daq not found on current rig. name=%s" %
+        #         self.sync_daq_name
+        #     )
 
         self.update_software(
             extracted_source.current,
