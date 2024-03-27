@@ -61,6 +61,7 @@ SUPPORTED_VERSIONS = [
 def extract_value(h5_file: h5py.File, path: list[str]) -> \
         typing.Union[typing.Any, None]:
     try:
+        value = None
         for part in path:
             value = h5_file[part]
     except KeyError:
@@ -108,7 +109,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         self.laser_calibration_date = laser_calibration_date
 
     def _extract(self) -> ExtractContext:
-        task = h5py.File(self.task_source, "r"),
+        task = h5py.File(self.task_source, "r")
         return ExtractContext(
             current=super()._extract(),
             version=extract_value(task, ["githubTaskScript"]),
@@ -372,11 +373,11 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 ),
             )
 
-        self.update_software(
-            extracted_source.current,
-            "DynamicRoutingTask",
-            version=extracted_source.version,
-            # mode="REPLACE",
-        )
+        # self.update_software(
+        #     extracted_source.current,
+        #     "DynamicRoutingTask",
+        #     version=extracted_source.version,
+        #     # mode="REPLACE",
+        # )
 
         return super()._transform(extracted_source.current)

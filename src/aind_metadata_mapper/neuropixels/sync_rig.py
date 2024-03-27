@@ -4,7 +4,7 @@ import yaml  # type: ignore
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
 
-from . import neuropixels_rig, NeuropixelsRigException, utils
+from . import neuropixels_rig, utils
 
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
@@ -75,12 +75,15 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         #         self.sync_daq_name
         #     )
 
-        self.update_software(
-            extracted_source.current,
-            rig.Software(
-                name="Sync",
-                version=extracted_source.config["Version"],
-            )
-        )
+        # version_str = None
+        # extracted_version = extracted_source.config.get("Version")
+        # if extracted_version is not None:
+        #     version_str = str(extracted_version)
+
+        # self.update_software(
+        #     extracted_source.current,
+        #     "Sync",
+        #     version=version_str,
+        # )
 
         return super()._transform(extracted_source.current)

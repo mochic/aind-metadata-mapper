@@ -968,12 +968,12 @@
     "rig_axes": null,
     "modalities": [
        {
-          "name": "Behavior videos",
-          "abbreviation": "behavior-videos"
-       },
-       {
           "name": "Extracellular electrophysiology",
           "abbreviation": "ecephys"
+       },
+       {
+          "name": "Behavior videos",
+          "abbreviation": "behavior-videos"
        },
        {
           "name": "Behavior",

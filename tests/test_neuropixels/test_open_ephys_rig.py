@@ -27,7 +27,7 @@ class TestOpenEphysRigEtl(unittest.TestCase):
             modification_date=self.expected.modification_date,
         )
         etl.run_job()
-
+        
         assert self.load_updated() == self.expected
 
     def setUp(self):

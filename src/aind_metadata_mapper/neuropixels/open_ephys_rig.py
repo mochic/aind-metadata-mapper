@@ -4,6 +4,7 @@ import pathlib
 import pydantic
 from xml.etree import ElementTree
 from aind_data_schema.core import rig  # type: ignore
+from aind_data_schema.models import devices  # type: ignore
 
 from . import neuropixels_rig, utils, NeuropixelsRigException
 
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ExtractedProbe(pydantic.BaseModel):
 
-    name: str
+    name: typing.Optional[str]
     model: typing.Optional[str]
     serial_number: typing.Optional[str]
 
@@ -54,12 +55,22 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             versions=versions,
         )
 
-    def _extract_version(self, settings: ElementTree.Element) -> typing.Union[str, None]:
+    def _extract_version(self, settings: ElementTree.Element) -> \
+            typing.Union[str, None]:
         version_elements = utils.find_elements(settings, "version")
         return next(version_elements).text
 
     def _extract_probes(self, current: rig.Rig,
             settings: ElementTree.Element) -> list[ExtractedProbe]:
+        extracted_probes = [
+            ExtractedProbe(
+                name=element.get("custom_probe_name"),
+                model=element.get("probe_name"),
+                serial_number=element.get("probe_serial_number"),
+            )
+            for element in utils.find_elements(settings, "np_probe")
+        ]
+        
         probes = []
         for element in utils.find_elements(settings, "np_probe"):
             probe_name = element.get("custom_probe_name")
@@ -83,6 +94,14 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 return self._infer_extracted_probes(current, settings)
 
         return probes
+
+    def _get_rig_probe_names(self, current: rig.Rig) -> \
+            list[str]:
+        return [
+            probe.name
+            for assembly in current.ephys_assemblies
+            for probe in assembly.probes
+        ]
 
     def _infer_extracted_probes(self, current: rig.Rig,
             settings: ElementTree.Element) -> list[ExtractedProbe]:
@@ -158,17 +177,21 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         version = None  # default version if None was scraped
         # uses version of first settings file, TODO: handle multiple versions?
-        for v in extracted_source.versions:
-            if v is not None:
-                version = v
-                break
+        # for v in extracted_source.versions:
+        #     if v is not None:
+        #         version = v
+        #         break
 
-        self.update_software(
-            extracted_source.current,
-            rig.Software(
-                name="Open Ephys",
-                version=version,
-            ),
-        )
+        # self.update_software(
+        #     extracted_source.current,
+        #     "Open Ephys",
+        #     url=version,
+        # )
+
+        # self.update_software(
+        #     extracted_source.current,
+        #     "Open Ephys",
+        #     url=version,
+        # )
 
         return super()._transform(extracted_source.current)
