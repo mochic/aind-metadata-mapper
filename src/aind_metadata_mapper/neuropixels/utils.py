@@ -99,13 +99,17 @@ def update_pydantic_model(current, **updates: dict[str, typing.Any]):
 
 
 class UpdateMode(enum.Enum):
-    
+
     REPLACE = enum.auto()
     APPEND = enum.auto()
     UPDATE = enum.auto()
 
 
-def update_model(rig: rig.Rig, model: str) -> rig.Rig:
+def update_model(
+        rig: rig.Rig,
+        filters,
+        *updates: typing.Any,
+        mode: UpdateMode = UpdateMode.UPDATE) -> rig.Rig:
     for idx, item in enumerate(items):
         if all([
             getattr(item, prop_name, None) == prop_value
