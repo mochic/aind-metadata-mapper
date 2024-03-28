@@ -53,37 +53,5 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 extracted_source.config["line_labels"].items()
             ]
         )
-        # for daq in extracted_source.current.daqs:
-        #     if daq.name == self.sync_daq_name:
-        #         daq.channels = [
-        #             devices.DAQChannel(
-        #                 channel_name=name,
-        #                 channel_type="Digital Input",
-        #                 device_name=self.sync_daq_name,
-        #                 event_based_sampling=False,
-        #                 channel_index=line,
-        #                 sample_rate=extracted_source.config["freq"],
-        #                 sample_rate_unit="hertz",
-        #             )
-        #             for line, name in 
-        #             extracted_source.config["line_labels"].items()
-        #         ]
-        #         break
-        # else:
-        #     raise NeuropixelsRigException(
-        #         "Sync daq not found on current rig. name=%s" %
-        #         self.sync_daq_name
-        #     )
-
-        # version_str = None
-        # extracted_version = extracted_source.config.get("Version")
-        # if extracted_version is not None:
-        #     version_str = str(extracted_version)
-
-        # self.update_software(
-        #     extracted_source.current,
-        #     "Sync",
-        #     version=version_str,
-        # )
 
         return super()._transform(extracted_source.current)

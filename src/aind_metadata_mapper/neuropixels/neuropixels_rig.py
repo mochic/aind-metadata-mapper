@@ -5,7 +5,6 @@ import datetime
 import logging
 import typing
 from aind_data_schema.core import rig  # type: ignore
-from aind_data_schema.models import devices  # type: ignore
 
 from ..core import BaseEtl
 from . import utils
@@ -49,49 +48,6 @@ class NeuropixelsRigEtl(BaseEtl):
         return rig.Rig.model_validate_json(
             self.input_source.read_text(),
         )
-
-    # def update_software(
-    #     self,
-    #     current: rig.Rig,
-    #     software_name: str,
-    #     version: typing.Optional[str] = None,
-    #     url: typing.Optional[str] = None,
-    # ) -> rig.Rig:
-    #     """Updates the software of the rig.
-
-    #     Parameters
-    #     ----------
-    #     software : Software
-    #       The software to update.
-
-    #     Returns
-    #     -------
-    #     Rig
-    #       The updated rig.
-    #     """
-    #     if version is None:
-    #         logger.debug(
-    #             "No version detected/provided for software: %s" % software_name)
-    #         software = devices.Software(
-    #             name=software_name,
-    #             version="0.0.0",
-    #             url=url,
-    #             notes="No version detected/provided.",
-    #         )
-    #     else:
-    #         software = devices.Software(
-    #             name=software_name,
-    #             version=version,
-    #             url=url,
-    #         )
-    #     utils.find_replace_or_append(
-    #         current.software,
-    #         filters=[
-    #             ("name", software.name, ),
-    #         ],
-    #         update=software,
-    #     )
-    #     return current
 
     def _transform(self, extracted_source: rig.Rig) -> rig.Rig:
         """Transforms extracted rig context into aind-data-schema rig.Rig

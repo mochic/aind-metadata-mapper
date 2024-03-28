@@ -4,7 +4,6 @@ import pathlib
 import pydantic
 from xml.etree import ElementTree
 from aind_data_schema.core import rig  # type: ignore
-from aind_data_schema.models import devices  # type: ignore
 
 from . import neuropixels_rig, utils, NeuropixelsRigException
 
@@ -43,7 +42,7 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         versions = []
         probes = []
         for source in self.open_ephys_settings_sources:
-            parsed = ElementTree.fromstring(source.read_text())
+            parsed = utils.load_xml(source)
             versions.append(self._extract_version(parsed))
             probes.extend(self._extract_probes(
                 current,
@@ -70,80 +69,28 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             )
             for element in utils.find_elements(settings, "np_probe")
         ]
-        
-        probes = []
-        for element in utils.find_elements(settings, "np_probe"):
-            probe_name = element.get("custom_probe_name")
-            for ephys_assembly in current.ephys_assemblies:
-                extracted_probe = None
-                for probe in ephys_assembly.probes:
-                    if probe.name == probe_name:
-                        extracted_probe = \
-                            ExtractedProbe(
-                                name=probe.name,
-                                model=element.get("probe_name"),
-                                serial_number=element.get("probe_serial_number"),
-                            )
-                if extracted_probe is not None:
-                    probes.append(extracted_probe)
-                    break
-            else:
-                logger.warning(
-                    "Error finding probe from open ephys settings: %s"
-                    % probe_name)
-                return self._infer_extracted_probes(current, settings)
-
-        return probes
-
-    def _get_rig_probe_names(self, current: rig.Rig) -> \
-            list[str]:
-        return [
+        # if probe names are bad
+        extracted_probe_names = [probe.name for probe in extracted_probes]
+        rig_probe_names = [
             probe.name
             for assembly in current.ephys_assemblies
             for probe in assembly.probes
         ]
-
-    def _infer_extracted_probes(self, current: rig.Rig,
-            settings: ElementTree.Element) -> list[ExtractedProbe]:
-        logger.debug(
-            "Inferring associated probes from np_probe element order in open "
-            "ephys settings.")
-        probe_elements = list(utils.find_elements(settings, "np_probe"))
-        n_probe_elements = len(probe_elements)
-        n_rig_probes = sum(
-            len(assembly.probes) for assembly in current.ephys_assemblies
-        )
-        if len(current.ephys_assemblies) != n_probe_elements:
+        if not all(name in rig_probe_names for name in extracted_probe_names):
             logger.warning(
-                "Number of ephys assemblies doesnt match probes in settings. "
-                "Skipping probe inference.")
-            return []
-        
-        if n_probe_elements != n_rig_probes:
-            logger.warning(
-                "Number of probes in settings does not match number of probes "
-                "in rig. Skipping probe inference. settings probes count: %s,"
-                " rig probes count: %s" % (n_probe_elements, n_rig_probes)
+                "Mismatched probe names in open ephys settings. Attempting to "
+                "infer probe names. extracted: %s, rig: %s" % (
+                    extracted_probe_names, rig_probe_names)
             )
-            return []
+            if len(extracted_probe_names) != len(rig_probe_names):
+                logger.warning(
+                    "Probe count mismatch. Skipping probe inference.")
+                return []
+            for extracted_probe, rig_probe_name in \
+                    zip(extracted_probes, rig_probe_names):
+                extracted_probe.name = rig_probe_name
 
-        probes = []
-        for ephys_assembly, probe_element in \
-                zip(current.ephys_assemblies, probe_elements):
-            probes.append(ExtractedProbe(
-                name=ephys_assembly.probes[0].name,
-                model=probe_element.get("probe_name"),
-                serial_number=probe_element.get("probe_serial_number"),
-            ))
-        return probes
-
-    def _transform_ephys_assembly(
-        self,
-        ephys_assembly_name: str,
-        ephys_assembly_updates: dict[str, typing.Any],
-        probe_updates: list[dict[str, typing.Any]], 
-    ):
-        pass
+        return extracted_probes
 
     def _transform(
         self,
@@ -174,24 +121,5 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     pass
             else:
                 logger.warning("No probe found in rig for: %s" % probe.name)
-
-        version = None  # default version if None was scraped
-        # uses version of first settings file, TODO: handle multiple versions?
-        # for v in extracted_source.versions:
-        #     if v is not None:
-        #         version = v
-        #         break
-
-        # self.update_software(
-        #     extracted_source.current,
-        #     "Open Ephys",
-        #     url=version,
-        # )
-
-        # self.update_software(
-        #     extracted_source.current,
-        #     "Open Ephys",
-        #     url=version,
-        # )
 
         return super()._transform(extracted_source.current)

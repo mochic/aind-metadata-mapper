@@ -169,7 +169,12 @@
             "crop_width": null,
             "crop_height": null,
             "crop_unit": "pixel",
-            "recording_software": null,
+            "recording_software": {
+               "name": "MVR",
+               "version": "Not detected/provided.",
+               "url": null,
+               "parameters": {}
+            },
             "driver": null,
             "driver_version": null
          },
@@ -270,7 +275,12 @@
             "crop_width": null,
             "crop_height": null,
             "crop_unit": "pixel",
-            "recording_software": null,
+            "recording_software": {
+               "name": "MVR",
+               "version": "Not detected/provided.",
+               "url": null,
+               "parameters": {}
+            },
             "driver": null,
             "driver_version": null
          },
@@ -368,7 +378,12 @@
             "crop_width": null,
             "crop_height": null,
             "crop_unit": "pixel",
-            "recording_software": null,
+            "recording_software": {
+               "name": "MVR",
+               "version": "Not detected/provided.",
+               "url": null,
+               "parameters": {}
+            },
             "driver": null,
             "driver_version": null
          },
@@ -968,17 +983,17 @@
    "rig_axes": null,
    "modalities": [
       {
+         "name": "Extracellular electrophysiology",
+         "abbreviation": "ecephys"
+      },
+      {
          "name": "Behavior",
          "abbreviation": "behavior"
       },
       {
          "name": "Behavior videos",
          "abbreviation": "behavior-videos"
-      },
-      {
-         "name": "Extracellular electrophysiology",
-         "abbreviation": "ecephys"
       }
    ],
    "notes": null
- }
+}

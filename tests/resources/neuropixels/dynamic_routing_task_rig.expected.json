@@ -1016,7 +1016,7 @@
                "channel_type": "Analog Output",
                "port": 0,
                "channel_index": 0,
-               "sample_rate": "2000.0",
+               "sample_rate": null,
                "sample_rate_unit": "hertz",
                "event_based_sampling": null
             },
@@ -1026,7 +1026,7 @@
                "channel_type": "Analog Output",
                "port": 0,
                "channel_index": 1,
-               "sample_rate": "2000.0",
+               "sample_rate": null,
                "sample_rate_unit": "hertz",
                "event_based_sampling": null
             },
@@ -1036,7 +1036,27 @@
                "channel_type": "Analog Output",
                "port": 0,
                "channel_index": 2,
-               "sample_rate": "2000.0",
+               "sample_rate": null,
+               "sample_rate_unit": "hertz",
+               "event_based_sampling": null
+            },
+            {
+               "channel_name": "Opto galvo x",
+               "device_name": "Opto",
+               "channel_type": "Analog Output",
+               "port": 0,
+               "channel_index": 0,
+               "sample_rate": null,
+               "sample_rate_unit": "hertz",
+               "event_based_sampling": null
+            },
+            {
+               "channel_name": "Opto galvo y",
+               "device_name": "Opto",
+               "channel_type": "Analog Output",
+               "port": 0,
+               "channel_index": 1,
+               "sample_rate": null,
                "sample_rate_unit": "hertz",
                "event_based_sampling": null
             }
@@ -1050,22 +1070,19 @@
          "calibration_date": "2024-02-28T13:18:08.911416",
          "device_name": "Speaker",
          "description": "sound_volume = log(1 - ((dB - c) / a)) / b;dB is sound pressure",
-         "input": {},
-         "output": {
+         "input": {
             "a": 26.532002859656085,
             "b": -2.820908344083334,
             "c": 52.33566140075705
          },
+         "output": {},
          "notes": "Calibration date is a placeholder. "
       },
       {
          "calibration_date": "2024-02-28T20:56:26.052939",
          "device_name": "Reward delivery",
          "description": "solenoid open time (ms) = slope * expected water volume (mL) + intercept",
-         "input": {
-            "intercept": 0,
-            "slope": 0
-         },
+         "input": {},
          "output": {
             "solenoid_open_time": 0.03
          },
@@ -1077,16 +1094,16 @@
    "rig_axes": null,
    "modalities": [
       {
-         "name": "Behavior",
-         "abbreviation": "behavior"
+         "name": "Behavior videos",
+         "abbreviation": "behavior-videos"
       },
       {
          "name": "Extracellular electrophysiology",
          "abbreviation": "ecephys"
       },
       {
-         "name": "Behavior videos",
-         "abbreviation": "behavior-videos"
+         "name": "Behavior",
+         "abbreviation": "behavior"
       }
    ],
    "notes": null

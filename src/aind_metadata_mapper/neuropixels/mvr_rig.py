@@ -1,6 +1,7 @@
 import typing
 import pathlib
 from aind_data_schema.core import rig  # type: ignore
+from aind_data_schema.models import devices  # type: ignore
 from . import neuropixels_rig, utils, NeuropixelsRigException
 
 
@@ -52,16 +53,16 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 filters=[
                     ("camera_assembly_name", assembly_name, ),
                 ],
-                setter=lambda item, name, value: setattr(item.camera, name, value),
+                setter=\
+                    lambda item, name, value: setattr(item.camera, name, value),
                 serial_number=serial_number,
                 sensor_height=height,
                 sensor_width=width,
                 size_unit="pixel",
+                recording_software=devices.Software(
+                    name="MVR",
+                    version="Not detected/provided.",
+                )
             )
-
-        # self.update_software(
-        #     extracted_source.current,
-        #     "MVR",
-        # )
 
         return super()._transform(extracted_source.current)
