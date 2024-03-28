@@ -32,13 +32,6 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
-        height = int(
-            extracted_source.mvr_config["CAMERA_DEFAULT_CONFIG"]["height"]
-        )
-        width = int(
-            extracted_source.mvr_config["CAMERA_DEFAULT_CONFIG"]["width"]
-        )
-
         for mvr_name, assembly_name in self.mvr_mapping.items():
             try:
                 mvr_camera_config = extracted_source.mvr_config[mvr_name]
@@ -56,9 +49,6 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 setter=\
                     lambda item, name, value: setattr(item.camera, name, value),
                 serial_number=serial_number,
-                sensor_height=height,
-                sensor_width=width,
-                size_unit="pixel",
                 recording_software=devices.Software(
                     name="MVR",
                     version="Not detected/provided.",
