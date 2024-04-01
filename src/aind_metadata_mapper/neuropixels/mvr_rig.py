@@ -55,7 +55,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             utils.find_update(
                 extracted_source.current.cameras,
                 filters=[
-                    ("camera_assembly_name", assembly_name, ),
+                    ("name", assembly_name, ),
                 ],
                 setter=\
                     lambda item, name, value: setattr(item.camera, name, value),

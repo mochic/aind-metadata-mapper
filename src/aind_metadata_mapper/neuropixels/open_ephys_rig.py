@@ -103,7 +103,7 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             utils.find_update(
                 extracted_source.current.ephys_assemblies,
                 [
-                    ("ephys_assembly_name", ephys_assembly_name),
+                    ("name", ephys_assembly_name),
                 ],
                 setter=\
                     lambda item, name, value: 

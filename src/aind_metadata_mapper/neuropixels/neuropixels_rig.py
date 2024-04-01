@@ -7,7 +7,6 @@ import typing
 from aind_data_schema.core import rig  # type: ignore
 
 from ..core import BaseEtl
-from . import utils
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +26,6 @@ class NeuropixelsRigEtl(BaseEtl):
         self,
         input_source: pathlib.Path,
         output_directory: pathlib.Path,
-        modification_date: typing.Optional[datetime.date] = None,
     ):
         """Class constructor for Neuropixels rig etl class.
 
@@ -40,7 +38,6 @@ class NeuropixelsRigEtl(BaseEtl):
         """
         self.input_source: pathlib.Path = input_source
         self.output_directory = output_directory
-        self.modification_date = modification_date
 
     def _extract(self) -> rig.Rig:
         """Extracts rig-related information from config files.
@@ -53,16 +50,4 @@ class NeuropixelsRigEtl(BaseEtl):
         """Transforms extracted rig context into aind-data-schema rig.Rig
         instance.
         """
-        if self.modification_date is not None:
-            extracted_source.modification_date = \
-                self.modification_date
-        else:
-            extracted_source.modification_date = \
-                datetime.date.today()
-        
-        extracted_source.rig_id = utils.update_rig_id(
-            extracted_source.rig_id,
-            extracted_source.modification_date,
-        )
-        
         return extracted_source

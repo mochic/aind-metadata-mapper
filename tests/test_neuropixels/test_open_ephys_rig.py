@@ -24,10 +24,9 @@ class TestOpenEphysRigEtl(unittest.TestCase):
                 ('Ephys Assembly E', 'SN45482', ),
                 ('Ephys Assembly F', 'SN45361', ),
             ],
-            modification_date=self.expected.modification_date,
         )
         etl.run_job()
-        
+
         assert self.load_updated() == self.expected
 
     def setUp(self):
@@ -38,10 +37,7 @@ class TestOpenEphysRigEtl(unittest.TestCase):
                 self.load_updated, self._cleanup = \
             test_utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
-                    "./tests/resources/neuropixels/rig.partial.json",
-                ),
-                pathlib.Path(
-                    "./tests/resources/neuropixels/open_ephys_rig.expected.json"
+                    "./tests/resources/neuropixels/open-ephys-rig.json"
                 ),
             )
 

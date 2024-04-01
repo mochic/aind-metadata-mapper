@@ -17,11 +17,10 @@ class TestMvrRigEtl(unittest.TestCase):
                 "./tests/resources/neuropixels/mvr.ini",
             ),
             mvr_mapping={
-                "Camera 1": "Behavior",
-                "Camera 2": "Eye",
-                "Camera 3": "Face forward",
+                "Camera 1": test_utils.SIDE_CAMERA_ASSEMBLY_NAME,
+                "Camera 2": test_utils.EYE_CAMERA_ASSEMBLY_NAME,
+                "Camera 3": test_utils.FORWARD_CAMERA_ASSEMBLY_NAME,
             },
-            modification_date=self.expected.modification_date,
         )
         etl.run_job()
 
@@ -35,10 +34,7 @@ class TestMvrRigEtl(unittest.TestCase):
                 self._cleanup = \
             test_utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
-                    "./tests/resources/neuropixels/rig.partial.json",
-                ),
-                pathlib.Path(
-                    "./tests/resources/neuropixels/mvr_rig.expected.json"
+                    "./tests/resources/neuropixels/mvr-rig.json"
                 ),
             )
 

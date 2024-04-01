@@ -31,7 +31,6 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
                 "./tests/resources/neuropixels/"
                 "DynamicRouting1_690706_20231130_131725.hdf5"
             ),
-            modification_date=self.expected.modification_date,
             sound_calibration_date=expected_sound_calibration_date,
             reward_calibration_date=expected_water_calibration_date,
         )
@@ -47,11 +46,8 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
                 self._cleanup = \
             test_utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
-                    "./tests/resources/neuropixels/rig.partial.json"
-                ),
-                pathlib.Path(
                     "./tests/resources/neuropixels/"
-                    "dynamic_routing_task_rig.expected.json"
+                    "dynamic-routing-task-rig.json"
                 ),
             )
 

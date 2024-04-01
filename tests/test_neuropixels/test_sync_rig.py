@@ -14,7 +14,6 @@ class SyncRigEtl(unittest.TestCase):
             self.input_source,
             self.output_dir,
             pathlib.Path("./tests/resources/neuropixels/sync.yml"),
-            modification_date=self.expected.modification_date,
         )
         etl.run_job()
 
@@ -28,10 +27,7 @@ class SyncRigEtl(unittest.TestCase):
                 self._cleanup = \
             utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
-                    "./tests/resources/neuropixels/rig.partial.json"
-                ),
-                pathlib.Path(
-                    "./tests/resources/neuropixels/sync_rig.expected.json"
+                    "./tests/resources/neuropixels/sync-rig.json"
                 ),
             )
 
