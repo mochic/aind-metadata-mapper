@@ -1,9 +1,7 @@
 """Base ETL class for neuropixels rigs."""
 import pathlib
 import pydantic
-import datetime
 import logging
-import typing
 from aind_data_schema.core import rig  # type: ignore
 
 from ..core import BaseEtl
