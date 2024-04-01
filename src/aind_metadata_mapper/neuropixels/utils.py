@@ -4,9 +4,8 @@ import typing
 import pathlib
 import datetime
 import configparser
+import h5py  # type: ignore
 from xml.etree import ElementTree
-
-from . import NeuropixelsRigException
 
 
 logger = logging.getLogger(__name__)
@@ -36,22 +35,43 @@ def load_config(config_path: pathlib.Path) -> configparser.ConfigParser:
     return config
     
 
+def load_hdf5(h5_path: pathlib.Path) -> h5py.File:
+    return h5py.File(h5_path, "r")
+
+
+def extract_hdf5_value(h5_file: h5py.File, path: list[str]) -> \
+        typing.Union[typing.Any, None]:
+    try:
+        value = None
+        for part in path:
+            value = h5_file[part]
+    except KeyError:
+        logger.warning(f"Key not found: {part}")
+        return None
+        
+    if isinstance(value, h5py.Dataset):
+        return value[()]
+    else:
+        return value
+
+
 def find_update(
     items: list[typing.Any],
     filters: list[typing.Tuple[str, typing.Any]],  # property name, property value
     setter = lambda item, name, value: setattr(item, name, value),
     **updates: typing.Any,
-) -> None:
-    for idx, item in enumerate(items):
+) -> typing.Union[typing.Any, None]:
+    for item in items:
         if all([
             getattr(item, prop_name, None) == prop_value
             for prop_name, prop_value in filters
         ]):
             for prop_name, prop_value in updates.items():
                 setter(item, prop_name, prop_value)
-            break
+            return item
     else:
-        raise NeuropixelsRigException("Failed to find matching item. filters: %s" % filters)
+        logger.debug("Failed to find matching item. filters: %s" % filters)
+        return None
 
 
 def find_replace_or_append(
@@ -86,11 +106,3 @@ def update_rig_id(
         *parts[:-1],
         modification_date.strftime("%y%m%d"),
     ])
-    
-
-def update_pydantic_model(current, **updates: dict[str, typing.Any]):
-    copied = current.model_copy()
-    for prop_name, prop_value in updates.items():
-        setattr(copied, prop_name, prop_value)
-    
-    return copied.model_validate()

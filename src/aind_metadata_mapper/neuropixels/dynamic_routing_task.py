@@ -3,7 +3,6 @@ import logging
 import datetime
 import numpy as np
 import pathlib
-import h5py  # type: ignore
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
 from . import neuropixels_rig, utils
@@ -21,7 +20,6 @@ class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
     frame_signal_line: typing.Optional[typing.Tuple[int, int]]
     acquisition_signal_line: typing.Optional[typing.Tuple[int, int]]
     opto_channels: typing.Optional[dict[str, list[int]]]
-    opto_sample_rate: typing.Optional[float]
     galvo_channels: typing.Optional[typing.Tuple[int, int]]
     monitor_distance: typing.Optional[float]
     monitor_size: typing.Optional[typing.Tuple[int, int]]
@@ -33,22 +31,6 @@ class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 SUPPORTED_VERSIONS = [
     b'https://raw.githubusercontent.com/samgale/DynamicRoutingTask//9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py',
 ]
-
-
-def extract_value(h5_file: h5py.File, path: list[str]) -> \
-        typing.Union[typing.Any, None]:
-    try:
-        value = None
-        for part in path:
-            value = h5_file[part]
-    except KeyError:
-        logger.warning(f"Key not found: {part}")
-        return None
-        
-    if isinstance(value, h5py.Dataset):
-        return value[()]
-    else:
-        return value
 
 
 class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
@@ -66,10 +48,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             behavior_sync_daq_name: str = "BehaviorSync",
             opto_daq_name: str = "Opto",
             reward_delivery_name: str = "Reward delivery",
-            laser_name: str = "Laser Assembly #0 Laser #0",
             sound_calibration_date: typing.Optional[datetime.date] = None,
             reward_calibration_date: typing.Optional[datetime.date] = None,
-            laser_calibration_date: typing.Optional[datetime.date] = None,
             **kwargs,
     ):
         super().__init__(input_source, output_directory, **kwargs)
@@ -82,27 +62,24 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         self.reward_delivery_name = reward_delivery_name
         self.sound_calibration_date = sound_calibration_date
         self.reward_calibration_date = reward_calibration_date
-        self.laser_name = laser_name
-        self.laser_calibration_date = laser_calibration_date
 
     def _extract(self) -> ExtractContext:
-        task = h5py.File(self.task_source, "r")
+        task = utils.load_hdf5(self.task_source)
         return ExtractContext(
             current=super()._extract(),
-            version=extract_value(task, ["githubTaskScript"]),
-            reward_line=extract_value(task, ["rewardLine"]),
-            reward_sound_line=extract_value(task, ["rewardSoundLine"]),
-            lick_line=extract_value(task, ["lickLine"]),
-            frame_signal_line=extract_value(task, ["frameSignalLine"]),
-            acquisition_signal_line=extract_value(task, ["acquisitionSignalLine"]),
-            opto_channels=extract_value(task, ["optoChannels"]),
-            opto_sample_rate=extract_value(task, ["optoSampleRate"]),
-            galvo_channels=extract_value(task, ["galvoChannels"]),
-            monitor_distance=extract_value(task, ["monDistance"]),
-            monitor_size=extract_value(task, ["monSizePix"]),
-            wheel_radius=extract_value(task, ["wheelRadius"]),
-            sound_calibration_fit=extract_value(task, ["soundCalibrationFit"]),
-            solenoid_open_time=extract_value(task, ["solenoidOpenTime"]),
+            version=utils.extract_hdf5_value(task, ["githubTaskScript"]),
+            reward_line=utils.extract_hdf5_value(task, ["rewardLine"]),
+            reward_sound_line=utils.extract_hdf5_value(task, ["rewardSoundLine"]),
+            lick_line=utils.extract_hdf5_value(task, ["lickLine"]),
+            frame_signal_line=utils.extract_hdf5_value(task, ["frameSignalLine"]),
+            acquisition_signal_line=utils.extract_hdf5_value(task, ["acquisitionSignalLine"]),
+            opto_channels=utils.extract_hdf5_value(task, ["optoChannels"]),
+            galvo_channels=utils.extract_hdf5_value(task, ["galvoChannels"]),
+            monitor_distance=utils.extract_hdf5_value(task, ["monDistance"]),
+            monitor_size=utils.extract_hdf5_value(task, ["monSizePix"]),
+            wheel_radius=utils.extract_hdf5_value(task, ["wheelRadius"]),
+            sound_calibration_fit=utils.extract_hdf5_value(task, ["soundCalibrationFit"]),
+            solenoid_open_time=utils.extract_hdf5_value(task, ["solenoidOpenTime"]),
         )
 
     def _transform(
@@ -238,7 +215,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 extracted_source.monitor_size is not None:
             for idx, device in \
                     enumerate(extracted_source.current.stimulus_devices):
-                if device.name == "Stim" and device.device_type == "Monitor":
+                if device.name == self.monitor_name and \
+                        device.device_type == "Monitor":
                     if extracted_source.monitor_distance is not None:
                         device.viewing_distance = \
                             float(extracted_source.monitor_distance)
@@ -321,10 +299,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                         "solenoid open time (ms) = slope * expected water volume (mL) + intercept"
                     ),
                     notes=(
-                        "Calibration date is a placeholder. "
-                        "If intercept and slope are 0, "
-                        "their requisite values are missing but "
-                        "solenoid open time should still be accurate."
+                        "Calibration date is a placeholder."
                     ),
                 ),
             )

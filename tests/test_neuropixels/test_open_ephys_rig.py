@@ -16,14 +16,14 @@ class TestOpenEphysRigEtl(unittest.TestCase):
             open_ephys_settings_sources=[
                 pathlib.Path("./tests/resources/neuropixels/settings.xml"),
             ],
-            probe_manipulator_serial_numbers={
-                'Ephys Assembly A': 'SN45356',
-                'Ephys Assembly B': 'SN45484',
-                'Ephys Assembly C': 'SN45485',
-                'Ephys Assembly D': 'SN45359',
-                'Ephys Assembly E': 'SN45482',
-                'Ephys Assembly F': 'SN45361',
-            },
+            probe_manipulator_serial_numbers=[
+                ('Ephys Assembly A', 'SN45356',),
+                ('Ephys Assembly B', 'SN45484', ),
+                ('Ephys Assembly C', 'SN45485', ),
+                ('Ephys Assembly D', 'SN45359', ),
+                ('Ephys Assembly E', 'SN45482', ),
+                ('Ephys Assembly F', 'SN45361', ),
+            ],
             modification_date=self.expected.modification_date,
         )
         etl.run_job()

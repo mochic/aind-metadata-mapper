@@ -5,7 +5,7 @@ import pydantic
 from xml.etree import ElementTree
 from aind_data_schema.core import rig  # type: ignore
 
-from . import neuropixels_rig, utils, NeuropixelsRigException
+from . import neuropixels_rig, utils
 
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             input_source: pathlib.Path,
             output_directory: pathlib.Path,
             open_ephys_settings_sources: list[pathlib.Path],
-            probe_manipulator_serial_numbers: typing.Optional[dict] = None,
+            probe_manipulator_serial_numbers: list[tuple[str, str]] = [],
             **kwargs
     ):
         super().__init__(input_source, output_directory, **kwargs)
@@ -69,7 +69,8 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             )
             for element in utils.find_elements(settings, "np_probe")
         ]
-        # if probe names are bad
+        # if extracted probe names are not in the rig, attempt to infer them 
+        # from current rig model
         extracted_probe_names = [probe.name for probe in extracted_probes]
         rig_probe_names = [
             probe.name
@@ -97,18 +98,23 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         extracted_source: ExtractContext,
     ) -> rig.Rig:
         # update manipulator serial numbers
-        for ephys_assembly in extracted_source.current.ephys_assemblies:
-            if self.probe_manipulator_serial_numbers and \
-                    ephys_assembly.ephys_assembly_name in \
-                    self.probe_manipulator_serial_numbers:
-                ephys_assembly.manipulator.serial_number = \
-                    self.probe_manipulator_serial_numbers[ephys_assembly.ephys_assembly_name]
+        for ephys_assembly_name, serial_number in \
+                self.probe_manipulator_serial_numbers:
+            utils.find_update(
+                extracted_source.current.ephys_assemblies,
+                [
+                    ("ephys_assembly_name", ephys_assembly_name),
+                ],
+                setter=\
+                    lambda item, name, value: 
+                        setattr(item.manipulator, name, value),
+                serial_number=serial_number,
+            )
 
         # update probe models and serial numbers
         for probe in extracted_source.probes:
             for ephys_assembly in extracted_source.current.ephys_assemblies:  
-                try:
-                    utils.find_update(
+                    updated = utils.find_update(
                         ephys_assembly.probes,
                         filters=[
                             ("name", probe.name),
@@ -116,9 +122,8 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                         model=probe.model,
                         serial_number=probe.serial_number,
                     )
-                    break
-                except NeuropixelsRigException:
-                    pass
+                    if updated:
+                        break
             else:
                 logger.warning("No probe found in rig for: %s" % probe.name)
 
