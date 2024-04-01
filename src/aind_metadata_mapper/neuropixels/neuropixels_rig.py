@@ -1,4 +1,4 @@
-"""ETL class for neuropixels rigs."""
+"""Base ETL class for neuropixels rigs."""
 import pathlib
 import pydantic
 import datetime

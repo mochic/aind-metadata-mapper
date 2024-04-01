@@ -1,6 +1,5 @@
 import pathlib
 import pydantic
-import yaml  # type: ignore
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
 
@@ -33,7 +32,7 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         self.sync_daq_name = sync_daq_name
 
     def _extract(self) -> ExtractContext:
-        config = yaml.safe_load(self.config_source.read_text())
+        config = utils.load_yaml(self.config_source)
         sample_rate = config["freq"]
         channels = [
             SyncChannel(
