@@ -167,8 +167,6 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
                 stream_start_time=self.job_settings.session_start_time,
                 stream_end_time=self.job_settings.session_end_time,
                 ophys_fovs=fovs,
-                mouse_platform_name=self.job_settings.mouse_platform_name,
-                active_mouse_platform=True,
                 stream_modalities=[Modality.POPHYS],
             )
         )
@@ -188,10 +186,6 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
                         camera_names=[camera_name],
                         stream_start_time=start_time,
                         stream_end_time=end_time,
-                        mouse_platform_name=(
-                            self.job_settings.mouse_platform_name
-                        ),
-                        active_mouse_platform=True,
                         stream_modalities=[Modality.BEHAVIOR_VIDEOS],
                     )
                 )
@@ -216,8 +210,6 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
                 camera_names=["Vasculature"],
                 stream_start_time=vasculature_dt,
                 stream_end_time=vasculature_dt,
-                mouse_platform_name=self.job_settings.mouse_platform_name,
-                active_mouse_platform=True,
                 stream_modalities=[
                     Modality.CONFOCAL
                 ],  # TODO: ask Saskia about this
@@ -232,6 +224,8 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
             session_end_time=self.job_settings.session_end_time,
             rig_id=extracted_source["platform"]["rig_id"],
             data_streams=data_streams,
+            mouse_platform_name=self.job_settings.mouse_platform_name,
+            active_mouse_platform=True,
         )
 
     def run_job(self) -> None:
