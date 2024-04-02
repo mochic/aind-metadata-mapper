@@ -31,16 +31,17 @@ class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
     solenoid_open_time: typing.Optional[float]
 
 
+# dynamic routing task has two slashes before commit hash
 SUPPORTED_VERSIONS = [
     (b'https://raw.githubusercontent.com/samgale/DynamicRoutingTask'
-     b'/9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py'),
+     b'//9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py'),
 ]
 
 
 class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
-    """DynamicRouting rig ETL class. Extracts information from task output 
-    file.
+    """DynamicRouting rig ETL class. Extracts information from task output
+     file.
     """
 
     def __init__(
@@ -96,23 +97,14 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 task, ["solenoidOpenTime"]),
         )
 
-    def _transform_daqs(self, extracted_source: ExtractContext) -> rig.Rig:
-        pass
-
-    def _transform(
+    def _transform_behavior_daq(
             self,
-            extracted_source: ExtractContext) -> rig.Rig:
-        """Updates rig model with DynamicRouting-related task information."""
-        if extracted_source.version is not None:
-            if extracted_source.version not in SUPPORTED_VERSIONS:
-                logger.warning(
-                    f"Unsupported task version: {extracted_source.version}",
-                )
-
-        # daqs
+            extracted_source: ExtractContext
+    ) -> None:
         behavior_daq_channels = []
         if extracted_source.reward_line is not None:
-            logger.debug("Updating reward line on %s" % self.behavior_daq_name)
+            logger.debug("Extracted reward line port, channel: %s" %
+                         self.behavior_daq_name)
             behavior_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_daq_name,
@@ -125,7 +117,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         if extracted_source.reward_sound_line is not None:
             logger.debug(
-                "Updating reward sound line on %s" % self.behavior_daq_name)
+                "Extracted reward sound line port, channel: %s, %s" %
+                extracted_source.reward_sound_line)
             behavior_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_daq_name,
@@ -138,7 +131,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         if extracted_source.lick_line is not None:
             logger.debug(
-                "Updating lick line on %s" % self.behavior_daq_name)
+                "Extracted lick line on port, channel: %s, %s" %
+                extracted_source.lick_line)
             behavior_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_daq_name,
@@ -149,11 +143,21 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 )
             )
 
+        if behavior_daq_channels:
+            logger.debug("Updating daq=%s." % self.behavior_daq_name)
+            for daq in extracted_source.current.daqs:
+                if daq.name == self.behavior_daq_name:
+                    daq.channels.extend(behavior_daq_channels)
+
+    def _transform_behavior_sync_daq(
+            self,
+            extracted_source: ExtractContext
+    ) -> None:
         behavior_sync_daq_channels = []
         if extracted_source.frame_signal_line is not None:
             logger.debug(
-                "Updating frame signal line on %s" % 
-                self.behavior_sync_daq_name)
+                "Extracted frame signal port, channel: %s, %s" %
+                extracted_source.frame_signal_line)
             behavior_sync_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_sync_daq_name,
@@ -166,8 +170,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         if extracted_source.acquisition_signal_line is not None:
             logger.debug(
-                "Updating acquisition signal line on %s" % 
-                self.behavior_sync_daq_name)
+                "Extracted aquisition port, channel: %s, %s" %
+                extracted_source.acquisition_signal_line)
             behavior_sync_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_sync_daq_name,
@@ -178,9 +182,17 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 )
             )
 
+        if behavior_sync_daq_channels:
+            logger.debug("Updating daq=%s." % self.behavior_sync_daq_name)
+            for daq in extracted_source.current.daqs:
+                if daq.name == self.behavior_sync_daq_name:
+                    daq.channels.extend(behavior_sync_daq_channels)
+
+    def _transform_opto_daq(self, extracted_source: ExtractContext) -> None:
         opto_daq_channels = []
         if extracted_source.opto_channels is not None:
-            logger.debug("Updating %s" % self.opto_daq_name)
+            logger.debug(
+                "Extracted opto channels: %s" % extracted_source.opto_channels)
             if extracted_source.opto_channels:
                 channels = [
                     ch for dev in extracted_source.opto_channels
@@ -199,7 +211,10 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     )
 
         if extracted_source.galvo_channels is not None:
-            logger.debug("Updating %s" % self.opto_daq_name)
+            logger.debug(
+                "Extracted galvo channels x,y: %s, %s" %
+                extracted_source.galvo_channels
+            )
             opto_daq_channels.extend([
                 devices.DAQChannel(
                     device_name=self.opto_daq_name,
@@ -217,55 +232,18 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 ),
             ])
 
-        # find replace daqs
-        for idx, daq in enumerate(extracted_source.current.daqs):
-            if daq.name == self.opto_daq_name:
-                daq.channels.extend(opto_daq_channels)
-            elif daq.name == self.behavior_daq_name:
-                daq.channels.extend(behavior_daq_channels)
-            elif daq.name == self.behavior_sync_daq_name:
-                daq.channels.extend(behavior_sync_daq_channels)
-            else:
-                pass
+        if opto_daq_channels:
+            logger.debug("Updating daq=%s." % self.opto_daq_name)
+            for daq in extracted_source.current.daqs:
+                if daq.name == self.opto_daq_name:
+                    daq.channels.extend(opto_daq_channels)
 
-        # monitor information
-        if extracted_source.monitor_distance is not None or \
-                extracted_source.monitor_size is not None:
-            for idx, device in \
-                    enumerate(extracted_source.current.stimulus_devices):
-                if device.name == self.monitor_name and \
-                        device.device_type == "Monitor":
-                    if extracted_source.monitor_distance is not None:
-                        device.viewing_distance = \
-                            float(extracted_source.monitor_distance)
-                        device.viewing_distance_unit = devices.SizeUnit.CM
-                    
-                    if extracted_source.monitor_size is not None:
-                        width, height = extracted_source.monitor_size
-                        if not np.isnan(width) and not np.isnan(height):
-                            device.width = int(width)
-                            device.height = int(height)
-                            device.size_unit = devices.SizeUnit.PX
-                    
-                    extracted_source.current.stimulus_devices[idx] = \
-                        devices.Monitor.model_validate(
-                            device.__dict__
-                        )
-                    break
-
-        # wheel info
-        if extracted_source.wheel_radius is not None:
-            logger.debug("Updating wheel information")
-            extracted_source.current.mouse_platform.radius = \
-                extracted_source.wheel_radius
-            extracted_source.current.mouse_platform.radius_unit = \
-                devices.SizeUnit.CM
-            extracted_source.current.mouse_platform = \
-                devices.Disc.model_validate(
-                    extracted_source.current.mouse_platform.__dict__
-                )
-
-        # calibrations
+    def _transform_calibrations(
+        self,
+        extracted_source: ExtractContext
+    ) -> rig.Rig:
+        """Updates rig model with DynamicRouting-related calibration
+         information."""
         default_calibration_date = datetime.datetime.now()
 
         # sound
@@ -322,5 +300,58 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     ),
                 ),
             )
+
+    def _transform(
+            self,
+            extracted_source: ExtractContext) -> rig.Rig:
+        """Updates rig model with DynamicRouting-related task information."""
+        if extracted_source.version is not None:
+            if extracted_source.version not in SUPPORTED_VERSIONS:
+                logger.warning(
+                    f"Unsupported task version: {extracted_source.version}",
+                )
+
+        # monitor information
+        if extracted_source.monitor_distance is not None or \
+                extracted_source.monitor_size is not None:
+            for idx, device in \
+                    enumerate(extracted_source.current.stimulus_devices):
+                if device.name == self.monitor_name and \
+                        device.device_type == "Monitor":
+                    if extracted_source.monitor_distance is not None:
+                        device.viewing_distance = \
+                            float(extracted_source.monitor_distance)
+                        device.viewing_distance_unit = devices.SizeUnit.CM
+
+                    if extracted_source.monitor_size is not None:
+                        width, height = extracted_source.monitor_size
+                        if not np.isnan(width) and not np.isnan(height):
+                            device.width = int(width)
+                            device.height = int(height)
+                            device.size_unit = devices.SizeUnit.PX
+
+                    extracted_source.current.stimulus_devices[idx] = \
+                        devices.Monitor.model_validate(
+                            device.__dict__
+                        )
+                    break
+
+        # wheel info
+        if extracted_source.wheel_radius is not None:
+            logger.debug("Updating wheel information")
+            extracted_source.current.mouse_platform.radius = \
+                extracted_source.wheel_radius
+            extracted_source.current.mouse_platform.radius_unit = \
+                devices.SizeUnit.CM
+            extracted_source.current.mouse_platform = \
+                devices.Disc.model_validate(
+                    extracted_source.current.mouse_platform.__dict__
+                )
+        # daqs
+        self._transform_behavior_daq(extracted_source)
+        self._transform_behavior_sync_daq(extracted_source)
+        self._transform_opto_daq(extracted_source)
+        # calibrations
+        self._transform_calibrations(extracted_source)
 
         return super()._transform(extracted_source.current)
