@@ -26,6 +26,21 @@ class TestMvrRigEtl(unittest.TestCase):
 
         assert self.load_updated() == self.expected
 
+    def test_etl_bad_mapping(self):
+        etl = mvr_rig.MvrRigEtl(
+            self.input_source,
+            self.output_dir,
+            pathlib.Path(
+                "./tests/resources/neuropixels/mvr.ini",
+            ),
+            mvr_mapping={
+                "Camera 1": test_utils.SIDE_CAMERA_ASSEMBLY_NAME,
+                "Camera 2": test_utils.EYE_CAMERA_ASSEMBLY_NAME,
+                "Not a camera name": test_utils.FORWARD_CAMERA_ASSEMBLY_NAME,
+            },
+        )
+        etl.run_job()
+
     def setUp(self):
         """Moves required test resources to testing directory.
         """

@@ -16,8 +16,8 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
             if calibration.device_name == "Reward delivery":
                 expected_water_calibration_date = calibration.calibration_date
                 break
-        else:
-            raise Exception("Water calibration not found")
+        else:  # pragma: no cover
+            raise Exception("Water calibration not found")  # pragma: no cover
 
         etl = dynamic_routing_task.DynamicRoutingTaskRigEtl(
             self.input_source,

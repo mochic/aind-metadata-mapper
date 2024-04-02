@@ -15,14 +15,14 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
             if calibration.device_name == "Speaker":
                 expected_sound_calibration_date = calibration.calibration_date
                 break
-        else:
-            raise Exception("Sound calibration not found")
+        else:  # pragma: no cover
+            raise Exception("Sound calibration not found")  # pragma: no cover
         for calibration in self.expected.calibrations:
             if calibration.device_name == "Reward delivery":
                 expected_water_calibration_date = calibration.calibration_date
                 break
-        else:
-            raise Exception("Water calibration not found")
+        else:  # pragma: no cover
+            raise Exception("Water calibration not found")  # pragma: no cover
 
         etl = dynamic_routing_task.DynamicRoutingTaskRigEtl(
             self.input_source,

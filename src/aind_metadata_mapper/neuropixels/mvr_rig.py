@@ -40,6 +40,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     "No camera found for: %s in mvr config." %
                     mvr_name
                 )
+                continue
             serial_numbers.append(
                 (
                     assembly_name,

@@ -133,7 +133,5 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     )
                     if updated:
                         break
-            else:
-                logger.warning("No probe found in rig for: %s" % probe.name)
 
         return super()._transform(extracted_source.current)
