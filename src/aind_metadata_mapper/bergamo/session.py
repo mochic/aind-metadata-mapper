@@ -19,11 +19,12 @@ from aind_data_schema.core.session import (
     Modality,
     Session,
     Stream,
+    StimulusEpoch,
+    StimulusModality
 )
 from aind_data_schema.models.stimulus import (
     PhotoStimulation,
     PhotoStimulationGroup,
-    StimulusEpoch,
 )
 from aind_data_schema.models.units import PowerUnit, SizeUnit
 from pydantic import Field
@@ -401,8 +402,6 @@ class BergamoEtl(GenericEtl[JobSettings]):
         ]
 
         data_stream = Stream(
-            mouse_platform_name=self.job_settings.mouse_platform_name,
-            active_mouse_platform=self.job_settings.active_mouse_platform,
             stream_start_time=self.job_settings.stream_start_time,
             stream_end_time=self.job_settings.stream_end_time,
             stream_modalities=[Modality.POPHYS],
@@ -451,6 +450,7 @@ class BergamoEtl(GenericEtl[JobSettings]):
                 ),
             ],
         )
+        stimulus_name = "PhotoStimulation"
         return Session(
             experimenter_full_name=self.job_settings.experimenter_full_name,
             session_start_time=self.job_settings.session_start_time,
@@ -462,7 +462,11 @@ class BergamoEtl(GenericEtl[JobSettings]):
             data_streams=[data_stream],
             stimulus_epochs=[
                 StimulusEpoch(
-                    stimulus=PhotoStimulation(
+                    stimulus_name=stimulus_name,
+                    stimulus_modalities=[
+                        StimulusModality.OPTOGENETICS,
+                    ],
+                    stimulus_parameters=[PhotoStimulation(
                         stimulus_name="PhotoStimulation",
                         number_groups=(
                             self.job_settings.num_of_photo_stim_groups
@@ -542,13 +546,15 @@ class BergamoEtl(GenericEtl[JobSettings]):
                         inter_trial_interval=(
                             self.job_settings.photo_stim_inter_trial_interval
                         ),
-                    ),
+                    )],
                     stimulus_start_time=(
                         self.job_settings.stimulus_start_time
                     ),
                     stimulus_end_time=self.job_settings.stimulus_end_time,
                 )
             ],
+            mouse_platform_name=self.job_settings.mouse_platform_name,
+            active_mouse_platform=self.job_settings.active_mouse_platform,
         )
 
     def run_job(self) -> JobResponse:
