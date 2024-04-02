@@ -181,7 +181,6 @@ class TestMesoscope(unittest.TestCase):
 
         extract = etl._extract()
         transformed_session = etl._transform(extract)
-
         self.assertEqual(
             self.example_session,
             json.loads(transformed_session.model_dump_json()),
