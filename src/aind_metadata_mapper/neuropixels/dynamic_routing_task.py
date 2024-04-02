@@ -189,6 +189,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     daq.channels.extend(behavior_sync_daq_channels)
 
     def _transform_opto_daq(self, extracted_source: ExtractContext) -> None:
+        """Updates rig model with DynamicRouting-related opto daq information.
+        """
         opto_daq_channels = []
         if extracted_source.opto_channels is not None:
             logger.debug(

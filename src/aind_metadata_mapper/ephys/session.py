@@ -127,7 +127,7 @@ class EphysEtl(BaseEtl):
                 session_stream["ephys_modules"].append(ephys_module)
 
             ephys_session["data_streams"].append(session_stream)
-        
+
         ephys_session["mouse_platform_name"] = data_stream[
             "mouse_platform_name"
         ]
