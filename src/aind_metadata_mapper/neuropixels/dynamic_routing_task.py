@@ -101,6 +101,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             self,
             extracted_source: ExtractContext
     ) -> None:
+        """Updates rig model with DynamicRouting-related behavior daq
+         information."""
         behavior_daq_channels = []
         if extracted_source.reward_line is not None:
             logger.debug("Extracted reward line port, channel: %s" %
@@ -153,6 +155,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             self,
             extracted_source: ExtractContext
     ) -> None:
+        """Updates rig model with DynamicRouting-related behavior sync daq
+         information."""
         behavior_sync_daq_channels = []
         if extracted_source.frame_signal_line is not None:
             logger.debug(
