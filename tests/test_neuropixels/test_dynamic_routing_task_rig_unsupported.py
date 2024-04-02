@@ -1,15 +1,17 @@
+"""Tests for neuropixels dynamic routing task rig ETL. Uses an unsupported 
+version of the dynamic routing task output file."""
 import unittest
 import pathlib
-
 from aind_metadata_mapper.neuropixels import dynamic_routing_task  # type: ignore
 
 from . import utils as test_utils
 
 
-class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
+class TestDynamicRoutingTaskRigEtlUnsupported(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl_unsupported(self):
+        """Test ETL with unsupported dynamic routing task rig file."""
         dynamic_routing_task.logger.setLevel("DEBUG")
         # get expected calibration dates for tests
         for calibration in self.expected.calibrations:

@@ -1,3 +1,4 @@
+"""Tests for the neuropixels open ephys rig ETL with inferred probe mapping."""
 import unittest
 import pathlib
 from aind_data_schema.core import rig  # type: ignore
@@ -10,6 +11,7 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl(self):
+        """Test ETL workflow with inferred probe mapping."""
         etl = open_ephys_rig.OpenEphysRigEtl(
             self.input_source,
             self.output_dir,
@@ -37,6 +39,7 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
         assert self.load_updated() == self.expected
 
     def test_etl_mismatched_probe_count(self):
+        """Test ETL workflow with mismatched probe count."""
         base_rig = rig.Rig.model_validate_json(self.input_source.read_text())
         base_rig.ephys_assemblies.pop()
         base_rig.write_standard_file(

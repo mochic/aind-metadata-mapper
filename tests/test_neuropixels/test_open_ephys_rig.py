@@ -1,3 +1,4 @@
+"""Tests for the neuropixels open ephys rig ETL."""
 import unittest
 import pathlib
 
@@ -10,6 +11,7 @@ class TestOpenEphysRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl(self):
+        """Test ETL workflow."""
         etl = open_ephys_rig.OpenEphysRigEtl(
             self.input_source,
             self.output_dir,

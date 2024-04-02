@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 class NeuropixelsRigContext(pydantic.BaseModel):
     
+    """Base context for neuropixels rig etl."""
+
     current: rig.Rig
 
 

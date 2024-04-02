@@ -11,10 +11,14 @@ logger = logging.getLogger(__name__)
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
+    """Extract context for MVR rig etl."""
+
     serial_numbers: list[tuple[str, str]]
 
 
 class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
+
+    """MVR rig ETL class. Extracts information from MVR-related config file."""
 
     def __init__(self, 
             input_source: pathlib.Path,
@@ -29,7 +33,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         self.mvr_config_source = mvr_config_source
 
     def _extract(self) -> ExtractContext:
-        """Extracts MVR-related camera information from config files."""
+        """Extracts MVR-related camera information from config file."""
         mvr_config = utils.load_config(self.mvr_config_source)
         serial_numbers = []
         for mvr_name, assembly_name in self.mvr_mapping.items():

@@ -1,3 +1,4 @@
+"""Utilities for neuropixels etl tests."""
 import datetime
 import pathlib
 import shutil

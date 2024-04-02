@@ -1,3 +1,4 @@
+"""Tests for the MVR rig ETL."""
 import unittest
 import pathlib
 
@@ -10,6 +11,7 @@ class TestMvrRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl(self):
+        """Test basic MVR etl workflow."""
         etl = mvr_rig.MvrRigEtl(
             self.input_source,
             self.output_dir,
@@ -27,6 +29,7 @@ class TestMvrRigEtl(unittest.TestCase):
         assert self.load_updated() == self.expected
 
     def test_etl_bad_mapping(self):
+        """Test MVR etl workflow with bad mapping."""
         etl = mvr_rig.MvrRigEtl(
             self.input_source,
             self.output_dir,

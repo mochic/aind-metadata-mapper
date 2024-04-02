@@ -1,3 +1,4 @@
+"""Tests for neuropixels dynamic routing task rig ETL."""
 import unittest
 import pathlib
 
@@ -10,6 +11,7 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl_supported(self):
+        """Test ETL with supported dynamic routing task rig file."""
         # get expected calibration dates for tests
         for calibration in self.expected.calibrations:
             if calibration.device_name == "Speaker":

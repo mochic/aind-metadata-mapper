@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
+    """Extract context for DynamicRoutingTaskRigEtl."""
+
     version: typing.Optional[str]
     reward_line: typing.Optional[typing.Tuple[int, int]]
     reward_sound_line: typing.Optional[typing.Tuple[int, int]]
@@ -36,8 +38,8 @@ SUPPORTED_VERSIONS = [
 
 class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
-    """DynamicRouting rig ETL class. Extracts information from rig-related 
-    files"""
+    """DynamicRouting rig ETL class. Extracts information from task output file.
+    """
     
     def __init__(self, 
             input_source: pathlib.Path,
@@ -53,6 +55,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             reward_calibration_date: typing.Optional[datetime.date] = None,
             **kwargs,
     ):
+        """Class constructor for Dynamic Routing rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
         self.task_source = task_source
         self.monitor_name = monitor_name
@@ -65,27 +68,35 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         self.reward_calibration_date = reward_calibration_date
 
     def _extract(self) -> ExtractContext:
+        """Extracts DynamicRouting-related task information from task output.
+        """
         task = utils.load_hdf5(self.task_source)
         return ExtractContext(
             current=super()._extract(),
             version=utils.extract_hdf5_value(task, ["githubTaskScript"]),
             reward_line=utils.extract_hdf5_value(task, ["rewardLine"]),
-            reward_sound_line=utils.extract_hdf5_value(task, ["rewardSoundLine"]),
+            reward_sound_line=utils.extract_hdf5_value(
+                task, ["rewardSoundLine"]),
             lick_line=utils.extract_hdf5_value(task, ["lickLine"]),
-            frame_signal_line=utils.extract_hdf5_value(task, ["frameSignalLine"]),
-            acquisition_signal_line=utils.extract_hdf5_value(task, ["acquisitionSignalLine"]),
+            frame_signal_line=utils.extract_hdf5_value(task,
+                ["frameSignalLine"]),
+            acquisition_signal_line=utils.extract_hdf5_value(task,
+                ["acquisitionSignalLine"]),
             opto_channels=utils.extract_hdf5_value(task, ["optoChannels"]),
             galvo_channels=utils.extract_hdf5_value(task, ["galvoChannels"]),
             monitor_distance=utils.extract_hdf5_value(task, ["monDistance"]),
             monitor_size=utils.extract_hdf5_value(task, ["monSizePix"]),
             wheel_radius=utils.extract_hdf5_value(task, ["wheelRadius"]),
-            sound_calibration_fit=utils.extract_hdf5_value(task, ["soundCalibrationFit"]),
-            solenoid_open_time=utils.extract_hdf5_value(task, ["solenoidOpenTime"]),
+            sound_calibration_fit=utils.extract_hdf5_value(task,
+                ["soundCalibrationFit"]),
+            solenoid_open_time=utils.extract_hdf5_value(task,
+                ["solenoidOpenTime"]),
         )
 
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
+        """Updates rig model with DynamicRouting-related task information."""
         if extracted_source.version is not None:
             if extracted_source.version not in SUPPORTED_VERSIONS:
                 logger.warning(

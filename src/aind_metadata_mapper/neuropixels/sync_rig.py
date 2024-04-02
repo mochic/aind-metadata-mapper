@@ -9,6 +9,8 @@ from . import neuropixels_rig, utils
 
 class SyncChannel(pydantic.BaseModel):
     
+    """Extracted Sync daq channel information."""
+
     channel_name: str
     channel_index: int
     sample_rate: float
@@ -16,10 +18,15 @@ class SyncChannel(pydantic.BaseModel):
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
+    """Extract context for Sync rig etl."""
+
     channels: list[SyncChannel]
 
 
 class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
+
+    """Sync rig ETL class. Extracts information from Sync-related config file.
+    """
 
     def __init__(self, 
             input_source: pathlib.Path,

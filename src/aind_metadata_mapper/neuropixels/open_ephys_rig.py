@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 class ExtractedProbe(pydantic.BaseModel):
 
+    """Extracted probe information."""
+
     name: typing.Optional[str]
     model: typing.Optional[str]
     serial_number: typing.Optional[str]
@@ -21,11 +23,16 @@ class ExtractedProbe(pydantic.BaseModel):
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
+    """Extract context for Open Ephys rig etl."""
+
     probes: list[ExtractedProbe]
     versions: list[typing.Union[str, None]]
 
 
 class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
+
+    """Open Ephys rig ETL class. Extracts information from Open Ephys-related 
+    config files."""
 
     def __init__(self, 
             input_source: pathlib.Path,

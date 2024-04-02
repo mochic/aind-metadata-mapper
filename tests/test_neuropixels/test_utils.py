@@ -1,3 +1,4 @@
+"""Tests for the neuropixels rig utils."""
 import unittest
 import pydantic
 
@@ -6,18 +7,25 @@ from aind_metadata_mapper.neuropixels import utils
 
 class Child(pydantic.BaseModel):
 
+    """Test model to be nested in parent."""
+
     name: str
     value: str
 
 
 class Parent(pydantic.BaseModel):
 
+    """Test model to be parent of child."""
+
     children: list[Child]
 
 
 class Utils(unittest.TestCase):
 
+    """Tests for the neuropixels rig utils."""
+
     def test_find_replace_append(self):
+        """Test find_replace_or_append with existing value."""
         untoggled_value = "untoggled"
         target_child_name = "child1"
         parent = Parent(

@@ -1,3 +1,4 @@
+"""Tests for Sync rig ETL."""
 import unittest
 import pathlib
 
@@ -10,6 +11,7 @@ class SyncRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl(self):
+        """Test ETL workflow."""
         etl = sync_rig.SyncRigEtl(
             self.input_source,
             self.output_dir,
