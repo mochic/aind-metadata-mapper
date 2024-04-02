@@ -1,3 +1,4 @@
+"""ETL for the MVR config."""
 import logging
 import pathlib
 from aind_data_schema.core import rig  # type: ignore
@@ -22,11 +23,13 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             mvr_mapping: dict[str, str],
             **kwargs
     ):
+        """Class constructor for MVR rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
         self.mvr_mapping = mvr_mapping
         self.mvr_config_source = mvr_config_source
 
     def _extract(self) -> ExtractContext:
+        """Extracts MVR-related camera information from config files."""
         mvr_config = utils.load_config(self.mvr_config_source)
         serial_numbers = []
         for mvr_name, assembly_name in self.mvr_mapping.items():
@@ -51,6 +54,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
+        """Updates rig model with MVR-related camera information."""
         for assembly_name, serial_number in extracted_source.serial_numbers:
             utils.find_update(
                 extracted_source.current.cameras,

@@ -1,3 +1,4 @@
+"""ETL for the Open Ephys config."""
 import typing
 import logging
 import pathlib
@@ -33,11 +34,13 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             probe_manipulator_serial_numbers: list[tuple[str, str]] = [],
             **kwargs
     ):
+        """Class constructor for Open Ephys rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
         self.open_ephys_settings_sources = open_ephys_settings_sources
         self.probe_manipulator_serial_numbers = probe_manipulator_serial_numbers
 
     def _extract(self) -> ExtractContext:
+        """Extracts Open Ephys-related probe information from config files."""
         current = super()._extract()
         versions = []
         probes = []
@@ -56,11 +59,16 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
     def _extract_version(self, settings: ElementTree.Element) -> \
             typing.Union[str, None]:
+        """Extracts the version from the Open Ephys settings file."""
         version_elements = utils.find_elements(settings, "version")
         return next(version_elements).text
 
     def _extract_probes(self, current: rig.Rig,
             settings: ElementTree.Element) -> list[ExtractedProbe]:
+        """Extracts probe serial numbers from Open Ephys settings file. If 
+        extracted probe names do not match the rig, attempt to infer them from
+        the current rig model.
+        """
         extracted_probes = [
             ExtractedProbe(
                 name=element.get("custom_probe_name"),
@@ -97,6 +105,7 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         self,
         extracted_source: ExtractContext,
     ) -> rig.Rig:
+        """Updates rig model with Open Ephys-related probe information."""
         # update manipulator serial numbers
         for ephys_assembly_name, serial_number in \
                 self.probe_manipulator_serial_numbers:

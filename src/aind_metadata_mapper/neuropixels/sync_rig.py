@@ -1,3 +1,4 @@
+"""ETL for the Sync config."""
 import pathlib
 import pydantic
 from aind_data_schema.core import rig  # type: ignore
@@ -27,11 +28,13 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             sync_daq_name: str = "Sync",
             **kwargs
     ):
+        """Class constructor for Sync rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
         self.config_source = config_source
         self.sync_daq_name = sync_daq_name
 
     def _extract(self) -> ExtractContext:
+        """Extracts Sync-related daq information from config files."""
         config = utils.load_yaml(self.config_source)
         sample_rate = config["freq"]
         channels = [
@@ -52,6 +55,7 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def _transform(
             self,
             extracted_source: ExtractContext) -> rig.Rig:
+        """Updates rig model with Sync-related daq information."""
         utils.find_update(
             extracted_source.current.daqs,
             [
