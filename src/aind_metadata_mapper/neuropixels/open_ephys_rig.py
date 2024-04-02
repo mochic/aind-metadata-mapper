@@ -31,20 +31,22 @@ class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
 class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
-    """Open Ephys rig ETL class. Extracts information from Open Ephys-related 
-    config files."""
+    """Open Ephys rig ETL class. Extracts information from Open Ephys-related
+     config files."""
 
-    def __init__(self, 
-            input_source: pathlib.Path,
-            output_directory: pathlib.Path,
-            open_ephys_settings_sources: list[pathlib.Path],
-            probe_manipulator_serial_numbers: list[tuple[str, str]] = [],
-            **kwargs
+    def __init__(
+        self,
+        input_source: pathlib.Path,
+        output_directory: pathlib.Path,
+        open_ephys_settings_sources: list[pathlib.Path],
+        probe_manipulator_serial_numbers: list[tuple[str, str]] = [],
+        **kwargs
     ):
         """Class constructor for Open Ephys rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
         self.open_ephys_settings_sources = open_ephys_settings_sources
-        self.probe_manipulator_serial_numbers = probe_manipulator_serial_numbers
+        self.probe_manipulator_serial_numbers = \
+            probe_manipulator_serial_numbers
 
     def _extract(self) -> ExtractContext:
         """Extracts Open Ephys-related probe information from config files."""
@@ -70,10 +72,13 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         version_elements = utils.find_elements(settings, "version")
         return next(version_elements).text
 
-    def _extract_probes(self, current: rig.Rig,
-            settings: ElementTree.Element) -> list[ExtractedProbe]:
-        """Extracts probe serial numbers from Open Ephys settings file. If 
-        extracted probe names do not match the rig, attempt to infer them from
+    def _extract_probes(
+            self,
+            current: rig.Rig,
+            settings: ElementTree.Element
+    ) -> list[ExtractedProbe]:
+        """Extracts probe serial numbers from Open Ephys settings file. If
+         extracted probe names do not match the rig, attempt to infer them from
         the current rig model.
         """
         extracted_probes = [
@@ -84,7 +89,7 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             )
             for element in utils.find_elements(settings, "np_probe")
         ]
-        # if extracted probe names are not in the rig, attempt to infer them 
+        # if extracted probe names are not in the rig, attempt to infer them
         # from current rig model
         extracted_probe_names = [probe.name for probe in extracted_probes]
         rig_probe_names = [
@@ -121,24 +126,25 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 [
                     ("name", ephys_assembly_name),
                 ],
-                setter=\
-                    lambda item, name, value: 
-                        setattr(item.manipulator, name, value),
+                setter=(
+                    lambda item, name, value:
+                        setattr(item.manipulator, name, value)
+                ),
                 serial_number=serial_number,
             )
 
         # update probe models and serial numbers
         for probe in extracted_source.probes:
-            for ephys_assembly in extracted_source.current.ephys_assemblies:  
-                    updated = utils.find_update(
-                        ephys_assembly.probes,
-                        filters=[
-                            ("name", probe.name),
-                        ],
-                        model=probe.model,
-                        serial_number=probe.serial_number,
-                    )
-                    if updated:
-                        break
+            for ephys_assembly in extracted_source.current.ephys_assemblies:
+                updated = utils.find_update(
+                    ephys_assembly.probes,
+                    filters=[
+                        ("name", probe.name),
+                    ],
+                    model=probe.model,
+                    serial_number=probe.serial_number,
+                )
+                if updated:
+                    break
 
         return super()._transform(extracted_source.current)

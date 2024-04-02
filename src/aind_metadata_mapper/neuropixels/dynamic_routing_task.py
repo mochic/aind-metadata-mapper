@@ -32,28 +32,31 @@ class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
 
 SUPPORTED_VERSIONS = [
-    b'https://raw.githubusercontent.com/samgale/DynamicRoutingTask//9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py',
+    (b'https://raw.githubusercontent.com/samgale/DynamicRoutingTask'
+     b'/9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py'),
 ]
 
 
 class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
-    """DynamicRouting rig ETL class. Extracts information from task output file.
+    """DynamicRouting rig ETL class. Extracts information from task output 
+    file.
     """
-    
-    def __init__(self, 
-            input_source: pathlib.Path,
-            output_directory: pathlib.Path,
-            task_source: pathlib.Path,
-            monitor_name: str = "Stim",
-            speaker_name: str = "Speaker",
-            behavior_daq_name: str = "Behavior",
-            behavior_sync_daq_name: str = "BehaviorSync",
-            opto_daq_name: str = "Opto",
-            reward_delivery_name: str = "Reward delivery",
-            sound_calibration_date: typing.Optional[datetime.date] = None,
-            reward_calibration_date: typing.Optional[datetime.date] = None,
-            **kwargs,
+
+    def __init__(
+        self,
+        input_source: pathlib.Path,
+        output_directory: pathlib.Path,
+        task_source: pathlib.Path,
+        monitor_name: str = "Stim",
+        speaker_name: str = "Speaker",
+        behavior_daq_name: str = "Behavior",
+        behavior_sync_daq_name: str = "BehaviorSync",
+        opto_daq_name: str = "Opto",
+        reward_delivery_name: str = "Reward delivery",
+        sound_calibration_date: typing.Optional[datetime.date] = None,
+        reward_calibration_date: typing.Optional[datetime.date] = None,
+        **kwargs,
     ):
         """Class constructor for Dynamic Routing rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
@@ -78,20 +81,23 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             reward_sound_line=utils.extract_hdf5_value(
                 task, ["rewardSoundLine"]),
             lick_line=utils.extract_hdf5_value(task, ["lickLine"]),
-            frame_signal_line=utils.extract_hdf5_value(task,
-                ["frameSignalLine"]),
-            acquisition_signal_line=utils.extract_hdf5_value(task,
-                ["acquisitionSignalLine"]),
+            frame_signal_line=utils.extract_hdf5_value(
+                task, ["frameSignalLine"]),
+            acquisition_signal_line=utils.extract_hdf5_value(
+                task, ["acquisitionSignalLine"]),
             opto_channels=utils.extract_hdf5_value(task, ["optoChannels"]),
             galvo_channels=utils.extract_hdf5_value(task, ["galvoChannels"]),
             monitor_distance=utils.extract_hdf5_value(task, ["monDistance"]),
             monitor_size=utils.extract_hdf5_value(task, ["monSizePix"]),
             wheel_radius=utils.extract_hdf5_value(task, ["wheelRadius"]),
-            sound_calibration_fit=utils.extract_hdf5_value(task,
-                ["soundCalibrationFit"]),
-            solenoid_open_time=utils.extract_hdf5_value(task,
-                ["solenoidOpenTime"]),
+            sound_calibration_fit=utils.extract_hdf5_value(
+                task, ["soundCalibrationFit"]),
+            solenoid_open_time=utils.extract_hdf5_value(
+                task, ["solenoidOpenTime"]),
         )
+
+    def _transform_daqs(self, extracted_source: ExtractContext) -> rig.Rig:
+        pass
 
     def _transform(
             self,
@@ -271,8 +277,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     ("device_name", self.speaker_name),
                 ],
                 devices.Calibration(
-                    calibration_date=self.sound_calibration_date or \
-                        default_calibration_date,
+                    calibration_date=self.sound_calibration_date or
+                    default_calibration_date,
                     device_name=self.speaker_name,
                     input={
                         "a": extracted_source.sound_calibration_fit[0],
@@ -299,16 +305,17 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     ("device_name", self.reward_delivery_name),
                 ],
                 devices.Calibration(
-                    calibration_date=self.reward_calibration_date or \
-                        default_calibration_date,
+                    calibration_date=self.reward_calibration_date or
+                    default_calibration_date,
                     device_name=self.reward_delivery_name,
                     input={},
                     output={
-                        "solenoid_open_time": \
-                            extracted_source.solenoid_open_time,
+                        "solenoid_open_time":
+                        extracted_source.solenoid_open_time,
                     },
                     description=(
-                        "solenoid open time (ms) = slope * expected water volume (mL) + intercept"
+                        "solenoid open time (ms) = slope * expected water "
+                        "volume (mL) + intercept"
                     ),
                     notes=(
                         "Calibration date is a placeholder."

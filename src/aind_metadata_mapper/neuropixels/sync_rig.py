@@ -8,7 +8,7 @@ from . import neuropixels_rig, utils
 
 
 class SyncChannel(pydantic.BaseModel):
-    
+
     """Extracted Sync daq channel information."""
 
     channel_name: str
@@ -28,12 +28,13 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     """Sync rig ETL class. Extracts information from Sync-related config file.
     """
 
-    def __init__(self, 
-            input_source: pathlib.Path,
-            output_directory: pathlib.Path,
-            config_source: pathlib.Path,
-            sync_daq_name: str = "Sync",
-            **kwargs
+    def __init__(
+        self,
+        input_source: pathlib.Path,
+        output_directory: pathlib.Path,
+        config_source: pathlib.Path,
+        sync_daq_name: str = "Sync",
+        **kwargs
     ):
         """Class constructor for Sync rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
@@ -50,7 +51,7 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 channel_index=line,
                 sample_rate=sample_rate,
             )
-            for line, name in 
+            for line, name in
             config["line_labels"].items()
         ]
 

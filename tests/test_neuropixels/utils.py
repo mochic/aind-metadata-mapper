@@ -6,7 +6,8 @@ import typing
 import tempfile
 
 from aind_data_schema.core import rig  # type: ignore
-from aind_data_schema.models import coordinates, devices, organizations  # type: ignore
+from aind_data_schema.models import (  # type: ignore
+    coordinates, devices, organizations)
 
 
 COPA_NOTES = (
@@ -21,6 +22,7 @@ EYE_CAMERA_ASSEMBLY_NAME = "Eye"
 EYE_CAMERA_NAME = f"{EYE_CAMERA_ASSEMBLY_NAME} camera"
 SIDE_CAMERA_ASSEMBLY_NAME = "Side"
 SIDE_CAMERA_NAME = f"{SIDE_CAMERA_ASSEMBLY_NAME} camera"
+
 
 def init_rig() -> rig.Rig:
     """Initializes a rig model for the dynamic routing project.
@@ -98,8 +100,8 @@ def init_rig() -> rig.Rig:
                 viewing_distance=15.3,
                 viewing_distance_unit="centimeter",
                 refresh_rate=60,
-                brightness=43,  # the dr task doesnt set brightness, assumes brightness doesnt change
-                contrast=50,  # the dr task doesnt set contrast, assumes contrast doesnt change
+                brightness=43,
+                contrast=50,
                 position=coordinates.RelativePosition(
                     device_position_transformations=[
                         coordinates.Rotation3dTransform(
@@ -156,12 +158,12 @@ def init_rig() -> rig.Rig:
                             ],
                         ),
                         coordinates.Translation3dTransform(
-                            translation=[-0.00838, -0.09787, 0.18228 ]
+                            translation=[-0.00838, -0.09787, 0.18228]
                         ),
                     ],
                     device_origin=(
-                        "Located on front mounting flange face. Right and left "
-                        "conventions are relative to the front side of the "
+                        "Located on front mounting flange face. Right and left"
+                        " conventions are relative to the front side of the "
                         "speaker."
                     ),
                     device_axes=[
@@ -185,9 +187,9 @@ def init_rig() -> rig.Rig:
                             )
                         )
                     ],
-                    notes=COPA_NOTES + \
-                        (" Speaker to be mounted with the X axis pointing to "
-                         "the right when viewing the speaker along the Z axis"),
+                    notes=COPA_NOTES + (
+                        " Speaker to be mounted with the X axis pointing to "
+                        "the right when viewing the speaker along the Z axis"),
                 )
             ),
             devices.RewardDelivery(
@@ -225,7 +227,8 @@ def init_rig() -> rig.Rig:
                 name=f"Ephys Assembly {assembly_letter}",
                 manipulator=devices.Manipulator(
                     name=f"Ephys Assembly {assembly_letter} Manipulator",
-                    manufacturer=organizations.Organization.NEW_SCALE_TECHNOLOGIES,
+                    manufacturer=(
+                        organizations.Organization.NEW_SCALE_TECHNOLOGIES),
                     model="06591-M-0004",
                 ),
                 probes=[
@@ -367,8 +370,8 @@ def init_rig() -> rig.Rig:
                 ),
                 lens=devices.Lens(
                     name="Eye lens",
-                    manufacturer=\
-                        organizations.Organization.INFINITY_PHOTO_OPTICAL,
+                    manufacturer=(
+                        organizations.Organization.INFINITY_PHOTO_OPTICAL),
                     focal_length=6.0,
                     focal_length_unit="millimeter",
                     model="213073",
@@ -499,7 +502,7 @@ def setup_neuropixels_etl_dirs(
         rig.Rig,
         typing.Callable[[], rig.Rig],
         typing.Callable[[], None]
-    ]:
+]:
     """Sets up a temporary input/output directory context for neuropixels etl.
 
     Parameters

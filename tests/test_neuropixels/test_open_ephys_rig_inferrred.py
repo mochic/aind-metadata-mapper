@@ -73,7 +73,7 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
         """
         # test directory
         self.input_source, self.output_dir, self.expected, \
-                self.load_updated, self._cleanup = \
+            self.load_updated, self._cleanup = \
             test_utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
                     "./tests/resources/neuropixels/"

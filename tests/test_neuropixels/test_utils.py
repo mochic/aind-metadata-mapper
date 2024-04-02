@@ -2,7 +2,7 @@
 import unittest
 import pydantic
 
-from aind_metadata_mapper.neuropixels import utils
+from aind_metadata_mapper.neuropixels import utils  # type: ignore
 
 
 class Child(pydantic.BaseModel):
@@ -52,4 +52,4 @@ class Utils(unittest.TestCase):
                 )
             ),
             1,
-        )      
+        )

@@ -26,7 +26,7 @@ class SyncRigEtl(unittest.TestCase):
         """
         # test directory
         self.input_source, self.output_dir, self.expected, self.load_updated, \
-                self._cleanup = \
+            self._cleanup = \
             utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
                     "./tests/resources/neuropixels/sync-rig.json"

@@ -20,12 +20,13 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
     """MVR rig ETL class. Extracts information from MVR-related config file."""
 
-    def __init__(self, 
-            input_source: pathlib.Path,
-            output_directory: pathlib.Path,
-            mvr_config_source: pathlib.Path,
-            mvr_mapping: dict[str, str],
-            **kwargs
+    def __init__(
+        self,
+        input_source: pathlib.Path,
+        output_directory: pathlib.Path,
+        mvr_config_source: pathlib.Path,
+        mvr_mapping: dict[str, str],
+        **kwargs
     ):
         """Class constructor for MVR rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
@@ -66,8 +67,9 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 filters=[
                     ("name", assembly_name, ),
                 ],
-                setter=\
-                    lambda item, name, value: setattr(item.camera, name, value),
+                setter=(
+                    lambda item, name, value: setattr(item.camera, name, value)
+                ),
                 serial_number=serial_number,
                 recording_software=devices.Software(
                     name="MVR",

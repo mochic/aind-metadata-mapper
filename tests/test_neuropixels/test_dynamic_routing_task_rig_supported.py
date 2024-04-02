@@ -2,7 +2,10 @@
 import unittest
 import pathlib
 
-from aind_metadata_mapper.neuropixels import dynamic_routing_task  # type: ignore
+from aind_metadata_mapper.neuropixels import (  # type: ignore
+    dynamic_routing_task
+)
+
 
 from . import utils as test_utils
 
@@ -11,7 +14,12 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl_supported(self):
-        """Test ETL with supported dynamic routing task rig file."""
+        """Test ETL with supported dynamic routing task rig file.
+        Notes
+        -----
+        - Sound calibration or reward calibration date not provided is expected
+        to make this test fail.
+        """
         # get expected calibration dates for tests
         for calibration in self.expected.calibrations:
             if calibration.device_name == "Speaker":
@@ -45,7 +53,7 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
         """
         # test directory
         self.input_source, self.output_dir, self.expected, self.load_updated, \
-                self._cleanup = \
+            self._cleanup = \
             test_utils.setup_neuropixels_etl_dirs(
                 pathlib.Path(
                     "./tests/resources/neuropixels/"
