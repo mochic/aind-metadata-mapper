@@ -4,6 +4,7 @@ import json
 import os
 import unittest
 from datetime import datetime
+import zoneinfo
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -44,8 +45,12 @@ class TestMesoscope(unittest.TestCase):
             behavior_source=RESOURCES_DIR,
             output_directory=RESOURCES_DIR,
             subject_id="12345",
-            session_start_time=datetime(2024, 2, 22, 15, 30, 0),
-            session_end_time=datetime(2024, 2, 22, 17, 30, 0),
+            session_start_time=datetime(
+                2024, 2, 22, 15, 30, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+            session_end_time=datetime(
+                2024, 2, 22, 17, 30, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
             project="some_project",
             experimenter_full_name=["John Doe"],
             magnification="16x",
