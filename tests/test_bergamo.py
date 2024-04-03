@@ -1,5 +1,5 @@
 """Tests parsing of session information from bergamo rig."""
-
+import zoneinfo
 import gzip
 import json
 import os
@@ -46,12 +46,24 @@ class TestBergamoEtl(unittest.TestCase):
             active_mouse_platform=True,
             experimenter_full_name=["John Smith", "Jane Smith"],
             subject_id="12345",
-            session_start_time=datetime(2023, 10, 10, 14, 0, 0),
-            session_end_time=datetime(2023, 10, 10, 17, 0, 0),
-            stream_start_time=datetime(2023, 10, 10, 15, 0, 0),
-            stream_end_time=datetime(2023, 10, 10, 16, 0, 0),
-            stimulus_start_time=datetime(2023, 10, 10, 15, 15, 0),
-            stimulus_end_time=datetime(2023, 10, 10, 15, 45, 0),
+            session_start_time=datetime(
+                2023, 10, 10, 14, 0, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+            session_end_time=datetime(
+                2023, 10, 10, 17, 0, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+            stream_start_time=datetime(
+                2023, 10, 10, 15, 0, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+            stream_end_time=datetime(
+                2023, 10, 10, 16, 0, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+            stimulus_start_time=datetime(
+                2023, 10, 10, 15, 15, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+            stimulus_end_time=datetime(
+                2023, 10, 10, 15, 45, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
         )
         cls.expected_session = expected_session_contents
 
