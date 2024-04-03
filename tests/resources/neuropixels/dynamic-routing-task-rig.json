@@ -1301,7 +1301,7 @@
                 "channel_type": "Analog Output",
                 "port": 0,
                 "channel_index": 0,
-                "sample_rate": null,
+                "sample_rate": "2000",
                 "sample_rate_unit": "hertz",
                 "event_based_sampling": null
              },
@@ -1311,7 +1311,7 @@
                 "channel_type": "Analog Output",
                 "port": 0,
                 "channel_index": 1,
-                "sample_rate": null,
+                "sample_rate": "2000",
                 "sample_rate_unit": "hertz",
                 "event_based_sampling": null
              }
@@ -1362,17 +1362,17 @@
     ],
     "modalities": [
        {
-          "name": "Extracellular electrophysiology",
-          "abbreviation": "ecephys"
-       },
-       {
           "name": "Behavior videos",
           "abbreviation": "behavior-videos"
        },
        {
           "name": "Behavior",
           "abbreviation": "behavior"
+       },
+       {
+          "name": "Extracellular electrophysiology",
+          "abbreviation": "ecephys"
        }
     ],
     "notes": null
-}
+ }

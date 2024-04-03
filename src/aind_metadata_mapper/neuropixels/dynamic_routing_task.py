@@ -242,6 +242,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                         channel_type=devices.DaqChannelType.AO,
                         port=0,
                         channel_index=extracted_source.galvo_channels[0],
+                        sample_rate=2000,
+                        sample_rate_unit=devices.FrequencyUnit.HZ,
                     ),
                     devices.DAQChannel(
                         device_name=self.opto_daq_name,
@@ -249,6 +251,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                         channel_type=devices.DaqChannelType.AO,
                         port=0,
                         channel_index=extracted_source.galvo_channels[1],
+                        sample_rate=2000,
+                        sample_rate_unit=devices.FrequencyUnit.HZ,
                     ),
                 ]
             )
