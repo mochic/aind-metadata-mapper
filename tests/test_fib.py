@@ -110,7 +110,8 @@ class TestSchemaWriter(unittest.TestCase):
         etl_job1 = FIBEtl(job_settings=self.example_job_settings)
         parsed_info = etl_job1._extract()
         actual_session = etl_job1._transform(parsed_info)
-        print(actual_session["session_start_time"])
+        print(actual_session.session_start_time)
+        print(self.expected_session.session_start_time)
         self.assertEqual(self.expected_session, actual_session)
 
     def test_run_job(self):
