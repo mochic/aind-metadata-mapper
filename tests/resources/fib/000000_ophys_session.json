@@ -76,8 +76,8 @@
    ],
    "stimulus_epochs": [
        {
-           "stimulus_start_time": "1999-10-04T00:00:00",
-           "stimulus_end_time": "1999-10-04T00:00:48",
+           "stimulus_start_time": "1999-10-04T00:00:00-07:00",
+           "stimulus_end_time": "1999-10-04T00:00:48-07:00",
            "stimulus_name": "OptoStim10Hz",
            "session_number": null,
            "software": [],
