@@ -77,7 +77,7 @@ class EphysEtl(BaseEtl):
         )
         ephys_session["session_start_time"] = datetime.strptime(
             start_time, "%d %b %Y %H:%M:%S"
-        ).astimezone(zoneinfo.ZoneInfo("America/Los_Angeles"))
+        ).replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
         ephys_session["experimenter_full_name"] = experiment_data[
             "experimenter_full_name"
         ]
@@ -103,10 +103,10 @@ class EphysEtl(BaseEtl):
             session_stream = {}
             session_stream["stream_start_time"] = datetime.strptime(
                stage[0][0], "%Y/%m/%d %H:%M:%S.%f"
-            ).astimezone(zoneinfo.ZoneInfo("America/Los_Angeles"))
+            ).replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
             session_stream["stream_end_time"] = datetime.strptime(
                 stage[-1][0], "%Y/%m/%d %H:%M:%S.%f"
-            ).astimezone(zoneinfo.ZoneInfo("America/Los_Angeles"))
+            ).replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
             session_stream["stream_modalities"] = [Modality.ECEPHYS]
             session_stream["stick_microscopes"] = stick_microscopes
             session_stream["camera_names"] = camera_names
@@ -138,7 +138,7 @@ class EphysEtl(BaseEtl):
 
         end_times = [
             datetime.strptime(x[-1][0], "%Y/%m/%d %H:%M:%S.%f")
-            .astimezone(zoneinfo.ZoneInfo("America/Los_Angeles"))
+            .replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
             for x in stage_logs
         ]
         ephys_session["session_end_time"] = max(end_times)
