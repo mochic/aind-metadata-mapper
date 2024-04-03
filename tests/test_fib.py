@@ -1,5 +1,6 @@
 """Tests parsing of session information from fib rig."""
 
+import zoneinfo
 import json
 import os
 import unittest
@@ -32,7 +33,8 @@ class TestSchemaWriter(unittest.TestCase):
         cls.example_job_settings = JobSettings(
             string_to_parse=raw_md_contents,
             experimenter_full_name=["Don Key"],
-            session_start_time=datetime(1999, 10, 4),
+            session_start_time=datetime(
+                1999, 10, 4, tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
             notes="brabrabrabra....",
             labtracks_id="000000",
             iacuc_protocol="2115",
@@ -97,7 +99,9 @@ class TestSchemaWriter(unittest.TestCase):
             self.example_job_settings.string_to_parse, parsed_info.teensy_str
         )
         self.assertEqual(
-            datetime(1999, 10, 4), self.example_job_settings.session_start_time
+            datetime(
+                1999, 10, 4, tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+            self.example_job_settings.session_start_time
         )
 
     def test_transform(self):
@@ -106,6 +110,7 @@ class TestSchemaWriter(unittest.TestCase):
         etl_job1 = FIBEtl(job_settings=self.example_job_settings)
         parsed_info = etl_job1._extract()
         actual_session = etl_job1._transform(parsed_info)
+        print(actual_session["session_start_time"])
         self.assertEqual(self.expected_session, actual_session)
 
     def test_run_job(self):
@@ -119,4 +124,5 @@ class TestSchemaWriter(unittest.TestCase):
 
 
 if __name__ == "__main__":
+
     unittest.main()
