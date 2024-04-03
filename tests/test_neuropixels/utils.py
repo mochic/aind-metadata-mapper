@@ -1,14 +1,17 @@
 """Utilities for neuropixels etl tests."""
+
 import datetime
 import pathlib
 import shutil
-import typing
 import tempfile
+import typing
 
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import (  # type: ignore
-    coordinates, devices, organizations)
-
+    coordinates,
+    devices,
+    organizations,
+)
 
 COPA_NOTES = (
     "The rotation matrix is represented as: a,b,c,d,e,f,g,h,i. Wherein a, b, "
@@ -58,16 +61,14 @@ def init_rig() -> rig.Rig:
             ),
             coordinates.Axis(
                 name=coordinates.AxisName.Y,
-                direction=(
-                    "Pointing to the bottom edge of the sensor."
-                ),
+                direction=("Pointing to the bottom edge of the sensor."),
             ),
             coordinates.Axis(
                 name=coordinates.AxisName.Z,
                 direction=(
                     "Positive moving away from the sensor towards the object."
-                )
-            )
+                ),
+            ),
         ],
         "notes": COPA_NOTES,
     }
@@ -106,9 +107,15 @@ def init_rig() -> rig.Rig:
                     device_position_transformations=[
                         coordinates.Rotation3dTransform(
                             rotation=[
-                                -0.80914, -0.58761, 0,
-                                -0.12391, 0.17063, 0.97751,
-                                0.08751, -0.12079, 0.02298,
+                                -0.80914,
+                                -0.58761,
+                                0,
+                                -0.12391,
+                                0.17063,
+                                0.97751,
+                                0.08751,
+                                -0.12079,
+                                0.02298,
                             ],
                         ),
                         coordinates.Translation3dTransform(
@@ -138,11 +145,11 @@ def init_rig() -> rig.Rig:
                             name=coordinates.AxisName.Z,
                             direction=(
                                 "Positive moving away from the screen."
-                            )
-                        )
+                            ),
+                        ),
                     ],
                     notes=COPA_NOTES,
-                )
+                ),
             ),
             devices.Speaker(
                 name="Speaker",
@@ -152,9 +159,15 @@ def init_rig() -> rig.Rig:
                     device_position_transformations=[
                         coordinates.Rotation3dTransform(
                             rotation=[
-                                -0.82783, -0.4837, -0.28412,
-                                -0.55894, 0.75426, 0.34449,
-                                0.04767, 0.44399, -0.89476
+                                -0.82783,
+                                -0.4837,
+                                -0.28412,
+                                -0.55894,
+                                0.75426,
+                                0.34449,
+                                0.04767,
+                                0.44399,
+                                -0.89476,
                             ],
                         ),
                         coordinates.Translation3dTransform(
@@ -184,13 +197,15 @@ def init_rig() -> rig.Rig:
                             name=coordinates.AxisName.Z,
                             direction=(
                                 "Positive moving away from the speaker."
-                            )
-                        )
+                            ),
+                        ),
                     ],
-                    notes=COPA_NOTES + (
+                    notes=COPA_NOTES
+                    + (
                         " Speaker to be mounted with the X axis pointing to "
-                        "the right when viewing the speaker along the Z axis"),
-                )
+                        "the right when viewing the speaker along the Z axis"
+                    ),
+                ),
             ),
             devices.RewardDelivery(
                 reward_spouts=[
@@ -228,7 +243,8 @@ def init_rig() -> rig.Rig:
                 manipulator=devices.Manipulator(
                     name=f"Ephys Assembly {assembly_letter} Manipulator",
                     manufacturer=(
-                        organizations.Organization.NEW_SCALE_TECHNOLOGIES),
+                        organizations.Organization.NEW_SCALE_TECHNOLOGIES
+                    ),
                     model="06591-M-0004",
                 ),
                 probes=[
@@ -237,7 +253,7 @@ def init_rig() -> rig.Rig:
                         probe_model="Neuropixels 1.0",
                         manufacturer=organizations.Organization.IMEC,
                     )
-                ]
+                ],
             )
             for assembly_letter in ["A", "B", "C", "D", "E", "F"]
         ],
@@ -306,17 +322,23 @@ def init_rig() -> rig.Rig:
                     device_position_transformations=[
                         coordinates.Rotation3dTransform(
                             rotation=[
-                                -0.17365, 0.98481, 0,
-                                0.44709, 0.07883, -0.89101,
-                                -0.87747, -0.15472, -0.45399,
+                                -0.17365,
+                                0.98481,
+                                0,
+                                0.44709,
+                                0.07883,
+                                -0.89101,
+                                -0.87747,
+                                -0.15472,
+                                -0.45399,
                             ]
                         ),
                         coordinates.Translation3dTransform(
                             translation=[0.154, 0.03078, 0.06346],
-                        )
+                        ),
                     ],
-                    **shared_camera_assembly_relative_position_props
-                )
+                    **shared_camera_assembly_relative_position_props,
+                ),
             ),
             devices.CameraAssembly(
                 name=SIDE_CAMERA_ASSEMBLY_NAME,
@@ -347,10 +369,10 @@ def init_rig() -> rig.Rig:
                         ),
                         coordinates.Translation3dTransform(
                             translation=[-0.03617, 0.23887, -0.02535],
-                        )
+                        ),
                     ],
-                    **shared_camera_assembly_relative_position_props
-                )
+                    **shared_camera_assembly_relative_position_props,
+                ),
             ),
             devices.CameraAssembly(
                 name=EYE_CAMERA_ASSEMBLY_NAME,
@@ -371,7 +393,8 @@ def init_rig() -> rig.Rig:
                 lens=devices.Lens(
                     name="Eye lens",
                     manufacturer=(
-                        organizations.Organization.INFINITY_PHOTO_OPTICAL),
+                        organizations.Organization.INFINITY_PHOTO_OPTICAL
+                    ),
                     focal_length=6.0,
                     focal_length_unit="millimeter",
                     model="213073",
@@ -381,18 +404,24 @@ def init_rig() -> rig.Rig:
                     device_position_transformations=[
                         coordinates.Rotation3dTransform(
                             rotation=[
-                                -0.5, -0.86603, 0,
-                                -0.366, 0.21131, -0.90631,
-                                0.78489, -0.45315, -0.42262,
+                                -0.5,
+                                -0.86603,
+                                0,
+                                -0.366,
+                                0.21131,
+                                -0.90631,
+                                0.78489,
+                                -0.45315,
+                                -0.42262,
                             ]
                         ),
                         coordinates.Translation3dTransform(
                             translation=[-0.14259, 0.06209, 0.09576],
-                        )
+                        ),
                     ],
-                    **shared_camera_assembly_relative_position_props
-                )
-            )
+                    **shared_camera_assembly_relative_position_props,
+                ),
+            ),
         ],
         daqs=[
             devices.DAQDevice(
@@ -473,7 +502,7 @@ def init_rig() -> rig.Rig:
             coordinates.Axis(
                 name=coordinates.AxisName.Z,
                 direction="Positive pointing up.",
-            )
+            ),
         ],
         origin=coordinates.Origin.BREGMA,
         patch_cords=[
@@ -497,11 +526,11 @@ def init_rig() -> rig.Rig:
 def setup_neuropixels_etl_dirs(
     expected_json: pathlib.Path,
 ) -> tuple[
-        pathlib.Path,
-        pathlib.Path,
-        rig.Rig,
-        typing.Callable[[], rig.Rig],
-        typing.Callable[[], None]
+    pathlib.Path,
+    pathlib.Path,
+    rig.Rig,
+    typing.Callable[[], rig.Rig],
+    typing.Callable[[], None],
 ]:
     """Sets up a temporary input/output directory context for neuropixels etl.
 

@@ -1,17 +1,17 @@
 """Base ETL class for neuropixels rigs."""
-import pathlib
-import pydantic
+
 import logging
+import pathlib
+
+import pydantic
 from aind_data_schema.core import rig  # type: ignore
 
 from ..core import BaseEtl
-
 
 logger = logging.getLogger(__name__)
 
 
 class NeuropixelsRigContext(pydantic.BaseModel):
-
     """Base context for neuropixels rig etl."""
 
     current: rig.Rig
@@ -40,8 +40,7 @@ class NeuropixelsRigEtl(BaseEtl):
         self.output_directory = output_directory
 
     def _extract(self) -> rig.Rig:
-        """Extracts rig-related information from config files.
-        """
+        """Extracts rig-related information from config files."""
         return rig.Rig.model_validate_json(
             self.input_source.read_text(),
         )

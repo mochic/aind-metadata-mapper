@@ -1,9 +1,11 @@
 """Tests for neuropixels dynamic routing task rig ETL. Uses an unsupported
  version of the dynamic routing task output file."""
-import unittest
+
 import pathlib
+import unittest
+
 from aind_metadata_mapper.neuropixels import (  # type: ignore
-    dynamic_routing_task
+    dynamic_routing_task,
 )
 
 from . import utils as test_utils
@@ -37,19 +39,21 @@ class TestDynamicRoutingTaskRigEtlUnsupported(unittest.TestCase):
         assert self.load_updated() == self.expected
 
     def setUp(self):
-        """Moves required test resources to testing directory.
-        """
+        """Moves required test resources to testing directory."""
         # test directory
-        self.input_source, self.output_dir, self.expected, self.load_updated, \
-            self._cleanup = \
-            test_utils.setup_neuropixels_etl_dirs(
-                pathlib.Path(
-                    "./tests/resources/neuropixels/"
-                    "dynamic-routing-task-rig-unsupported.json"
-                ),
-            )
+        (
+            self.input_source,
+            self.output_dir,
+            self.expected,
+            self.load_updated,
+            self._cleanup,
+        ) = test_utils.setup_neuropixels_etl_dirs(
+            pathlib.Path(
+                "./tests/resources/neuropixels/"
+                "dynamic-routing-task-rig-unsupported.json"
+            ),
+        )
 
     def tearDown(self):
-        """Removes test resources and directory.
-        """
+        """Removes test resources and directory."""
         self._cleanup()

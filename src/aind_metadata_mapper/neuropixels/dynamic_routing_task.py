@@ -1,19 +1,20 @@
 """ETL for the dynamic routing task."""
-import typing
-import logging
+
 import datetime
-import numpy as np
+import logging
 import pathlib
+import typing
+
+import numpy as np
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
-from . import neuropixels_rig, utils
 
+from . import neuropixels_rig, utils
 
 logger = logging.getLogger(__name__)
 
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
-
     """Extract context for DynamicRoutingTaskRigEtl."""
 
     version: typing.Optional[str]
@@ -33,15 +34,16 @@ class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
 
 # dynamic routing task has two slashes before commit hash
 SUPPORTED_VERSIONS = [
-    (b'https://raw.githubusercontent.com/samgale/DynamicRoutingTask'
-     b'//9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py'),
+    (
+        b"https://raw.githubusercontent.com/samgale/DynamicRoutingTask"
+        b"//9ea009a6c787c0049648ab9a93eb8d9df46d3f7b/DynamicRouting1.py"
+    ),
 ]
 
 
 class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
-
     """DynamicRouting rig ETL class. Extracts information from task output
-     file.
+    file.
     """
 
     def __init__(
@@ -80,33 +82,39 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             version=utils.extract_hdf5_value(task, ["githubTaskScript"]),
             reward_line=utils.extract_hdf5_value(task, ["rewardLine"]),
             reward_sound_line=utils.extract_hdf5_value(
-                task, ["rewardSoundLine"]),
+                task, ["rewardSoundLine"]
+            ),
             lick_line=utils.extract_hdf5_value(task, ["lickLine"]),
             frame_signal_line=utils.extract_hdf5_value(
-                task, ["frameSignalLine"]),
+                task, ["frameSignalLine"]
+            ),
             acquisition_signal_line=utils.extract_hdf5_value(
-                task, ["acquisitionSignalLine"]),
+                task, ["acquisitionSignalLine"]
+            ),
             opto_channels=utils.extract_hdf5_value(task, ["optoChannels"]),
             galvo_channels=utils.extract_hdf5_value(task, ["galvoChannels"]),
             monitor_distance=utils.extract_hdf5_value(task, ["monDistance"]),
             monitor_size=utils.extract_hdf5_value(task, ["monSizePix"]),
             wheel_radius=utils.extract_hdf5_value(task, ["wheelRadius"]),
             sound_calibration_fit=utils.extract_hdf5_value(
-                task, ["soundCalibrationFit"]),
+                task, ["soundCalibrationFit"]
+            ),
             solenoid_open_time=utils.extract_hdf5_value(
-                task, ["solenoidOpenTime"]),
+                task, ["solenoidOpenTime"]
+            ),
         )
 
     def _transform_behavior_daq(
-            self,
-            extracted_source: ExtractContext
+        self, extracted_source: ExtractContext
     ) -> None:
         """Updates rig model with DynamicRouting-related behavior daq
-         information."""
+        information."""
         behavior_daq_channels = []
         if extracted_source.reward_line is not None:
-            logger.debug("Extracted reward line port, channel: %s" %
-                         self.behavior_daq_name)
+            logger.debug(
+                "Extracted reward line port, channel: %s"
+                % self.behavior_daq_name
+            )
             behavior_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_daq_name,
@@ -119,8 +127,9 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         if extracted_source.reward_sound_line is not None:
             logger.debug(
-                "Extracted reward sound line port, channel: %s, %s" %
-                extracted_source.reward_sound_line)
+                "Extracted reward sound line port, channel: %s, %s"
+                % extracted_source.reward_sound_line
+            )
             behavior_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_daq_name,
@@ -133,8 +142,9 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         if extracted_source.lick_line is not None:
             logger.debug(
-                "Extracted lick line on port, channel: %s, %s" %
-                extracted_source.lick_line)
+                "Extracted lick line on port, channel: %s, %s"
+                % extracted_source.lick_line
+            )
             behavior_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_daq_name,
@@ -152,16 +162,16 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     daq.channels.extend(behavior_daq_channels)
 
     def _transform_behavior_sync_daq(
-            self,
-            extracted_source: ExtractContext
+        self, extracted_source: ExtractContext
     ) -> None:
         """Updates rig model with DynamicRouting-related behavior sync daq
-         information."""
+        information."""
         behavior_sync_daq_channels = []
         if extracted_source.frame_signal_line is not None:
             logger.debug(
-                "Extracted frame signal port, channel: %s, %s" %
-                extracted_source.frame_signal_line)
+                "Extracted frame signal port, channel: %s, %s"
+                % extracted_source.frame_signal_line
+            )
             behavior_sync_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_sync_daq_name,
@@ -174,8 +184,9 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         if extracted_source.acquisition_signal_line is not None:
             logger.debug(
-                "Extracted aquisition port, channel: %s, %s" %
-                extracted_source.acquisition_signal_line)
+                "Extracted aquisition port, channel: %s, %s"
+                % extracted_source.acquisition_signal_line
+            )
             behavior_sync_daq_channels.append(
                 devices.DAQChannel(
                     device_name=self.behavior_sync_daq_name,
@@ -198,10 +209,12 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         opto_daq_channels = []
         if extracted_source.opto_channels is not None:
             logger.debug(
-                "Extracted opto channels: %s" % extracted_source.opto_channels)
+                "Extracted opto channels: %s" % extracted_source.opto_channels
+            )
             if extracted_source.opto_channels:
                 channels = [
-                    ch for dev in extracted_source.opto_channels
+                    ch
+                    for dev in extracted_source.opto_channels
                     for ch in extracted_source.opto_channels[dev]
                     if not np.isnan(ch)
                 ]
@@ -218,25 +231,27 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
 
         if extracted_source.galvo_channels is not None:
             logger.debug(
-                "Extracted galvo channels x,y: %s, %s" %
-                extracted_source.galvo_channels
+                "Extracted galvo channels x,y: %s, %s"
+                % extracted_source.galvo_channels
             )
-            opto_daq_channels.extend([
-                devices.DAQChannel(
-                    device_name=self.opto_daq_name,
-                    channel_name=f"{self.opto_daq_name} galvo x",
-                    channel_type=devices.DaqChannelType.AO,
-                    port=0,
-                    channel_index=extracted_source.galvo_channels[0],
-                ),
-                devices.DAQChannel(
-                    device_name=self.opto_daq_name,
-                    channel_name=f"{self.opto_daq_name} galvo y",
-                    channel_type=devices.DaqChannelType.AO,
-                    port=0,
-                    channel_index=extracted_source.galvo_channels[1],
-                ),
-            ])
+            opto_daq_channels.extend(
+                [
+                    devices.DAQChannel(
+                        device_name=self.opto_daq_name,
+                        channel_name=f"{self.opto_daq_name} galvo x",
+                        channel_type=devices.DaqChannelType.AO,
+                        port=0,
+                        channel_index=extracted_source.galvo_channels[0],
+                    ),
+                    devices.DAQChannel(
+                        device_name=self.opto_daq_name,
+                        channel_name=f"{self.opto_daq_name} galvo y",
+                        channel_type=devices.DaqChannelType.AO,
+                        port=0,
+                        channel_index=extracted_source.galvo_channels[1],
+                    ),
+                ]
+            )
 
         if opto_daq_channels:
             logger.debug("Updating daq=%s." % self.opto_daq_name)
@@ -245,11 +260,10 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     daq.channels.extend(opto_daq_channels)
 
     def _transform_calibrations(
-        self,
-        extracted_source: ExtractContext
+        self, extracted_source: ExtractContext
     ) -> rig.Rig:
         """Updates rig model with DynamicRouting-related calibration
-         information."""
+        information."""
         default_calibration_date = datetime.datetime.now()
 
         # sound
@@ -261,8 +275,8 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     ("device_name", self.speaker_name),
                 ],
                 devices.Calibration(
-                    calibration_date=self.sound_calibration_date or
-                    default_calibration_date,
+                    calibration_date=self.sound_calibration_date
+                    or default_calibration_date,
                     device_name=self.speaker_name,
                     input={
                         "a": extracted_source.sound_calibration_fit[0],
@@ -274,9 +288,7 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                         "sound_volume = log(1 - ((dB - c) / a)) / b;"
                         "dB is sound pressure"
                     ),
-                    notes=(
-                        "Calibration date is a placeholder. "
-                    ),
+                    notes=("Calibration date is a placeholder. "),
                 ),
             )
 
@@ -289,27 +301,23 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     ("device_name", self.reward_delivery_name),
                 ],
                 devices.Calibration(
-                    calibration_date=self.reward_calibration_date or
-                    default_calibration_date,
+                    calibration_date=self.reward_calibration_date
+                    or default_calibration_date,
                     device_name=self.reward_delivery_name,
                     input={},
                     output={
-                        "solenoid_open_time":
-                        extracted_source.solenoid_open_time,
+                        "solenoid_open_time": extracted_source.
+                        solenoid_open_time,
                     },
                     description=(
                         "solenoid open time (ms) = slope * expected water "
                         "volume (mL) + intercept"
                     ),
-                    notes=(
-                        "Calibration date is a placeholder."
-                    ),
+                    notes=("Calibration date is a placeholder."),
                 ),
             )
 
-    def _transform(
-            self,
-            extracted_source: ExtractContext) -> rig.Rig:
+    def _transform(self, extracted_source: ExtractContext) -> rig.Rig:
         """Updates rig model with DynamicRouting-related task information."""
         if extracted_source.version is not None:
             if extracted_source.version not in SUPPORTED_VERSIONS:
@@ -318,15 +326,21 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 )
 
         # monitor information
-        if extracted_source.monitor_distance is not None or \
-                extracted_source.monitor_size is not None:
-            for idx, device in \
-                    enumerate(extracted_source.current.stimulus_devices):
-                if device.name == self.monitor_name and \
-                        device.device_type == "Monitor":
+        if (
+            extracted_source.monitor_distance is not None
+            or extracted_source.monitor_size is not None
+        ):
+            for idx, device in enumerate(
+                extracted_source.current.stimulus_devices
+            ):
+                if (
+                    device.name == self.monitor_name
+                    and device.device_type == "Monitor"
+                ):
                     if extracted_source.monitor_distance is not None:
-                        device.viewing_distance = \
-                            float(extracted_source.monitor_distance)
+                        device.viewing_distance = float(
+                            extracted_source.monitor_distance
+                        )
                         device.viewing_distance_unit = devices.SizeUnit.CM
 
                     if extracted_source.monitor_size is not None:
@@ -336,23 +350,25 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                             device.height = int(height)
                             device.size_unit = devices.SizeUnit.PX
 
-                    extracted_source.current.stimulus_devices[idx] = \
-                        devices.Monitor.model_validate(
-                            device.__dict__
-                        )
+                    extracted_source.current.stimulus_devices[idx] = (
+                        devices.Monitor.model_validate(device.__dict__)
+                    )
                     break
 
         # wheel info
         if extracted_source.wheel_radius is not None:
             logger.debug("Updating wheel information")
-            extracted_source.current.mouse_platform.radius = \
+            extracted_source.current.mouse_platform.radius = (
                 extracted_source.wheel_radius
-            extracted_source.current.mouse_platform.radius_unit = \
+            )
+            extracted_source.current.mouse_platform.radius_unit = (
                 devices.SizeUnit.CM
-            extracted_source.current.mouse_platform = \
+            )
+            extracted_source.current.mouse_platform = (
                 devices.Disc.model_validate(
                     extracted_source.current.mouse_platform.__dict__
                 )
+            )
         # daqs
         self._transform_behavior_daq(extracted_source)
         self._transform_behavior_sync_daq(extracted_source)

@@ -18,9 +18,9 @@ from aind_data_schema.core.session import (
     LaserConfig,
     Modality,
     Session,
-    Stream,
     StimulusEpoch,
-    StimulusModality
+    StimulusModality,
+    Stream,
 )
 from aind_data_schema.models.stimulus import (
     PhotoStimulation,
@@ -466,87 +466,90 @@ class BergamoEtl(GenericEtl[JobSettings]):
                     stimulus_modalities=[
                         StimulusModality.OPTOGENETICS,
                     ],
-                    stimulus_parameters=[PhotoStimulation(
-                        stimulus_name="PhotoStimulation",
-                        number_groups=(
-                            self.job_settings.num_of_photo_stim_groups
-                        ),
-                        groups=[
-                            PhotoStimulationGroup(
-                                group_index=(
-                                    self.job_settings.photo_stim_groups[0][
-                                        "group_index"
-                                    ]
-                                ),
-                                number_of_neurons=int(
-                                    np.array(
+                    stimulus_parameters=[
+                        PhotoStimulation(
+                            stimulus_name="PhotoStimulation",
+                            number_groups=(
+                                self.job_settings.num_of_photo_stim_groups
+                            ),
+                            groups=[
+                                PhotoStimulationGroup(
+                                    group_index=(
+                                        self.job_settings.photo_stim_groups[0][
+                                            "group_index"
+                                        ]
+                                    ),
+                                    number_of_neurons=int(
+                                        np.array(
+                                            photostim_groups[0]["rois"][1][
+                                                "scanfields"
+                                            ]["slmPattern"]
+                                        ).shape[0]
+                                    ),
+                                    stimulation_laser_power=int(
                                         photostim_groups[0]["rois"][1][
                                             "scanfields"
-                                        ]["slmPattern"]
-                                    ).shape[0]
-                                ),
-                                stimulation_laser_power=int(
-                                    photostim_groups[0]["rois"][1][
-                                        "scanfields"
-                                    ]["powers"]
-                                ),
-                                number_trials=(
-                                    self.job_settings.photo_stim_groups[0][
-                                        "number_trials"
-                                    ]
-                                ),
-                                number_spirals=int(
-                                    photostim_groups[0]["rois"][1][
-                                        "scanfields"
-                                    ]["repetitions"]
-                                ),
-                                spiral_duration=photostim_groups[0]["rois"][1][
-                                    "scanfields"
-                                ]["duration"],
-                                inter_spiral_interval=photostim_groups[0][
-                                    "rois"
-                                ][2]["scanfields"]["duration"],
-                            ),
-                            PhotoStimulationGroup(
-                                group_index=(
-                                    self.job_settings.photo_stim_groups[1][
-                                        "group_index"
-                                    ]
-                                ),
-                                number_of_neurons=int(
-                                    np.array(
+                                        ]["powers"]
+                                    ),
+                                    number_trials=(
+                                        self.job_settings.photo_stim_groups[0][
+                                            "number_trials"
+                                        ]
+                                    ),
+                                    number_spirals=int(
                                         photostim_groups[0]["rois"][1][
                                             "scanfields"
-                                        ]["slmPattern"]
-                                    ).shape[0]
+                                        ]["repetitions"]
+                                    ),
+                                    spiral_duration=photostim_groups[0][
+                                        "rois"
+                                    ][1]["scanfields"]["duration"],
+                                    inter_spiral_interval=photostim_groups[0][
+                                        "rois"
+                                    ][2]["scanfields"]["duration"],
                                 ),
-                                stimulation_laser_power=int(
-                                    photostim_groups[0]["rois"][1][
-                                        "scanfields"
-                                    ]["powers"]
+                                PhotoStimulationGroup(
+                                    group_index=(
+                                        self.job_settings.photo_stim_groups[1][
+                                            "group_index"
+                                        ]
+                                    ),
+                                    number_of_neurons=int(
+                                        np.array(
+                                            photostim_groups[0]["rois"][1][
+                                                "scanfields"
+                                            ]["slmPattern"]
+                                        ).shape[0]
+                                    ),
+                                    stimulation_laser_power=int(
+                                        photostim_groups[0]["rois"][1][
+                                            "scanfields"
+                                        ]["powers"]
+                                    ),
+                                    number_trials=(
+                                        self.job_settings.photo_stim_groups[1][
+                                            "number_trials"
+                                        ]
+                                    ),
+                                    number_spirals=int(
+                                        photostim_groups[0]["rois"][1][
+                                            "scanfields"
+                                        ]["repetitions"]
+                                    ),
+                                    spiral_duration=photostim_groups[0][
+                                        "rois"
+                                    ][1]["scanfields"]["duration"],
+                                    inter_spiral_interval=photostim_groups[0][
+                                        "rois"
+                                    ][2]["scanfields"]["duration"],
                                 ),
-                                number_trials=(
-                                    self.job_settings.photo_stim_groups[1][
-                                        "number_trials"
-                                    ]
-                                ),
-                                number_spirals=int(
-                                    photostim_groups[0]["rois"][1][
-                                        "scanfields"
-                                    ]["repetitions"]
-                                ),
-                                spiral_duration=photostim_groups[0]["rois"][1][
-                                    "scanfields"
-                                ]["duration"],
-                                inter_spiral_interval=photostim_groups[0][
-                                    "rois"
-                                ][2]["scanfields"]["duration"],
+                            ],
+                            inter_trial_interval=(
+                                self.job_settings.
+                                photo_stim_inter_trial_interval
                             ),
-                        ],
-                        inter_trial_interval=(
-                            self.job_settings.photo_stim_inter_trial_interval
-                        ),
-                    )],
+                        )
+                    ],
                     stimulus_start_time=(
                         self.job_settings.stimulus_start_time
                     ),

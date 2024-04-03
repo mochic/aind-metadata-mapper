@@ -1,18 +1,20 @@
 """Shared utilities"""
-import logging
-import typing
-import pathlib
+
 import configparser
-import h5py  # type: ignore
-import yaml  # type: ignore
+import logging
+import pathlib
+import typing
 from xml.etree import ElementTree
 
+import h5py  # type: ignore
+import yaml  # type: ignore
 
 logger = logging.getLogger(__name__)
 
 
-def find_elements(et: ElementTree.Element, name: str) -> \
-        typing.Generator[ElementTree.Element, None, None]:
+def find_elements(
+    et: ElementTree.Element, name: str
+) -> typing.Generator[ElementTree.Element, None, None]:
     """Find elements in an ElementTree.Element that match a name.
 
     Notes
@@ -47,11 +49,12 @@ def load_hdf5(h5_path: pathlib.Path) -> h5py.File:
     return h5py.File(h5_path, "r")
 
 
-def extract_hdf5_value(h5_file: h5py.File, path: list[str]) -> \
-        typing.Union[typing.Any, None]:
+def extract_hdf5_value(
+    h5_file: h5py.File, path: list[str]
+) -> typing.Union[typing.Any, None]:
     """Extract value from hdf5 file using a path. Path is a list of property
-     names that are used to traverse the hdf5 file. A path of length greater
-     than 1 is expected to point to a nested property.
+    names that are used to traverse the hdf5 file. A path of length greater
+    than 1 is expected to point to a nested property.
     """
     try:
         value = None
@@ -81,10 +84,12 @@ def find_update(
     - Filters are property name, property value pairs.
     """
     for item in items:
-        if all([
-            getattr(item, prop_name, None) == prop_value
-            for prop_name, prop_value in filters
-        ]):
+        if all(
+            [
+                getattr(item, prop_name, None) == prop_value
+                for prop_name, prop_value in filters
+            ]
+        ):
             for prop_name, prop_value in updates.items():
                 setter(item, prop_name, prop_value)
             return item
@@ -96,16 +101,18 @@ def find_update(
 def find_replace_or_append(
     iterable: list[typing.Any],
     filters: list[typing.Tuple[str, typing.Any]],
-    update: typing.Any
+    update: typing.Any,
 ):
     """Find an item in a list of items that matches the filters and replace it.
-     If no item is found, append.
+    If no item is found, append.
     """
     for idx, obj in enumerate(iterable):
-        if all([
-            getattr(obj, prop_name, None) == prop_value
-            for prop_name, prop_value in filters
-        ]):
+        if all(
+            [
+                getattr(obj, prop_name, None) == prop_value
+                for prop_name, prop_value in filters
+            ]
+        ):
             iterable[idx] = update
             break
     else:

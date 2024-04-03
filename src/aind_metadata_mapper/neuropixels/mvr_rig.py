@@ -1,23 +1,23 @@
 """ETL for the MVR config."""
+
 import logging
 import pathlib
+
 from aind_data_schema.core import rig  # type: ignore
 from aind_data_schema.models import devices  # type: ignore
-from . import neuropixels_rig, utils
 
+from . import neuropixels_rig, utils
 
 logger = logging.getLogger(__name__)
 
 
 class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
-
     """Extract context for MVR rig etl."""
 
     serial_numbers: list[tuple[str, str]]
 
 
 class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
-
     """MVR rig ETL class. Extracts information from MVR-related config file."""
 
     def __init__(
@@ -26,7 +26,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
         output_directory: pathlib.Path,
         mvr_config_source: pathlib.Path,
         mvr_mapping: dict[str, str],
-        **kwargs
+        **kwargs,
     ):
         """Class constructor for MVR rig etl class."""
         super().__init__(input_source, output_directory, **kwargs)
@@ -42,8 +42,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 mvr_camera_config = mvr_config[mvr_name]
             except KeyError:
                 logger.debug(
-                    "No camera found for: %s in mvr config." %
-                    mvr_name
+                    "No camera found for: %s in mvr config." % mvr_name
                 )
                 continue
             serial_numbers.append(
@@ -57,15 +56,16 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             serial_numbers=serial_numbers,
         )
 
-    def _transform(
-            self,
-            extracted_source: ExtractContext) -> rig.Rig:
+    def _transform(self, extracted_source: ExtractContext) -> rig.Rig:
         """Updates rig model with MVR-related camera information."""
         for assembly_name, serial_number in extracted_source.serial_numbers:
             utils.find_update(
                 extracted_source.current.cameras,
                 filters=[
-                    ("name", assembly_name, ),
+                    (
+                        "name",
+                        assembly_name,
+                    ),
                 ],
                 setter=(
                     lambda item, name, value: setattr(item.camera, name, value)
@@ -74,7 +74,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 recording_software=devices.Software(
                     name="MVR",
                     version="Not detected/provided.",
-                )
+                ),
             )
 
         return super()._transform(extracted_source.current)

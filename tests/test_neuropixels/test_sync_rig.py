@@ -1,6 +1,7 @@
 """Tests for Sync rig ETL."""
-import unittest
+
 import pathlib
+import unittest
 
 from aind_metadata_mapper.neuropixels import sync_rig  # type: ignore
 
@@ -22,18 +23,18 @@ class SyncRigEtl(unittest.TestCase):
         assert self.load_updated() == self.expected
 
     def setUp(self):
-        """Moves required test resources to testing directory.
-        """
+        """Moves required test resources to testing directory."""
         # test directory
-        self.input_source, self.output_dir, self.expected, self.load_updated, \
-            self._cleanup = \
-            utils.setup_neuropixels_etl_dirs(
-                pathlib.Path(
-                    "./tests/resources/neuropixels/sync-rig.json"
-                ),
-            )
+        (
+            self.input_source,
+            self.output_dir,
+            self.expected,
+            self.load_updated,
+            self._cleanup,
+        ) = utils.setup_neuropixels_etl_dirs(
+            pathlib.Path("./tests/resources/neuropixels/sync-rig.json"),
+        )
 
     def tearDown(self):
-        """Removes test resources and directory.
-        """
+        """Removes test resources and directory."""
         self._cleanup()

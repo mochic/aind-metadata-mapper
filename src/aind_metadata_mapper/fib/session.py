@@ -11,15 +11,12 @@ from aind_data_schema.core.session import (
     FiberConnectionConfig,
     LightEmittingDiodeConfig,
     Session,
-    Stream,
     StimulusEpoch,
     StimulusModality,
+    Stream,
 )
 from aind_data_schema.models.modalities import Modality
-from aind_data_schema.models.stimulus import (
-    OptoStimulation,
-    PulseShape,
-)
+from aind_data_schema.models.stimulus import OptoStimulation, PulseShape
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -149,10 +146,18 @@ class FIBEtl(GenericEtl[JobSettings]):
         opto_stim = OptoStimulation(
             stimulus_name=stimulus_name,
             pulse_shape=PulseShape.SQUARE,
-            pulse_frequency=[frequency,],
-            number_pulse_trains=[trial_num, ],
-            pulse_width=[pulse_width, ],
-            pulse_train_duration=[opto_duration, ],
+            pulse_frequency=[
+                frequency,
+            ],
+            number_pulse_trains=[
+                trial_num,
+            ],
+            pulse_width=[
+                pulse_width,
+            ],
+            pulse_train_duration=[
+                opto_duration,
+            ],
             pulse_train_interval=opto_interval,
             baseline_duration=opto_base,
             fixed_pulse_train_interval=True,  # TODO: Check this is right
@@ -168,7 +173,9 @@ class FIBEtl(GenericEtl[JobSettings]):
         stimulus_epochs = StimulusEpoch(
             stimulus_name=stimulus_name,
             stimulus_modalities=[StimulusModality.OPTOGENETICS],
-            stimulus_parameters=[opto_stim, ],
+            stimulus_parameters=[
+                opto_stim,
+            ],
             stimulus_start_time=session_start_time,
             stimulus_end_time=end_datetime,
         )
