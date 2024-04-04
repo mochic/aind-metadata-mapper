@@ -6,7 +6,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Union
-import zoneinfo
 
 import tifffile
 from aind_data_schema.core.session import FieldOfView, Session, Stream
@@ -177,11 +176,11 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
                 start_time = datetime.strptime(
                     extracted_source[camera]["RecordingReport"]["TimeStart"],
                     "%Y-%m-%dT%H:%M:%SZ",
-                ).replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+                )
                 end_time = datetime.strptime(
                     extracted_source[camera]["RecordingReport"]["TimeEnd"],
                     "%Y-%m-%dT%H:%M:%SZ",
-                ).replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+                )
                 camera_name = camera.split("_")[1]
                 data_streams.append(
                     Stream(
@@ -206,7 +205,7 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
             ][0]
         vasculature_dt = datetime.strptime(
             vasculature_dt[0], "%Y:%m:%d %H:%M:%S"
-        ).replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+        )
         data_streams.append(
             Stream(
                 camera_names=["Vasculature"],
