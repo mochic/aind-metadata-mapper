@@ -4,7 +4,6 @@ import json
 import os
 import unittest
 from datetime import datetime
-import zoneinfo
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -48,11 +47,9 @@ class TestMesoscope(unittest.TestCase):
             output_directory=RESOURCES_DIR,
             subject_id="12345",
             session_start_time=datetime(
-                2024, 2, 22, 15, 30, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                2024, 2, 22, 15, 30, 0),
             session_end_time=datetime(
-                2024, 2, 22, 17, 30, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                2024, 2, 22, 17, 30, 0),
             project="some_project",
             experimenter_full_name=["John Doe"],
             magnification="16x",
@@ -188,6 +185,7 @@ class TestMesoscope(unittest.TestCase):
 
         extract = etl._extract()
         transformed_session = etl._transform(extract)
+        transformed_session.write_standard_file("./")
         self.assertEqual(
             self.example_session,
             json.loads(transformed_session.model_dump_json()),
