@@ -47,7 +47,7 @@ class TestOpenEphysRigEtl(unittest.TestCase):
             ],
         )
         etl.run_job()
-
+        print(self.output_dir / "rig.json")
         assert self.load_updated() == self.expected
 
     def setUp(self):
@@ -65,4 +65,4 @@ class TestOpenEphysRigEtl(unittest.TestCase):
 
     def tearDown(self):
         """Removes test resources and directory."""
-        self._cleanup()
+        # self._cleanup()

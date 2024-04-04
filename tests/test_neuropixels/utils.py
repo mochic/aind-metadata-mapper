@@ -477,11 +477,11 @@ def init_rig() -> rig.Rig:
             ),
             devices.AdditionalImagingDevice(
                 name="Galvo x",
-                type=devices.ImagingDeviceType.GALVO,
+                imaging_device_type=devices.ImagingDeviceType.GALVO,
             ),
             devices.AdditionalImagingDevice(
                 name="Galvo y",
-                type=devices.ImagingDeviceType.GALVO,
+                imaging_device_type=devices.ImagingDeviceType.GALVO,
             ),
         ],
         rig_axes=[
