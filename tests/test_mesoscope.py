@@ -28,6 +28,8 @@ EXAMPLE_IMAGE = RESOURCES_DIR / "test.tiff"
 class TestMesoscope(unittest.TestCase):
     """Tests methods in MesoscopeEtl class"""
 
+    maxDiff = None  # show full diff without truncation
+
     @classmethod
     def setUpClass(cls) -> None:
         """Set up the test suite"""
