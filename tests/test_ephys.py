@@ -6,6 +6,7 @@ import os
 import unittest
 from pathlib import Path
 from xml.dom import minidom
+import zoneinfo
 
 from aind_data_schema.core.session import Session
 
@@ -218,6 +219,15 @@ class TestSchemaWriter(unittest.TestCase):
         )
         parsed_info = etl_job1._extract()
         actual_session = etl_job1._transform(parsed_info)
+        actual_session.session_start_time = actual_session.session_start_time \
+            .replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+        actual_session.session_start_time = actual_session.session_start_time \
+            .replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+        for stream in actual_session.data_streams:
+            stream.stream_start_time = stream.stream_start_time.replace(
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+            stream.stream_end_time = stream.stream_end_time.replace(
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
         self.assertEqual(self.expected_session, actual_session)
 
 
