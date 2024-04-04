@@ -189,8 +189,8 @@ class TestMesoscope(unittest.TestCase):
         extract = etl._extract()
         transformed_session = etl._transform(extract)
         self.assertEqual(
-            self.example_session,
-            json.loads(transformed_session.model_dump_json()),
+            Session.model_validate(self.example_session),
+            transformed_session,
         )
 
     @patch("aind_metadata_mapper.mesoscope.session.MesoscopeEtl._extract")
