@@ -228,7 +228,8 @@ class TestSchemaWriter(unittest.TestCase):
                 tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
             stream.stream_end_time = stream.stream_end_time.replace(
                 tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
-        self.assertEqual(self.expected_session, actual_session)
+        self.assertEqual(
+            self.expected_session.model_dump(), actual_session.model_dump())
 
 
 if __name__ == "__main__":
