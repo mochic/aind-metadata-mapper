@@ -30,6 +30,8 @@ EXPECTED_SESSION = RESOURCES_DIR / "ephys_session.json"
 class TestSchemaWriter(unittest.TestCase):
     """Test methods in SchemaWriter class."""
 
+    maxDiff = None  # show full diff without truncation
+
     @classmethod
     def setUpClass(cls):
         """Load record object and user settings before running tests."""
@@ -221,7 +223,7 @@ class TestSchemaWriter(unittest.TestCase):
         actual_session = etl_job1._transform(parsed_info)
         actual_session.session_start_time = actual_session.session_start_time \
             .replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
-        actual_session.session_start_time = actual_session.session_start_time \
+        actual_session.session_end_time = actual_session.session_end_time \
             .replace(tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
         for stream in actual_session.data_streams:
             stream.stream_start_time = stream.stream_start_time.replace(
