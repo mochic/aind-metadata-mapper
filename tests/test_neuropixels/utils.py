@@ -565,7 +565,6 @@ def setup_neuropixels_etl_dirs(
         input_dir / "rig.json",
         _output_dir,
         rig.Rig.model_validate_json(expected_json.read_text()),
-        # base_rig,
         load_updated,
         clean_up,
     )

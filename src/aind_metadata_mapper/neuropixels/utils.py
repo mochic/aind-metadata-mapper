@@ -67,8 +67,8 @@ def extract_hdf5_value(
 
     if isinstance(value, h5py.Dataset):
         return value[()]
-    elif isinstance(value, float) and np.isnan(value):
-        return None
+    # elif isinstance(value, float) and np.isnan(value):
+    #     return None
     else:
         return value
 
