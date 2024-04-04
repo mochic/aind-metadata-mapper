@@ -5,8 +5,8 @@
    "experimenter_full_name": [
        "Al Dente"
    ],
-   "session_start_time": "2023-04-04T10:37:28-07:00",
-   "session_end_time": "2023-04-06T13:47:57.558000-07:00",
+   "session_start_time": "2023-04-04T10:37:28Z",
+   "session_end_time": "2023-04-06T13:47:57.558000Z",
    "session_type": "Receptive field mapping",
    "iacuc_protocol": "2109",
    "rig_id": "323_EPHYS2-RF_2024-01-18_01",
@@ -18,8 +18,8 @@
    "weight_unit": "gram",
    "data_streams": [
        {
-           "stream_start_time": "2023-04-04T10:37:28.815000-07:00",
-           "stream_end_time": "2023-04-06T11:47:57.558000-07:00",
+           "stream_start_time": "2023-04-04T10:37:28.815000Z",
+           "stream_end_time": "2023-04-06T11:47:57.558000Z",
            "daq_names": [
                "Basestation"
            ],
@@ -151,8 +151,8 @@
            "notes": null
        },
        {
-           "stream_start_time": "2023-04-04T12:37:28.815000-07:00",
-           "stream_end_time": "2023-04-06T13:47:57.558000-07:00",
+           "stream_start_time": "2023-04-04T12:37:28.815000Z",
+           "stream_end_time": "2023-04-06T13:47:57.558000Z",
            "daq_names": [
                "Basestation"
            ],

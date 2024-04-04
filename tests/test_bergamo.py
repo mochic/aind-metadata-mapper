@@ -48,22 +48,22 @@ class TestBergamoEtl(unittest.TestCase):
             subject_id="12345",
             session_start_time=datetime(
                 2023, 10, 10, 14, 0, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
             session_end_time=datetime(
                 2023, 10, 10, 17, 0, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
             stream_start_time=datetime(
                 2023, 10, 10, 15, 0, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
             stream_end_time=datetime(
                 2023, 10, 10, 16, 0, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
             stimulus_start_time=datetime(
                 2023, 10, 10, 15, 15, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
             stimulus_end_time=datetime(
                 2023, 10, 10, 15, 45, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
         )
         cls.expected_session = expected_session_contents
 

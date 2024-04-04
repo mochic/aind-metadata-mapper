@@ -6,8 +6,8 @@
        "John Smith",
        "Jane Smith"
    ],
-   "session_start_time": "2023-10-10T14:00:00-07:00",
-   "session_end_time": "2023-10-10T17:00:00-07:00",
+   "session_start_time": "2023-10-10T14:00:00Z",
+   "session_end_time": "2023-10-10T17:00:00Z",
    "session_type": "BCI",
    "iacuc_protocol": "2115",
    "rig_id": "Bergamo photostim.",
@@ -19,8 +19,8 @@
    "weight_unit": "gram",
    "data_streams": [
        {
-           "stream_start_time": "2023-10-10T15:00:00-07:00",
-           "stream_end_time": "2023-10-10T16:00:00-07:00",
+           "stream_start_time": "2023-10-10T15:00:00Z",
+           "stream_end_time": "2023-10-10T16:00:00Z",
            "daq_names": [],
            "camera_names": [
                "Side Camera"
@@ -88,8 +88,8 @@
    ],
    "stimulus_epochs": [
        {
-           "stimulus_start_time": "2023-10-10T15:15:00-07:00",
-           "stimulus_end_time": "2023-10-10T15:45:00-07:00",
+           "stimulus_start_time": "2023-10-10T15:15:00Z",
+           "stimulus_end_time": "2023-10-10T15:45:00Z",
            "stimulus_name": "PhotoStimulation",
            "session_number": null,
            "software": [],

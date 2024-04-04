@@ -49,10 +49,10 @@ class TestMesoscope(unittest.TestCase):
             subject_id="12345",
             session_start_time=datetime(
                 2024, 2, 22, 15, 30, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
             session_end_time=datetime(
                 2024, 2, 22, 17, 30, 0,
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
+                tzinfo=zoneinfo.ZoneInfo("UTC")),
             project="some_project",
             experimenter_full_name=["John Doe"],
             magnification="16x",
@@ -191,9 +191,9 @@ class TestMesoscope(unittest.TestCase):
         transformed_session = etl._transform(extract)
         for stream in transformed_session.data_streams:
             stream.stream_start_time = stream.stream_start_time.replace(
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+                tzinfo=zoneinfo.ZoneInfo("UTC"))
             stream.stream_end_time = stream.stream_end_time.replace(
-                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+                tzinfo=zoneinfo.ZoneInfo("UTC"))
         self.assertEqual(
             self.example_session,
             json.loads(transformed_session.model_dump_json()),
