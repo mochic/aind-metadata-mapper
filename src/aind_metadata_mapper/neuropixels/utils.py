@@ -4,7 +4,6 @@ import configparser
 import logging
 import pathlib
 import typing
-import numpy as np
 from xml.etree import ElementTree
 
 import h5py  # type: ignore
@@ -67,8 +66,6 @@ def extract_hdf5_value(
 
     if isinstance(value, h5py.Dataset):
         return value[()]
-    # elif isinstance(value, float) and np.isnan(value):
-    #     return None
     else:
         return value
 

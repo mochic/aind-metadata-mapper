@@ -1,9 +1,6 @@
 """Tests for the neuropixels rig utils."""
 
 import unittest
-import tempfile
-import numpy as np
-import h5py
 
 import pydantic
 
@@ -54,13 +51,3 @@ class Utils(unittest.TestCase):
             ),
             1,
         )
-
-    # def test_extract_hdf5_value_nan(self):
-    #     with tempfile.TemporaryFile() as temp_file:
-    #         f = h5py.File(temp_file, "w")
-    #         f.attrs["nan"] = np.nan
-    #         f.close()
-    #         h5py.File(temp_file, "r")["nan"]
-    #         self.assertTrue(
-    #             utils.extract_hdf5_value(h5py.File(temp_file, "r"), "nan")
-    #             is None)
