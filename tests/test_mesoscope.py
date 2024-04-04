@@ -190,9 +190,9 @@ class TestMesoscope(unittest.TestCase):
         extract = etl._extract()
         transformed_session = etl._transform(extract)
         for stream in transformed_session.data_streams:
-            stream.stream_start_time.replace(
+            stream.stream_start_time = stream.stream_start_time.replace(
                 tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
-            stream.stream_end_time.replace(
+            stream.stream_end_time = stream.stream_end_time.replace(
                 tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
         self.assertEqual(
             self.example_session,
