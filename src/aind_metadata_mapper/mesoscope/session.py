@@ -101,7 +101,7 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
         behavior_source = self.job_settings.behavior_source
         session_metadata = {}
         if behavior_source.is_dir():
-            for ftype in behavior_source.glob("*json"):
+            for ftype in sorted(list(behavior_source.glob("*json"))):
                 if (
                     "Behavior" in ftype.stem
                     or "Eye" in ftype.stem
