@@ -100,6 +100,7 @@ class MesoscopeEtl(GenericEtl[JobSettings]):
         behavior_source = self.job_settings.behavior_source
         session_metadata = {}
         if behavior_source.is_dir():
+            # deterministic order
             for ftype in sorted(list(behavior_source.glob("*json"))):
                 if (
                     "Behavior" in ftype.stem
