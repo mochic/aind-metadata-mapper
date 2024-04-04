@@ -36,7 +36,7 @@ class TestMesoscope(unittest.TestCase):
         with open(EXAMPLE_EXTRACT, "r") as f:
             cls.example_extract = json.load(f)
         with open(EXAMPLE_SESSION, "r") as f:
-            cls.example_session = json.load(f)
+            cls.example_session = Session.model_validate(json.load(f)).model_dump_json()
         cls.example_scanimage_meta = {
             "lines_per_frame": 512,
             "pixels_per_line": 512,
@@ -189,8 +189,8 @@ class TestMesoscope(unittest.TestCase):
         extract = etl._extract()
         transformed_session = etl._transform(extract)
         self.assertEqual(
-            Session.model_validate(self.example_session),
-            transformed_session,
+            self.example_session,
+            json.loads(transformed_session.model_dump_json()),
         )
 
     @patch("aind_metadata_mapper.mesoscope.session.MesoscopeEtl._extract")
