@@ -5,8 +5,8 @@
    "experimenter_full_name": [
       "John Doe"
    ],
-   "session_start_time": "2024-02-22T15:30:00Z",
-   "session_end_time": "2024-02-22T17:30:00Z",
+   "session_start_time": "2024-02-22T15:30:00-08:00",
+   "session_end_time": "2024-02-22T17:30:00-08:00",
    "session_type": "Mesoscope",
    "iacuc_protocol": "12345",
    "rig_id": "MESO.1",
@@ -18,8 +18,8 @@
    "weight_unit": "gram",
    "data_streams": [
       {
-         "stream_start_time": "2024-02-22T15:30:00Z",
-         "stream_end_time": "2024-02-22T17:30:00Z",
+         "stream_start_time": "2024-02-22T15:30:00-08:00",
+         "stream_end_time": "2024-02-22T17:30:00-08:00",
          "daq_names": [],
          "camera_names": [
             "Mesoscope"
@@ -244,8 +244,8 @@
          "notes": null
       },
       {
-         "stream_start_time": "2024-02-12T09:14:43Z",
-         "stream_end_time": "2024-02-12T10:30:54Z",
+         "stream_start_time": "2024-02-12T09:14:43-08:00",
+         "stream_end_time": "2024-02-12T10:30:54-08:00",
          "daq_names": [],
          "camera_names": [
             "Behavior"
@@ -269,8 +269,8 @@
          "notes": null
       },
       {
-         "stream_start_time": "2024-02-12T09:14:44Z",
-         "stream_end_time": "2024-02-12T10:30:55Z",
+         "stream_start_time": "2024-02-12T09:14:44-08:00",
+         "stream_end_time": "2024-02-12T10:30:55-08:00",
          "daq_names": [],
          "camera_names": [
             "Eye"
@@ -294,8 +294,8 @@
          "notes": null
       },
       {
-         "stream_start_time": "2024-02-12T09:14:44Z",
-         "stream_end_time": "2024-02-12T10:30:55Z",
+         "stream_start_time": "2024-02-12T09:14:44-08:00",
+         "stream_end_time": "2024-02-12T10:30:55-08:00",
          "daq_names": [],
          "camera_names": [
             "Face"
@@ -319,8 +319,8 @@
          "notes": null
       },
       {
-         "stream_start_time": "2024-02-12T11:02:22Z",
-         "stream_end_time": "2024-02-12T11:02:22Z",
+         "stream_start_time": "2024-02-12T11:02:22-08:00",
+         "stream_end_time": "2024-02-12T11:02:22-08:00",
          "daq_names": [],
          "camera_names": [
             "Vasculature"

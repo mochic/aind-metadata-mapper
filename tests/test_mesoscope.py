@@ -6,6 +6,7 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+import zoneinfo
 
 from aind_data_schema.core.session import Session
 from PIL import Image
@@ -47,9 +48,11 @@ class TestMesoscope(unittest.TestCase):
             output_directory=RESOURCES_DIR,
             subject_id="12345",
             session_start_time=datetime(
-                2024, 2, 22, 15, 30, 0),
+                2024, 2, 22, 15, 30, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
             session_end_time=datetime(
-                2024, 2, 22, 17, 30, 0),
+                2024, 2, 22, 17, 30, 0,
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles")),
             project="some_project",
             experimenter_full_name=["John Doe"],
             magnification="16x",
@@ -162,6 +165,7 @@ class TestMesoscope(unittest.TestCase):
     def test_transform(self, mock_open, mock_scanimage) -> None:
         """Tests that the platform json is extracted and transfromed into a
         session object correctly"""
+
         etl = MesoscopeEtl(
             job_settings=self.example_job_settings,
         )
@@ -185,7 +189,11 @@ class TestMesoscope(unittest.TestCase):
 
         extract = etl._extract()
         transformed_session = etl._transform(extract)
-        transformed_session.write_standard_file("./")
+        for stream in transformed_session.data_streams:
+            stream.stream_start_time.replace(
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
+            stream.stream_end_time.replace(
+                tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
         self.assertEqual(
             self.example_session,
             json.loads(transformed_session.model_dump_json()),
