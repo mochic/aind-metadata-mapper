@@ -230,7 +230,7 @@ class TestSchemaWriter(unittest.TestCase):
                 tzinfo=zoneinfo.ZoneInfo("America/Los_Angeles"))
         self.assertEqual(
             json.loads(self.expected_session.model_dump_json()),
-            json.loads(actual_session.model_dump()),
+            json.loads(actual_session.model_dump_json()),
         )
 
 
