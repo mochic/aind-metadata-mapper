@@ -104,6 +104,23 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             ),
         )
 
+    def _transform_daq_channels(
+        self,
+        extracted_source: ExtractContext,
+        daq_name: str,
+        channels: list[devices.DAQChannel],
+    ) -> None:
+        """Updates channel settings for a given daq."""
+        for daq in extracted_source.current.daqs:
+            if daq.name == daq_name:
+                logger.debug("Updating daq=%s." % daq_name)
+                for channel in channels:
+                    utils.find_replace_or_append(
+                        daq.channels,
+                        [("channel_name", channel.channel_name)],
+                        channel,
+                    )
+
     def _transform_behavior_daq(
         self, extracted_source: ExtractContext
     ) -> None:
@@ -156,10 +173,11 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             )
 
         if behavior_daq_channels:
-            logger.debug("Updating daq=%s." % self.behavior_daq_name)
-            for daq in extracted_source.current.daqs:
-                if daq.name == self.behavior_daq_name:
-                    daq.channels.extend(behavior_daq_channels)
+            self._transform_daq_channels(
+                extracted_source,
+                self.behavior_daq_name,
+                behavior_daq_channels
+            )
 
     def _transform_behavior_sync_daq(
         self, extracted_source: ExtractContext
@@ -198,10 +216,11 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             )
 
         if behavior_sync_daq_channels:
-            logger.debug("Updating daq=%s." % self.behavior_sync_daq_name)
-            for daq in extracted_source.current.daqs:
-                if daq.name == self.behavior_sync_daq_name:
-                    daq.channels.extend(behavior_sync_daq_channels)
+            self._transform_daq_channels(
+                extracted_source,
+                self.behavior_sync_daq_name,
+                behavior_sync_daq_channels
+            )
 
     def _transform_opto_daq(self, extracted_source: ExtractContext) -> None:
         """Updates rig model with DynamicRouting-related opto daq information.
@@ -258,10 +277,11 @@ class DynamicRoutingTaskRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             )
 
         if opto_daq_channels:
-            logger.debug("Updating daq=%s." % self.opto_daq_name)
-            for daq in extracted_source.current.daqs:
-                if daq.name == self.opto_daq_name:
-                    daq.channels.extend(opto_daq_channels)
+            self._transform_daq_channels(
+                extracted_source,
+                self.opto_daq_name,
+                opto_daq_channels
+            )
 
     def _transform_calibrations(
         self, extracted_source: ExtractContext
