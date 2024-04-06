@@ -3,7 +3,7 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, List
 
 import numpy as np
 from aind_data_schema.core.rig import Rig
@@ -34,7 +34,7 @@ class ExtractContext(NeuropixelsRigContext):
     lick_line: Optional[Tuple[int, int]]
     frame_signal_line: Optional[Tuple[int, int]]
     acquisition_signal_line: Optional[Tuple[int, int]]
-    opto_channels: Optional[dict[str, list[int]]]
+    opto_channels: Optional[Dict[str, List[int]]]
     galvo_channels: Optional[Tuple[int, int]]
     monitor_distance: Optional[float]
     monitor_size: Optional[Tuple[int, int]]
