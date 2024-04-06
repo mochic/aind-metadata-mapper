@@ -1,15 +1,19 @@
 """ETL for the Sync config."""
 
-import pathlib
+from pathlib import Path
 
-import pydantic
-from aind_data_schema.core import rig  # type: ignore
-from aind_data_schema.models import devices  # type: ignore
+from aind_data_schema.core.rig import Rig
+from aind_data_schema.models.devices import DAQChannel
+from pydantic import BaseModel
 
-from . import neuropixels_rig, utils
+from aind_metadata_mapper.neuropixels import utils
+from aind_metadata_mapper.neuropixels.neuropixels_rig import (
+    NeuropixelsRigContext,
+    NeuropixelsRigEtl,
+)
 
 
-class SyncChannel(pydantic.BaseModel):
+class SyncChannel(BaseModel):
     """Extracted Sync daq channel information."""
 
     channel_name: str
@@ -17,21 +21,21 @@ class SyncChannel(pydantic.BaseModel):
     sample_rate: float
 
 
-class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
+class ExtractContext(NeuropixelsRigContext):
     """Extract context for Sync rig etl."""
 
     channels: list[SyncChannel]
 
 
-class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
-    """Sync rig ETL class. Extracts information from Sync-related config file.
-    """
+class SyncRigEtl(NeuropixelsRigEtl):
+    """Sync rig ETL class. Extracts information from Sync-related config
+    file."""
 
     def __init__(
         self,
-        input_source: pathlib.Path,
-        output_directory: pathlib.Path,
-        config_source: pathlib.Path,
+        input_source: Path,
+        output_directory: Path,
+        config_source: Path,
         sync_daq_name: str = "Sync",
         **kwargs,
     ):
@@ -58,7 +62,7 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             channels=channels,
         )
 
-    def _transform(self, extracted_source: ExtractContext) -> rig.Rig:
+    def _transform(self, extracted_source: ExtractContext) -> Rig:
         """Updates rig model with Sync-related daq information."""
         utils.find_update(
             extracted_source.current.daqs,
@@ -66,7 +70,7 @@ class SyncRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                 ("name", self.sync_daq_name),
             ],
             channels=[
-                devices.DAQChannel(
+                DAQChannel(
                     channel_name=sync_channel.channel_name,
                     channel_type="Digital Input",
                     device_name=self.sync_daq_name,

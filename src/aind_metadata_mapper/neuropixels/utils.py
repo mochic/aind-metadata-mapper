@@ -1,25 +1,25 @@
 """Shared utilities"""
 
-import configparser
 import logging
-import pathlib
-import typing
+from configparser import ConfigParser
+from pathlib import Path
+from typing import Any, Generator, List, Tuple, Union
 from xml.etree import ElementTree
 
-import h5py  # type: ignore
-import yaml  # type: ignore
+import yaml
+from h5py import Dataset, File
 
 logger = logging.getLogger(__name__)
 
 
 def find_elements(
     et: ElementTree.Element, name: str
-) -> typing.Generator[ElementTree.Element, None, None]:
+) -> Generator[ElementTree.Element, None, None]:
     """Find elements in an ElementTree.Element that match a name.
 
     Notes
     -----
-    - Name matches on tags are case insensitive match on tags for
+    - Name matches on tags are case-insensitive match on tags for
      convenience
     """
     for element in et.iter():
@@ -27,31 +27,29 @@ def find_elements(
             yield element
 
 
-def load_xml(xml_path: pathlib.Path) -> ElementTree.Element:
+def load_xml(xml_path: Path) -> ElementTree.Element:
     """Load xml file from path."""
     return ElementTree.fromstring(xml_path.read_text())
 
 
-def load_config(config_path: pathlib.Path) -> configparser.ConfigParser:
+def load_config(config_path: Path) -> ConfigParser:
     """Load .ini file from path."""
-    config = configparser.ConfigParser()
+    config = ConfigParser()
     config.read(config_path)
     return config
 
 
-def load_yaml(yaml_path: pathlib.Path) -> dict:
+def load_yaml(yaml_path: Path) -> dict:
     """Load yaml file from path."""
     return yaml.safe_load(yaml_path.read_text())
 
 
-def load_hdf5(h5_path: pathlib.Path) -> h5py.File:
+def load_hdf5(h5_path: Path) -> File:
     """Load hdf5 file from path."""
-    return h5py.File(h5_path, "r")
+    return File(h5_path, "r")
 
 
-def extract_hdf5_value(
-    h5_file: h5py.File, path: list[str]
-) -> typing.Union[typing.Any, None]:
+def extract_hdf5_value(h5_file: File, path: List[str]) -> Union[Any, None]:
     """Extract value from hdf5 file using a path. Path is a list of property
     names that are used to traverse the hdf5 file. A path of length greater
     than 1 is expected to point to a nested property.
@@ -60,22 +58,22 @@ def extract_hdf5_value(
         value = None
         for part in path:
             value = h5_file[part]
-    except KeyError:
-        logger.warning(f"Key not found: {part}")
+    except KeyError as e:
+        logger.warning(f"Key not found: {e}")
         return None
 
-    if isinstance(value, h5py.Dataset):
+    if isinstance(value, Dataset):
         return value[()]
     else:
         return value
 
 
 def find_update(
-    items: list[typing.Any],
-    filters: list[typing.Tuple[str, typing.Any]],
+    items: List[Any],
+    filters: List[Tuple[str, Any]],
     setter=lambda item, name, value: setattr(item, name, value),
-    **updates: typing.Any,
-) -> typing.Union[typing.Any, None]:
+    **updates: Any,
+) -> Union[Any, None]:
     """Find an item in a list of items that matches the filters and update it.
      Only the first item that matches the filters is updated.
 
@@ -99,9 +97,9 @@ def find_update(
 
 
 def find_replace_or_append(
-    iterable: list[typing.Any],
-    filters: list[typing.Tuple[str, typing.Any]],
-    update: typing.Any,
+    iterable: List[Any],
+    filters: List[Tuple[str, Any]],
+    update: Any,
 ):
     """Find an item in a list of items that matches the filters and replace it.
     If no item is found, append.

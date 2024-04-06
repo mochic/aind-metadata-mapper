@@ -1,23 +1,24 @@
 """Tests for the neuropixels rig utils."""
 
 import unittest
+from typing import List
 
-import pydantic
+from pydantic import BaseModel
 
 from aind_metadata_mapper.neuropixels import utils  # type: ignore
 
 
-class Child(pydantic.BaseModel):
+class Child(BaseModel):
     """Test model to be nested in parent."""
 
     name: str
     value: str
 
 
-class Parent(pydantic.BaseModel):
+class Parent(BaseModel):
     """Test model to be parent of child."""
 
-    children: list[Child]
+    children: List[Child]
 
 
 class Utils(unittest.TestCase):
@@ -51,3 +52,7 @@ class Utils(unittest.TestCase):
             ),
             1,
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

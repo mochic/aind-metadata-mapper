@@ -1,11 +1,18 @@
 """Tests for the MVR rig ETL."""
 
-import pathlib
+import os
 import unittest
+from pathlib import Path
 
-from aind_metadata_mapper.neuropixels import mvr_rig  # type: ignore
+from aind_metadata_mapper.neuropixels.mvr_rig import MvrRigEtl
+from tests.test_neuropixels import utils as test_utils
 
-from . import utils as test_utils
+RESOURCES_DIR = (
+    Path(os.path.dirname(os.path.realpath(__file__)))
+    / ".."
+    / "resources"
+    / "neuropixels"
+)
 
 
 class TestMvrRigEtl(unittest.TestCase):
@@ -13,12 +20,10 @@ class TestMvrRigEtl(unittest.TestCase):
 
     def test_etl(self):
         """Test basic MVR etl workflow."""
-        etl = mvr_rig.MvrRigEtl(
+        etl = MvrRigEtl(
             self.input_source,
             self.output_dir,
-            pathlib.Path(
-                "./tests/resources/neuropixels/mvr.ini",
-            ),
+            RESOURCES_DIR / "mvr.ini",
             mvr_mapping={
                 "Camera 1": test_utils.SIDE_CAMERA_ASSEMBLY_NAME,
                 "Camera 2": test_utils.EYE_CAMERA_ASSEMBLY_NAME,
@@ -31,12 +36,10 @@ class TestMvrRigEtl(unittest.TestCase):
 
     def test_etl_bad_mapping(self):
         """Test MVR etl workflow with bad mapping."""
-        etl = mvr_rig.MvrRigEtl(
+        etl = MvrRigEtl(
             self.input_source,
             self.output_dir,
-            pathlib.Path(
-                "./tests/resources/neuropixels/mvr.ini",
-            ),
+            RESOURCES_DIR / "mvr.ini",
             mvr_mapping={
                 "Camera 1": test_utils.SIDE_CAMERA_ASSEMBLY_NAME,
                 "Camera 2": test_utils.EYE_CAMERA_ASSEMBLY_NAME,
@@ -55,9 +58,13 @@ class TestMvrRigEtl(unittest.TestCase):
             self.load_updated,
             self._cleanup,
         ) = test_utils.setup_neuropixels_etl_dirs(
-            pathlib.Path("./tests/resources/neuropixels/mvr-rig.json"),
+            RESOURCES_DIR / "mvr-rig.json",
         )
 
     def tearDown(self):
         """Removes test resources and directory."""
         self._cleanup()
+
+
+if __name__ == "__main__":
+    unittest.main()

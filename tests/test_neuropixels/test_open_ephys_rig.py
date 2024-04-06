@@ -1,11 +1,18 @@
 """Tests for the neuropixels open ephys rig ETL."""
 
-import pathlib
+import os
 import unittest
+from pathlib import Path
 
-from aind_metadata_mapper.neuropixels import open_ephys_rig  # type: ignore
+from aind_metadata_mapper.neuropixels.open_ephys_rig import OpenEphysRigEtl
+from tests.test_neuropixels import utils as test_utils
 
-from . import utils as test_utils
+RESOURCES_DIR = (
+    Path(os.path.dirname(os.path.realpath(__file__)))
+    / ".."
+    / "resources"
+    / "neuropixels"
+)
 
 
 class TestOpenEphysRigEtl(unittest.TestCase):
@@ -13,11 +20,11 @@ class TestOpenEphysRigEtl(unittest.TestCase):
 
     def test_etl(self):
         """Test ETL workflow."""
-        etl = open_ephys_rig.OpenEphysRigEtl(
+        etl = OpenEphysRigEtl(
             self.input_source,
             self.output_dir,
             open_ephys_settings_sources=[
-                pathlib.Path("./tests/resources/neuropixels/settings.xml"),
+                RESOURCES_DIR / "settings.xml",
             ],
             probe_manipulator_serial_numbers=[
                 (
@@ -47,7 +54,6 @@ class TestOpenEphysRigEtl(unittest.TestCase):
             ],
         )
         etl.run_job()
-        print(self.output_dir / "rig.json")
         assert self.load_updated() == self.expected
 
     def setUp(self):
@@ -60,9 +66,13 @@ class TestOpenEphysRigEtl(unittest.TestCase):
             self.load_updated,
             self._cleanup,
         ) = test_utils.setup_neuropixels_etl_dirs(
-            pathlib.Path("./tests/resources/neuropixels/open-ephys-rig.json"),
+            RESOURCES_DIR / "open-ephys-rig.json",
         )
 
     def tearDown(self):
         """Removes test resources and directory."""
         # self._cleanup()
+
+
+if __name__ == "__main__":
+    unittest.main()

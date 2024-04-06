@@ -1,43 +1,47 @@
 """ETL for the Open Ephys config."""
 
 import logging
-import pathlib
-import typing
+from pathlib import Path
+from typing import List, Optional, Tuple
 from xml.etree import ElementTree
 
-import pydantic
-from aind_data_schema.core import rig  # type: ignore
+from aind_data_schema.core.rig import Rig
+from pydantic import BaseModel
 
-from . import neuropixels_rig, utils
+from aind_metadata_mapper.neuropixels import utils
+from aind_metadata_mapper.neuropixels.neuropixels_rig import (
+    NeuropixelsRigContext,
+    NeuropixelsRigEtl,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class ExtractedProbe(pydantic.BaseModel):
+class ExtractedProbe(BaseModel):
     """Extracted probe information."""
 
-    name: typing.Optional[str]
-    model: typing.Optional[str]
-    serial_number: typing.Optional[str]
+    name: Optional[str]
+    model: Optional[str]
+    serial_number: Optional[str]
 
 
-class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
+class ExtractContext(NeuropixelsRigContext):
     """Extract context for Open Ephys rig etl."""
 
-    probes: list[ExtractedProbe]
-    versions: list[typing.Union[str, None]]
+    probes: List[ExtractedProbe]
+    versions: List[Optional[str]]
 
 
-class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
+class OpenEphysRigEtl(NeuropixelsRigEtl):
     """Open Ephys rig ETL class. Extracts information from Open Ephys-related
     config files."""
 
     def __init__(
         self,
-        input_source: pathlib.Path,
-        output_directory: pathlib.Path,
-        open_ephys_settings_sources: list[pathlib.Path],
-        probe_manipulator_serial_numbers: list[tuple[str, str]] = [],
+        input_source: Path,
+        output_directory: Path,
+        open_ephys_settings_sources: List[Path],
+        probe_manipulator_serial_numbers: List[Tuple[str, str]] = [],
         **kwargs,
     ):
         """Class constructor for Open Ephys rig etl class."""
@@ -67,16 +71,16 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             versions=versions,
         )
 
-    def _extract_version(
-        self, settings: ElementTree.Element
-    ) -> typing.Union[str, None]:
+    @staticmethod
+    def _extract_version(settings: ElementTree.Element) -> Optional[str]:
         """Extracts the version from the Open Ephys settings file."""
         version_elements = utils.find_elements(settings, "version")
         return next(version_elements).text
 
+    @staticmethod
     def _extract_probes(
-        self, current: rig.Rig, settings: ElementTree.Element
-    ) -> list[ExtractedProbe]:
+        current: Rig, settings: ElementTree.Element
+    ) -> List[ExtractedProbe]:
         """Extracts probe serial numbers from Open Ephys settings file. If
          extracted probe names do not match the rig, attempt to infer them from
         the current rig model.
@@ -118,7 +122,7 @@ class OpenEphysRigEtl(neuropixels_rig.NeuropixelsRigEtl):
     def _transform(
         self,
         extracted_source: ExtractContext,
-    ) -> rig.Rig:
+    ) -> Rig:
         """Updates rig model with Open Ephys-related probe information."""
         # update manipulator serial numbers
         for (
