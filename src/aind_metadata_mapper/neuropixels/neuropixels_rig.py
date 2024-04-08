@@ -2,8 +2,10 @@
 
 import logging
 from pathlib import Path
+from typing import Optional
+from datetime import date
 
-from aind_data_schema.core.rig import Rig
+from aind_data_schema.core.rig import Rig  # type: ignore
 from pydantic import BaseModel
 
 from aind_metadata_mapper.core import BaseEtl
@@ -50,3 +52,19 @@ class NeuropixelsRigEtl(BaseEtl):
         instance.
         """
         return extracted_source
+
+    @classmethod
+    def update_modification_date(
+            cls,
+            extracted_source: Rig,
+            modification_date: Optional[date] = None,
+    ) -> Rig:
+        """Updates modification date and rig id."""
+        room_id, rig_name, _ = extracted_source.rig_id.split("_")
+        if modification_date is None:
+            modification_date = date.today()
+
+        extracted_source.rig_id = (
+            f"{room_id}_{rig_name}_{modification_date.strftime('%y%m%d')}"
+        )
+        extracted_source.modification_date = modification_date

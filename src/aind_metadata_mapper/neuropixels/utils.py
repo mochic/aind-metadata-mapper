@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Generator, List, Tuple, Union
 from xml.etree import ElementTree
 
-import yaml
+import yaml  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -58,10 +58,8 @@ def find_update(
     """
     for item in items:
         if all(
-            [
-                getattr(item, prop_name, None) == prop_value
-                for prop_name, prop_value in filters
-            ]
+            getattr(item, prop_name, None) == prop_value
+            for prop_name, prop_value in filters
         ):
             for prop_name, prop_value in updates.items():
                 setter(item, prop_name, prop_value)
@@ -69,24 +67,3 @@ def find_update(
     else:
         logger.debug("Failed to find matching item. filters: %s" % filters)
         return None
-
-
-def find_replace_or_append(
-    iterable: List[Any],
-    filters: List[Tuple[str, Any]],
-    update: Any,
-):
-    """Find an item in a list of items that matches the filters and replace it.
-    If no item is found, append.
-    """
-    for idx, obj in enumerate(iterable):
-        if all(
-            [
-                getattr(obj, prop_name, None) == prop_value
-                for prop_name, prop_value in filters
-            ]
-        ):
-            iterable[idx] = update
-            break
-    else:
-        iterable.append(update)

@@ -4,8 +4,9 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 from xml.etree import ElementTree
+from datetime import date
 
-from aind_data_schema.core.rig import Rig
+from aind_data_schema.core.rig import Rig  # type: ignore
 from pydantic import BaseModel
 
 from aind_metadata_mapper.neuropixels import utils
@@ -42,6 +43,7 @@ class OpenEphysRigEtl(NeuropixelsRigEtl):
         output_directory: Path,
         open_ephys_settings_sources: List[Path],
         probe_manipulator_serial_numbers: List[Tuple[str, str]] = [],
+        modification_date: Optional[date] = None,
         **kwargs,
     ):
         """Class constructor for Open Ephys rig etl class."""
@@ -50,6 +52,7 @@ class OpenEphysRigEtl(NeuropixelsRigEtl):
         self.probe_manipulator_serial_numbers = (
             probe_manipulator_serial_numbers
         )
+        self.modification_date = modification_date
 
     def _extract(self) -> ExtractContext:
         """Extracts Open Ephys-related probe information from config files."""
@@ -155,5 +158,8 @@ class OpenEphysRigEtl(NeuropixelsRigEtl):
                 )
                 if updated:
                     break
+
+        self.update_modification_date(
+            extracted_source.current, self.modification_date)
 
         return super()._transform(extracted_source.current)

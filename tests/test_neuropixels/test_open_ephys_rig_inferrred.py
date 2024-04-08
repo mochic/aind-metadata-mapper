@@ -57,6 +57,7 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
                     "SN45361",
                 ),
             ],
+            modification_date=self.expected.modification_date,
         )
         etl.run_job()
 
@@ -102,6 +103,7 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
                     "SN45361",
                 ),
             ],
+            modification_date=self.expected.modification_date,
         )
         etl.run_job()
 

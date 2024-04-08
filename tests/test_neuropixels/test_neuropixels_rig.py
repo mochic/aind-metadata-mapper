@@ -1,11 +1,12 @@
-"""Tests for Sync rig ETL."""
+"""Tests for the neuropixels open ephys rig ETL with inferred probe mapping."""
 
 import os
 import unittest
 from pathlib import Path
+from datetime import date
 
-from aind_metadata_mapper.neuropixels.sync_rig import (  # type: ignore
-    SyncRigEtl
+from aind_metadata_mapper.neuropixels.neuropixels_rig import (  # type: ignore
+    NeuropixelsRigEtl
 )
 from tests.test_neuropixels import utils as test_utils
 
@@ -17,19 +18,19 @@ RESOURCES_DIR = (
 )
 
 
-class TestSyncRigEtl(unittest.TestCase):
+class TestNeuropixelsRig(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
-    def test_etl(self):
-        """Test ETL workflow."""
-        etl = SyncRigEtl(
+    def test_update_modification_date(self):
+        """Test ETL workflow with inferred probe mapping."""
+        etl = NeuropixelsRigEtl(
             self.input_source,
             self.output_dir,
-            RESOURCES_DIR / "sync.yml",
         )
-        etl.run_job()
-
-        assert self.load_updated() == self.expected
+        extracted = etl._extract()
+        transformed = etl._transform(extracted)
+        NeuropixelsRigEtl.update_modification_date(transformed)
+        assert transformed.modification_date == date.today()
 
     def setUp(self):
         """Moves required test resources to testing directory."""
@@ -41,7 +42,7 @@ class TestSyncRigEtl(unittest.TestCase):
             self.load_updated,
             self._cleanup,
         ) = test_utils.setup_neuropixels_etl_dirs(
-            RESOURCES_DIR / "sync-rig.json"
+            RESOURCES_DIR / "open-ephys-rig-inferred.json"
         )
 
     def tearDown(self):

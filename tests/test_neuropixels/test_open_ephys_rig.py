@@ -4,7 +4,9 @@ import os
 import unittest
 from pathlib import Path
 
-from aind_metadata_mapper.neuropixels.open_ephys_rig import OpenEphysRigEtl
+from aind_metadata_mapper.neuropixels.open_ephys_rig import (  # type: ignore
+    OpenEphysRigEtl
+)
 from tests.test_neuropixels import utils as test_utils
 
 RESOURCES_DIR = (
@@ -52,6 +54,7 @@ class TestOpenEphysRigEtl(unittest.TestCase):
                     "SN45361",
                 ),
             ],
+            modification_date=self.expected.modification_date,
         )
         etl.run_job()
         assert self.load_updated() == self.expected
@@ -68,10 +71,6 @@ class TestOpenEphysRigEtl(unittest.TestCase):
         ) = test_utils.setup_neuropixels_etl_dirs(
             RESOURCES_DIR / "open-ephys-rig.json",
         )
-
-    def tearDown(self):
-        """Removes test resources and directory."""
-        # self._cleanup()
 
 
 if __name__ == "__main__":

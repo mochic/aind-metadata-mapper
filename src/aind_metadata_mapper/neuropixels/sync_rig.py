@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from aind_data_schema.core.rig import Rig
-from aind_data_schema.models.devices import DAQChannel
+from aind_data_schema.core.rig import Rig  # type: ignore
+from aind_data_schema.models.devices import DAQChannel  # type: ignore
 from pydantic import BaseModel
 
 from aind_metadata_mapper.neuropixels import utils
