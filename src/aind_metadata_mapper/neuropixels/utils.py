@@ -7,7 +7,6 @@ from typing import Any, Generator, List, Tuple, Union
 from xml.etree import ElementTree
 
 import yaml
-from h5py import Dataset, File
 
 logger = logging.getLogger(__name__)
 
@@ -42,30 +41,6 @@ def load_config(config_path: Path) -> ConfigParser:
 def load_yaml(yaml_path: Path) -> dict:
     """Load yaml file from path."""
     return yaml.safe_load(yaml_path.read_text())
-
-
-def load_hdf5(h5_path: Path) -> File:
-    """Load hdf5 file from path."""
-    return File(h5_path, "r")
-
-
-def extract_hdf5_value(h5_file: File, path: List[str]) -> Union[Any, None]:
-    """Extract value from hdf5 file using a path. Path is a list of property
-    names that are used to traverse the hdf5 file. A path of length greater
-    than 1 is expected to point to a nested property.
-    """
-    try:
-        value = None
-        for part in path:
-            value = h5_file[part]
-    except KeyError as e:
-        logger.warning(f"Key not found: {e}")
-        return None
-
-    if isinstance(value, Dataset):
-        return value[()]
-    else:
-        return value
 
 
 def find_update(

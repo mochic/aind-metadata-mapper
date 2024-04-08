@@ -4,6 +4,7 @@ import zoneinfo
 import json
 import os
 import unittest
+import zoneinfo
 from datetime import datetime
 from pathlib import Path
 
@@ -34,7 +35,8 @@ class TestSchemaWriter(unittest.TestCase):
             string_to_parse=raw_md_contents,
             experimenter_full_name=["Don Key"],
             session_start_time=datetime(
-                1999, 10, 4, tzinfo=zoneinfo.ZoneInfo("UTC")),
+                1999, 10, 4, tzinfo=zoneinfo.ZoneInfo("UTC")
+            ),
             notes="brabrabrabra....",
             labtracks_id="000000",
             iacuc_protocol="2115",
@@ -99,9 +101,8 @@ class TestSchemaWriter(unittest.TestCase):
             self.example_job_settings.string_to_parse, parsed_info.teensy_str
         )
         self.assertEqual(
-            datetime(
-                1999, 10, 4, tzinfo=zoneinfo.ZoneInfo("UTC")),
-            self.example_job_settings.session_start_time
+            datetime(1999, 10, 4, tzinfo=zoneinfo.ZoneInfo("UTC")),
+            self.example_job_settings.session_start_time,
         )
 
     def test_transform(self):
