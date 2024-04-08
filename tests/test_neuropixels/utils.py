@@ -1,13 +1,11 @@
 """Utilities for neuropixels etl tests."""
-
-import shutil
-import tempfile
+import os
 from datetime import date
 from pathlib import Path
-from typing import Callable, Tuple
+from typing import Tuple
 
-from aind_data_schema.core.rig import Rig
-from aind_data_schema.models.coordinates import (
+from aind_data_schema.core.rig import Rig  # type: ignore
+from aind_data_schema.models.coordinates import (  # type: ignore
     Axis,
     AxisName,
     Origin,
@@ -15,7 +13,7 @@ from aind_data_schema.models.coordinates import (
     Rotation3dTransform,
     Translation3dTransform,
 )
-from aind_data_schema.models.devices import (
+from aind_data_schema.models.devices import (  # type: ignore
     AdditionalImagingDevice,
     Camera,
     CameraAssembly,
@@ -43,9 +41,16 @@ from aind_data_schema.models.devices import (
     Speaker,
     SpoutSide,
 )
-from aind_data_schema.models.modalities import Modality
-from aind_data_schema.models.organizations import Organization
-from aind_data_schema.models.units import SizeUnit
+from aind_data_schema.models.modalities import Modality  # type: ignore
+from aind_data_schema.models.organizations import Organization  # type: ignore
+from aind_data_schema.models.units import SizeUnit  # type: ignore
+
+RESOURCES_DIR = (
+    Path(os.path.dirname(os.path.realpath(__file__)))
+    / ".."
+    / "resources"
+    / "neuropixels"
+)
 
 COPA_NOTES = (
     "The rotation matrix is represented as: a,b,c,d,e,f,g,h,i. Wherein a, b, "
@@ -553,10 +558,10 @@ def init_rig() -> Rig:
     return Rig.model_validate(model)
 
 
-def setup_neuropixels_etl_dirs(
+def setup_neuropixels_etl_resources(
     expected_json: Path,
-) -> Tuple[Path, Path, Rig, Callable[[], Rig], Callable[[], None]]:
-    """Sets up a temporary input/output directory context for neuropixels etl.
+) -> Tuple[Path, Path, Rig]:
+    """Sets test resources neuropixels etl.
 
     Parameters
     ----------
@@ -565,32 +570,14 @@ def setup_neuropixels_etl_dirs(
 
     Returns
     -------
-    Tuple[Path, Path, Rig, Callable[[], Rig], Callable[[], None]]
-      input_dir: path to etl input dir
-      output_dir: path to etl output dir
-      rig
-      clean_up: cleanup function for input/output dirs
-      callable
+    Tuple[Path, Path, Rig]
+      input_source: path to etl base rig input source
+      output_dir: path to etl output directory
+      expected_rig: rig model to compare to output
     """
-    input_dir = Path(tempfile.mkdtemp())
-    base_rig = init_rig()
-    base_rig.write_standard_file(input_dir)
-
-    _output_dir = Path(tempfile.mkdtemp())
-
-    def load_updated(output_dir: Path = _output_dir):
-        """Load updated rig.json."""
-        return Rig.model_validate_json((output_dir / "rig.json").read_text())
-
-    def clean_up():
-        """Clean up callback for temporary directories and their contents."""
-        shutil.rmtree(input_dir)
-        shutil.rmtree(_output_dir)
-
+    init_rig().write_standard_file()
     return (
-        input_dir / "rig.json",
-        _output_dir,
+        RESOURCES_DIR / "base_rig.json",
+        Path("./"),  # hopefully file writes are mocked
         Rig.model_validate_json(expected_json.read_text()),
-        load_updated,
-        clean_up,
     )

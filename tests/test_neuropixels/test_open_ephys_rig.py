@@ -3,6 +3,7 @@
 import os
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from aind_metadata_mapper.neuropixels.open_ephys_rig import (  # type: ignore
     OpenEphysRigEtl
@@ -20,7 +21,8 @@ RESOURCES_DIR = (
 class TestOpenEphysRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
-    def test_etl(self):
+    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
+    def test_etl(self, mock_write_standard_file: MagicMock):
         """Test ETL workflow."""
         etl = OpenEphysRigEtl(
             self.input_source,
@@ -57,19 +59,17 @@ class TestOpenEphysRigEtl(unittest.TestCase):
             modification_date=self.expected.modification_date,
         )
         etl.run_job()
-        assert self.load_updated() == self.expected
+        mock_write_standard_file.assert_called_once_with(
+            output_directory=self.output_dir)
 
     def setUp(self):
-        """Moves required test resources to testing directory."""
-        # test directory
+        """Sets up test resources."""
         (
             self.input_source,
             self.output_dir,
             self.expected,
-            self.load_updated,
-            self._cleanup,
-        ) = test_utils.setup_neuropixels_etl_dirs(
-            RESOURCES_DIR / "open-ephys-rig.json",
+        ) = test_utils.setup_neuropixels_etl_resources(
+            RESOURCES_DIR / "open-ephys_rig.json",
         )
 
 

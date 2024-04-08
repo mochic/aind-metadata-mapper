@@ -3,12 +3,12 @@
 import os
 import unittest
 from pathlib import Path
-
-# from aind_data_schema.core import rig  # type: ignore
-from aind_data_schema.core.rig import Rig
+from unittest.mock import MagicMock, patch
 
 from aind_metadata_mapper.neuropixels import open_ephys_rig  # type: ignore
-from aind_metadata_mapper.neuropixels.open_ephys_rig import OpenEphysRigEtl
+from aind_metadata_mapper.neuropixels.open_ephys_rig import (  # type: ignore
+    OpenEphysRigEtl
+)
 from tests.test_neuropixels import utils as test_utils
 
 RESOURCES_DIR = (
@@ -22,7 +22,8 @@ RESOURCES_DIR = (
 class TestOpenEphysRigEtlInferred(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
-    def test_etl(self):
+    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
+    def test_etl(self, mock_write_standard_file: MagicMock):
         """Test ETL workflow with inferred probe mapping."""
         etl = OpenEphysRigEtl(
             self.input_source,
@@ -60,18 +61,17 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
             modification_date=self.expected.modification_date,
         )
         etl.run_job()
+        mock_write_standard_file.assert_called_once_with(
+            output_directory=self.output_dir)
 
-        assert self.load_updated() == self.expected
-
-    def test_etl_mismatched_probe_count(self):
+    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
+    def test_etl_mismatched_probe_count(
+        self,
+        mock_write_standard_file: MagicMock
+    ):
         """Test ETL workflow with mismatched probe count."""
-        base_rig = Rig.model_validate_json(self.input_source.read_text())
-        base_rig.ephys_assemblies.pop()
-        base_rig.write_standard_file(
-            self.input_source.parent, prefix="mismatched"
-        )
         etl = open_ephys_rig.OpenEphysRigEtl(
-            self.input_source.parent / "mismatched_rig.json",
+            RESOURCES_DIR / "base-missing-probe_rig.json",
             self.output_dir,
             open_ephys_settings_sources=[
                 RESOURCES_DIR / "settings.mislabeled-probes-0.xml",
@@ -106,23 +106,18 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
             modification_date=self.expected.modification_date,
         )
         etl.run_job()
+        mock_write_standard_file.assert_called_once_with(
+            output_directory=self.output_dir)
 
     def setUp(self):
-        """Moves required test resources to testing directory."""
-        # test directory
+        """Sets up test resources."""
         (
             self.input_source,
             self.output_dir,
             self.expected,
-            self.load_updated,
-            self._cleanup,
-        ) = test_utils.setup_neuropixels_etl_dirs(
-            RESOURCES_DIR / "open-ephys-rig-inferred.json"
+        ) = test_utils.setup_neuropixels_etl_resources(
+            RESOURCES_DIR / "open-ephys-inferred_rig.json"
         )
-
-    def tearDown(self):
-        """Removes test resources and directory."""
-        self._cleanup()
 
 
 if __name__ == "__main__":

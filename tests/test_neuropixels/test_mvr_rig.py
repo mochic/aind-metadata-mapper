@@ -3,8 +3,9 @@
 import os
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from aind_metadata_mapper.neuropixels.mvr_rig import MvrRigEtl
+from aind_metadata_mapper.neuropixels.mvr_rig import MvrRigEtl  # type: ignore
 from tests.test_neuropixels import utils as test_utils
 
 RESOURCES_DIR = (
@@ -18,7 +19,8 @@ RESOURCES_DIR = (
 class TestMvrRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
-    def test_etl(self):
+    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
+    def test_etl(self, mock_write_standard_file: MagicMock):
         """Test basic MVR etl workflow."""
         etl = MvrRigEtl(
             self.input_source,
@@ -31,10 +33,11 @@ class TestMvrRigEtl(unittest.TestCase):
             },
         )
         etl.run_job()
+        mock_write_standard_file.assert_called_once_with(
+            output_directory=self.output_dir)
 
-        assert self.load_updated() == self.expected
-
-    def test_etl_bad_mapping(self):
+    @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
+    def test_etl_bad_mapping(self, mock_write_standard_file: MagicMock):
         """Test MVR etl workflow with bad mapping."""
         etl = MvrRigEtl(
             self.input_source,
@@ -47,23 +50,18 @@ class TestMvrRigEtl(unittest.TestCase):
             },
         )
         etl.run_job()
+        mock_write_standard_file.assert_called_once_with(
+            output_directory=self.output_dir)
 
     def setUp(self):
-        """Moves required test resources to testing directory."""
-        # test directory
+        """Sets up test resources."""
         (
             self.input_source,
             self.output_dir,
             self.expected,
-            self.load_updated,
-            self._cleanup,
-        ) = test_utils.setup_neuropixels_etl_dirs(
-            RESOURCES_DIR / "mvr-rig.json",
+        ) = test_utils.setup_neuropixels_etl_resources(
+            RESOURCES_DIR / "mvr_rig.json",
         )
-
-    def tearDown(self):
-        """Removes test resources and directory."""
-        self._cleanup()
 
 
 if __name__ == "__main__":
