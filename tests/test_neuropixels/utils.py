@@ -1,17 +1,51 @@
 """Utilities for neuropixels etl tests."""
 
-import datetime
-import pathlib
 import shutil
 import tempfile
-import typing
+from datetime import date
+from pathlib import Path
+from typing import Callable, Tuple
 
-from aind_data_schema.core import rig  # type: ignore
-from aind_data_schema.models import (  # type: ignore
-    coordinates,
-    devices,
-    organizations,
+from aind_data_schema.core.rig import Rig
+from aind_data_schema.models.coordinates import (
+    Axis,
+    AxisName,
+    Origin,
+    RelativePosition,
+    Rotation3dTransform,
+    Translation3dTransform,
 )
+from aind_data_schema.models.devices import (
+    AdditionalImagingDevice,
+    Camera,
+    CameraAssembly,
+    Cooling,
+    DAQDevice,
+    DataInterface,
+    Detector,
+    DetectorType,
+    Device,
+    Disc,
+    EphysAssembly,
+    EphysProbe,
+    Filter,
+    FilterType,
+    ImagingDeviceType,
+    Laser,
+    Lens,
+    LickSensorType,
+    LightEmittingDiode,
+    Manipulator,
+    Monitor,
+    Patch,
+    RewardDelivery,
+    RewardSpout,
+    Speaker,
+    SpoutSide,
+)
+from aind_data_schema.models.modalities import Modality
+from aind_data_schema.models.organizations import Organization
+from aind_data_schema.models.units import SizeUnit
 
 COPA_NOTES = (
     "The rotation matrix is represented as: a,b,c,d,e,f,g,h,i. Wherein a, b, "
@@ -27,7 +61,7 @@ SIDE_CAMERA_ASSEMBLY_NAME = "Side"
 SIDE_CAMERA_NAME = f"{SIDE_CAMERA_ASSEMBLY_NAME} camera"
 
 
-def init_rig() -> rig.Rig:
+def init_rig() -> Rig:
     """Initializes a rig model for the dynamic routing project.
 
     Notes
@@ -41,9 +75,9 @@ def init_rig() -> rig.Rig:
         "max_frame_rate": 102,
         "sensor_width": 7400,
         "sensor_height": 7400,
-        "size_unit": devices.SizeUnit.NM,
+        "size_unit": SizeUnit.NM,
         "notes": "Max frame rate is at maximum resolution.",
-        "cooling": devices.Cooling.NONE,
+        "cooling": Cooling.NONE,
         "computer_name": computer_name,
     }
 
@@ -52,19 +86,19 @@ def init_rig() -> rig.Rig:
             "Located on face of the lens mounting surface in its center"
         ),
         "device_axes": [
-            coordinates.Axis(
-                name=coordinates.AxisName.X,
+            Axis(
+                name=AxisName.X,
                 direction=(
                     "Oriented so that it is parallel to the bottom edge of "
                     "the sensor."
                 ),
             ),
-            coordinates.Axis(
-                name=coordinates.AxisName.Y,
+            Axis(
+                name=AxisName.Y,
                 direction=("Pointing to the bottom edge of the sensor."),
             ),
-            coordinates.Axis(
-                name=coordinates.AxisName.Z,
+            Axis(
+                name=AxisName.Z,
                 direction=(
                     "Positive moving away from the sensor towards the object."
                 ),
@@ -73,15 +107,15 @@ def init_rig() -> rig.Rig:
         "notes": COPA_NOTES,
     }
 
-    model = rig.Rig(
+    model = Rig(
         rig_id="327_NP2_240401",
-        modification_date=datetime.date(2024, 4, 1),
+        modification_date=date(2024, 4, 1),
         modalities=[
-            rig.Modality.BEHAVIOR_VIDEOS,
-            rig.Modality.BEHAVIOR,
-            rig.Modality.ECEPHYS,
+            Modality.BEHAVIOR_VIDEOS,
+            Modality.BEHAVIOR,
+            Modality.ECEPHYS,
         ],
-        mouse_platform=devices.Disc(
+        mouse_platform=Disc(
             name="Mouse Platform",
             radius="4.69",
             radius_unit="centimeter",
@@ -91,10 +125,10 @@ def init_rig() -> rig.Rig:
             ),
         ),
         stimulus_devices=[
-            devices.Monitor(
+            Monitor(
                 name="Stim",
                 model="PA248",
-                manufacturer=organizations.Organization.ASUS,
+                manufacturer=Organization.ASUS,
                 width=1920,
                 height=1200,
                 size_unit="pixel",
@@ -103,9 +137,9 @@ def init_rig() -> rig.Rig:
                 refresh_rate=60,
                 brightness=43,
                 contrast=50,
-                position=coordinates.RelativePosition(
+                position=RelativePosition(
                     device_position_transformations=[
-                        coordinates.Rotation3dTransform(
+                        Rotation3dTransform(
                             rotation=[
                                 -0.80914,
                                 -0.58761,
@@ -118,7 +152,7 @@ def init_rig() -> rig.Rig:
                                 0.02298,
                             ],
                         ),
-                        coordinates.Translation3dTransform(
+                        Translation3dTransform(
                             translation=[0.08751, -0.12079, 0.02298]
                         ),
                     ],
@@ -128,21 +162,21 @@ def init_rig() -> rig.Rig:
                         "the monitor."
                     ),
                     device_axes=[
-                        coordinates.Axis(
-                            name=coordinates.AxisName.X,
+                        Axis(
+                            name=AxisName.X,
                             direction=(
                                 "Oriented so that it is parallel to the long "
                                 "edge of the screen. Positive pointing right."
                             ),
                         ),
-                        coordinates.Axis(
-                            name=coordinates.AxisName.Y,
+                        Axis(
+                            name=AxisName.Y,
                             direction=(
                                 "Positive pointing to the top of the screen."
                             ),
                         ),
-                        coordinates.Axis(
-                            name=coordinates.AxisName.Z,
+                        Axis(
+                            name=AxisName.Z,
                             direction=(
                                 "Positive moving away from the screen."
                             ),
@@ -151,13 +185,13 @@ def init_rig() -> rig.Rig:
                     notes=COPA_NOTES,
                 ),
             ),
-            devices.Speaker(
+            Speaker(
                 name="Speaker",
-                manufacturer=organizations.Organization.ISL,
+                manufacturer=Organization.ISL,
                 model="SPK-I-81345",
-                position=coordinates.RelativePosition(
+                position=RelativePosition(
                     device_position_transformations=[
-                        coordinates.Rotation3dTransform(
+                        Rotation3dTransform(
                             rotation=[
                                 -0.82783,
                                 -0.4837,
@@ -170,7 +204,7 @@ def init_rig() -> rig.Rig:
                                 -0.89476,
                             ],
                         ),
-                        coordinates.Translation3dTransform(
+                        Translation3dTransform(
                             translation=[-0.00838, -0.09787, 0.18228]
                         ),
                     ],
@@ -180,21 +214,21 @@ def init_rig() -> rig.Rig:
                         "speaker."
                     ),
                     device_axes=[
-                        coordinates.Axis(
-                            name=coordinates.AxisName.X,
+                        Axis(
+                            name=AxisName.X,
                             direction=(
                                 "Oriented so it will intersect the center of "
                                 "a bolt hole on the mounting flange."
                             ),
                         ),
-                        coordinates.Axis(
-                            name=coordinates.AxisName.Y,
+                        Axis(
+                            name=AxisName.Y,
                             direction=(
                                 "Positive pointing to the top of the speaker."
                             ),
                         ),
-                        coordinates.Axis(
-                            name=coordinates.AxisName.Z,
+                        Axis(
+                            name=AxisName.Z,
                             direction=(
                                 "Positive moving away from the speaker."
                             ),
@@ -207,28 +241,28 @@ def init_rig() -> rig.Rig:
                     ),
                 ),
             ),
-            devices.RewardDelivery(
+            RewardDelivery(
                 reward_spouts=[
-                    devices.RewardSpout(
+                    RewardSpout(
                         name="Reward Spout",
-                        manufacturer=organizations.Organization.HAMILTON,
+                        manufacturer=Organization.HAMILTON,
                         model="8649-01 Custom",
                         spout_diameter=0.672,
                         spout_diameter_unit="millimeter",
-                        side=devices.SpoutSide.CENTER,
-                        solenoid_valve=devices.Device(
+                        side=SpoutSide.CENTER,
+                        solenoid_valve=Device(
                             name="Solenoid Valve",
                             device_type="Solenoid Valve",
-                            manufacturer=organizations.Organization.NRESEARCH,
+                            manufacturer=Organization.NRESEARCH,
                             model="161K011",
                             notes="Model number is product number.",
                         ),
-                        lick_sensor=devices.Device(
+                        lick_sensor=Device(
                             name="Lick Sensor",
                             device_type="Lick Sensor",
-                            manufacturer=organizations.Organization.OTHER,
+                            manufacturer=Organization.OTHER,
                         ),
-                        lick_sensor_type=devices.LickSensorType.PIEZOELECTIC,
+                        lick_sensor_type=LickSensorType.PIEZOELECTIC,
                         notes=(
                             "Spout diameter is for inner diameter. "
                             "Outer diameter is 1.575mm. "
@@ -238,89 +272,87 @@ def init_rig() -> rig.Rig:
             ),
         ],
         ephys_assemblies=[
-            rig.EphysAssembly(
+            EphysAssembly(
                 name=f"Ephys Assembly {assembly_letter}",
-                manipulator=devices.Manipulator(
+                manipulator=Manipulator(
                     name=f"Ephys Assembly {assembly_letter} Manipulator",
-                    manufacturer=(
-                        organizations.Organization.NEW_SCALE_TECHNOLOGIES
-                    ),
+                    manufacturer=(Organization.NEW_SCALE_TECHNOLOGIES),
                     model="06591-M-0004",
                 ),
                 probes=[
-                    devices.EphysProbe(
+                    EphysProbe(
                         name=f"Probe{assembly_letter}",
                         probe_model="Neuropixels 1.0",
-                        manufacturer=organizations.Organization.IMEC,
+                        manufacturer=Organization.IMEC,
                     )
                 ],
             )
             for assembly_letter in ["A", "B", "C", "D", "E", "F"]
         ],
         light_sources=[
-            devices.LightEmittingDiode(
-                manufacturer=organizations.Organization.OTHER,
+            LightEmittingDiode(
+                manufacturer=Organization.OTHER,
                 name="Face forward LED",
                 model="LZ4-40R308-0000",
                 wavelength=740,
-                wavelength_unit=devices.SizeUnit.NM,
+                wavelength_unit=SizeUnit.NM,
             ),
-            devices.LightEmittingDiode(
-                manufacturer=organizations.Organization.OTHER,
+            LightEmittingDiode(
+                manufacturer=Organization.OTHER,
                 name="Body LED",
                 model="LZ4-40R308-0000",
                 wavelength=740,
-                wavelength_unit=devices.SizeUnit.NM,
+                wavelength_unit=SizeUnit.NM,
             ),
-            devices.LightEmittingDiode(
-                manufacturer=organizations.Organization.OSRAM,
+            LightEmittingDiode(
+                manufacturer=Organization.OSRAM,
                 name="Eye LED",
                 model="LZ4-40R608-0000",
                 wavelength=850,
-                wavelength_unit=devices.SizeUnit.NM,
+                wavelength_unit=SizeUnit.NM,
             ),
-            devices.Laser(
+            Laser(
                 name="Laser #0",
-                manufacturer=organizations.Organization.VORTRAN,
+                manufacturer=Organization.VORTRAN,
                 wavelength=488.0,
                 model="Stradus 488-50",
                 wavelength_unit="nanometer",
             ),
-            devices.Laser(
+            Laser(
                 name="Laser #1",
-                manufacturer=organizations.Organization.VORTRAN,
+                manufacturer=Organization.VORTRAN,
                 wavelength=633.0,
                 model="Stradus 633-80",
                 wavelength_unit="nanometer",
             ),
         ],
         cameras=[
-            devices.CameraAssembly(
+            CameraAssembly(
                 name=FORWARD_CAMERA_ASSEMBLY_NAME,
                 camera_target="Face forward",
-                camera=devices.Camera(
+                camera=Camera(
                     name=FORWARD_CAMERA_NAME,
-                    manufacturer=organizations.Organization.ALLIED,
+                    manufacturer=Organization.ALLIED,
                     chroma="Monochrome",
                     data_interface="Ethernet",
                     **shared_camera_props,
                 ),
-                filter=devices.Filter(
+                filter=Filter(
                     name="Forward filter",
-                    manufacturer=organizations.Organization.SEMROCK,
+                    manufacturer=Organization.SEMROCK,
                     model="FF01-715_LP-25",
-                    filter_type=devices.FilterType.LONGPASS,
+                    filter_type=FilterType.LONGPASS,
                 ),
-                lens=devices.Lens(
+                lens=Lens(
                     name="Forward lens",
-                    manufacturer=organizations.Organization.EDMUND_OPTICS,
+                    manufacturer=Organization.EDMUND_OPTICS,
                     focal_length=8.5,
                     focal_length_unit="millimeter",
                     model="86604",
                 ),
-                position=coordinates.RelativePosition(
+                position=RelativePosition(
                     device_position_transformations=[
-                        coordinates.Rotation3dTransform(
+                        Rotation3dTransform(
                             rotation=[
                                 -0.17365,
                                 0.98481,
@@ -333,76 +365,74 @@ def init_rig() -> rig.Rig:
                                 -0.45399,
                             ]
                         ),
-                        coordinates.Translation3dTransform(
+                        Translation3dTransform(
                             translation=[0.154, 0.03078, 0.06346],
                         ),
                     ],
                     **shared_camera_assembly_relative_position_props,
                 ),
             ),
-            devices.CameraAssembly(
+            CameraAssembly(
                 name=SIDE_CAMERA_ASSEMBLY_NAME,
                 camera_target="Body",
-                camera=devices.Camera(
+                camera=Camera(
                     name=SIDE_CAMERA_NAME,
-                    manufacturer=organizations.Organization.ALLIED,
+                    manufacturer=Organization.ALLIED,
                     chroma="Monochrome",
                     data_interface="Ethernet",
                     **shared_camera_props,
                 ),
-                filter=devices.Filter(
+                filter=Filter(
                     name="Side filter",
-                    manufacturer=organizations.Organization.SEMROCK,
+                    manufacturer=Organization.SEMROCK,
                     model="FF01-747/33-25",
-                    filter_type=devices.FilterType.BANDPASS,
+                    filter_type=FilterType.BANDPASS,
                 ),
-                lens=devices.Lens(
+                lens=Lens(
                     name="Side lens",
-                    manufacturer=organizations.Organization.NAVITAR,
+                    manufacturer=Organization.NAVITAR,
                     focal_length=6.0,
                     focal_length_unit="millimeter",
                 ),
-                position=coordinates.RelativePosition(
+                position=RelativePosition(
                     device_position_transformations=[
-                        coordinates.Rotation3dTransform(
+                        Rotation3dTransform(
                             rotation=[-1, 0, 0, 0, 0, -1, 0, -1, 0]
                         ),
-                        coordinates.Translation3dTransform(
+                        Translation3dTransform(
                             translation=[-0.03617, 0.23887, -0.02535],
                         ),
                     ],
                     **shared_camera_assembly_relative_position_props,
                 ),
             ),
-            devices.CameraAssembly(
+            CameraAssembly(
                 name=EYE_CAMERA_ASSEMBLY_NAME,
                 camera_target="Eye",
-                camera=devices.Camera(
+                camera=Camera(
                     name=EYE_CAMERA_NAME,
-                    manufacturer=organizations.Organization.ALLIED,
+                    manufacturer=Organization.ALLIED,
                     chroma="Monochrome",
                     data_interface="Ethernet",
                     **shared_camera_props,
                 ),
-                filter=devices.Filter(
+                filter=Filter(
                     name="Eye filter",
-                    manufacturer=organizations.Organization.SEMROCK,
+                    manufacturer=Organization.SEMROCK,
                     model="FF01-850/10-25",
-                    filter_type=devices.FilterType.BANDPASS,
+                    filter_type=FilterType.BANDPASS,
                 ),
-                lens=devices.Lens(
+                lens=Lens(
                     name="Eye lens",
-                    manufacturer=(
-                        organizations.Organization.INFINITY_PHOTO_OPTICAL
-                    ),
+                    manufacturer=(Organization.INFINITY_PHOTO_OPTICAL),
                     focal_length=6.0,
                     focal_length_unit="millimeter",
                     model="213073",
                     notes="Model number is SKU.",
                 ),
-                position=coordinates.RelativePosition(
+                position=RelativePosition(
                     device_position_transformations=[
-                        coordinates.Rotation3dTransform(
+                        Rotation3dTransform(
                             rotation=[
                                 -0.5,
                                 -0.86603,
@@ -415,7 +445,7 @@ def init_rig() -> rig.Rig:
                                 -0.42262,
                             ]
                         ),
-                        coordinates.Translation3dTransform(
+                        Translation3dTransform(
                             translation=[-0.14259, 0.06209, 0.09576],
                         ),
                     ],
@@ -424,91 +454,91 @@ def init_rig() -> rig.Rig:
             ),
         ],
         daqs=[
-            devices.DAQDevice(
-                manufacturer=organizations.Organization.NATIONAL_INSTRUMENTS,
+            DAQDevice(
+                manufacturer=Organization.NATIONAL_INSTRUMENTS,
                 name="Sync",
                 computer_name=computer_name,
                 model="NI-6612",
-                data_interface=devices.DataInterface.PCIE,
+                data_interface=DataInterface.PCIE,
             ),
-            devices.DAQDevice(
-                manufacturer=organizations.Organization.NATIONAL_INSTRUMENTS,
+            DAQDevice(
+                manufacturer=Organization.NATIONAL_INSTRUMENTS,
                 name="Behavior",
                 computer_name=computer_name,
                 model="NI-6323",
-                data_interface=devices.DataInterface.USB,
+                data_interface=DataInterface.USB,
             ),
-            devices.DAQDevice(
-                manufacturer=organizations.Organization.NATIONAL_INSTRUMENTS,
+            DAQDevice(
+                manufacturer=Organization.NATIONAL_INSTRUMENTS,
                 name="BehaviorSync",
                 computer_name=computer_name,
                 model="NI-6001",
-                data_interface=devices.DataInterface.PCIE,
+                data_interface=DataInterface.PCIE,
             ),
-            devices.DAQDevice(
-                manufacturer=organizations.Organization.NATIONAL_INSTRUMENTS,
+            DAQDevice(
+                manufacturer=Organization.NATIONAL_INSTRUMENTS,
                 name="Opto",
                 computer_name=computer_name,
                 model="NI-9264",
-                data_interface=devices.DataInterface.ETH,
+                data_interface=DataInterface.ETH,
             ),
         ],
         detectors=[
-            devices.Detector(
+            Detector(
                 name="vsync photodiode",
                 model="PDA25K",
-                manufacturer=organizations.Organization.THORLABS,
-                data_interface=devices.DataInterface.OTHER,
+                manufacturer=Organization.THORLABS,
+                data_interface=DataInterface.OTHER,
                 notes="Data interface is unknown.",
-                detector_type=devices.DetectorType.OTHER,
-                cooling=devices.Cooling.AIR,
+                detector_type=DetectorType.OTHER,
+                cooling=Cooling.AIR,
             ),
         ],
         calibrations=[],
         additional_devices=[
-            devices.Detector(
+            Detector(
                 name="microphone",
-                manufacturer=organizations.Organization.DODOTRONIC,
+                manufacturer=Organization.DODOTRONIC,
                 model="MOM",
-                data_interface=devices.DataInterface.OTHER,
+                data_interface=DataInterface.OTHER,
                 notes="Data interface is unknown.",
-                detector_type=devices.DetectorType.OTHER,
-                cooling=devices.Cooling.AIR,
+                detector_type=DetectorType.OTHER,
+                cooling=Cooling.AIR,
             ),
-            devices.AdditionalImagingDevice(
+            AdditionalImagingDevice(
                 name="Galvo x",
-                imaging_device_type=devices.ImagingDeviceType.GALVO,
+                imaging_device_type=ImagingDeviceType.GALVO,
             ),
-            devices.AdditionalImagingDevice(
+            AdditionalImagingDevice(
                 name="Galvo y",
-                imaging_device_type=devices.ImagingDeviceType.GALVO,
+                imaging_device_type=ImagingDeviceType.GALVO,
             ),
         ],
         rig_axes=[
-            coordinates.Axis(
-                name=coordinates.AxisName.X,
+            Axis(
+                name=AxisName.X,
                 direction=(
                     "The world horizontal. Lays on the Mouse Sagittal Plane. "
                     "Positive direction is towards the nose of the mouse. "
                 ),
             ),
-            coordinates.Axis(
-                name=coordinates.AxisName.Y,
+            Axis(
+                name=AxisName.Y,
                 direction=(
                     "Perpendicular to Y. Positive direction is "
                     "away from the nose of the mouse. "
                 ),
             ),
-            coordinates.Axis(
-                name=coordinates.AxisName.Z,
+            Axis(
+                name=AxisName.Z,
                 direction="Positive pointing up.",
             ),
         ],
-        origin=coordinates.Origin.BREGMA,
+        origin=Origin.BREGMA,
         patch_cords=[
-            devices.Patch(
+            Patch(
                 name="Patch Cord #1",
-                manufacturer=organizations.Organization.THORLABS,
+                manufacturer=Organization.THORLABS,
                 model="SM450 Custom Length, FC/PC Ends",
                 core_diameter=125.0,
                 numerical_aperture=0.10,
@@ -520,41 +550,37 @@ def init_rig() -> rig.Rig:
         ],
     )
 
-    return rig.Rig.model_validate(model)
+    return Rig.model_validate(model)
 
 
 def setup_neuropixels_etl_dirs(
-    expected_json: pathlib.Path,
-) -> tuple[
-    pathlib.Path,
-    pathlib.Path,
-    rig.Rig,
-    typing.Callable[[], rig.Rig],
-    typing.Callable[[], None],
-]:
+    expected_json: Path,
+) -> Tuple[Path, Path, Rig, Callable[[], Rig], Callable[[], None]]:
     """Sets up a temporary input/output directory context for neuropixels etl.
 
     Parameters
     ----------
-    resources: paths to etl resources to move to input dir
+    expected_json: Path
+      paths to etl resources to move to input dir
 
     Returns
     -------
-    input_dir: path to etl input dir
-    output_dir: path to etl output dir
-    clean_up: cleanup function for input/output dirs
+    Tuple[Path, Path, Rig, Callable[[], Rig], Callable[[], None]]
+      input_dir: path to etl input dir
+      output_dir: path to etl output dir
+      rig
+      clean_up: cleanup function for input/output dirs
+      callable
     """
-    input_dir = pathlib.Path(tempfile.mkdtemp())
+    input_dir = Path(tempfile.mkdtemp())
     base_rig = init_rig()
     base_rig.write_standard_file(input_dir)
 
-    _output_dir = pathlib.Path(tempfile.mkdtemp())
+    _output_dir = Path(tempfile.mkdtemp())
 
-    def load_updated(output_dir: pathlib.Path = _output_dir):
+    def load_updated(output_dir: Path = _output_dir):
         """Load updated rig.json."""
-        return rig.Rig.model_validate_json(
-            (output_dir / "rig.json").read_text()
-        )
+        return Rig.model_validate_json((output_dir / "rig.json").read_text())
 
     def clean_up():
         """Clean up callback for temporary directories and their contents."""
@@ -564,7 +590,7 @@ def setup_neuropixels_etl_dirs(
     return (
         input_dir / "rig.json",
         _output_dir,
-        rig.Rig.model_validate_json(expected_json.read_text()),
+        Rig.model_validate_json(expected_json.read_text()),
         load_updated,
         clean_up,
     )

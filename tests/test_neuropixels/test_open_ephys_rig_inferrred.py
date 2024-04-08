@@ -1,13 +1,22 @@
 """Tests for the neuropixels open ephys rig ETL with inferred probe mapping."""
 
-import pathlib
+import os
 import unittest
+from pathlib import Path
 
-from aind_data_schema.core import rig  # type: ignore
+# from aind_data_schema.core import rig  # type: ignore
+from aind_data_schema.core.rig import Rig
 
 from aind_metadata_mapper.neuropixels import open_ephys_rig  # type: ignore
+from aind_metadata_mapper.neuropixels.open_ephys_rig import OpenEphysRigEtl
+from tests.test_neuropixels import utils as test_utils
 
-from . import utils as test_utils
+RESOURCES_DIR = (
+    Path(os.path.dirname(os.path.realpath(__file__)))
+    / ".."
+    / "resources"
+    / "neuropixels"
+)
 
 
 class TestOpenEphysRigEtlInferred(unittest.TestCase):
@@ -15,18 +24,12 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
 
     def test_etl(self):
         """Test ETL workflow with inferred probe mapping."""
-        etl = open_ephys_rig.OpenEphysRigEtl(
+        etl = OpenEphysRigEtl(
             self.input_source,
             self.output_dir,
             open_ephys_settings_sources=[
-                pathlib.Path(
-                    "./tests/resources/neuropixels/"
-                    "settings.mislabeled-probes-0.xml"
-                ),
-                pathlib.Path(
-                    "./tests/resources/neuropixels/"
-                    "settings.mislabeled-probes-1.xml"
-                ),
+                RESOURCES_DIR / "settings.mislabeled-probes-0.xml",
+                RESOURCES_DIR / "settings.mislabeled-probes-1.xml",
             ],
             probe_manipulator_serial_numbers=[
                 (
@@ -61,7 +64,7 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
 
     def test_etl_mismatched_probe_count(self):
         """Test ETL workflow with mismatched probe count."""
-        base_rig = rig.Rig.model_validate_json(self.input_source.read_text())
+        base_rig = Rig.model_validate_json(self.input_source.read_text())
         base_rig.ephys_assemblies.pop()
         base_rig.write_standard_file(
             self.input_source.parent, prefix="mismatched"
@@ -70,14 +73,8 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
             self.input_source.parent / "mismatched_rig.json",
             self.output_dir,
             open_ephys_settings_sources=[
-                pathlib.Path(
-                    "./tests/resources/neuropixels/"
-                    "settings.mislabeled-probes-0.xml"
-                ),
-                pathlib.Path(
-                    "./tests/resources/neuropixels/"
-                    "settings.mislabeled-probes-1.xml"
-                ),
+                RESOURCES_DIR / "settings.mislabeled-probes-0.xml",
+                RESOURCES_DIR / "settings.mislabeled-probes-1.xml",
             ],
             probe_manipulator_serial_numbers=[
                 (
@@ -118,11 +115,13 @@ class TestOpenEphysRigEtlInferred(unittest.TestCase):
             self.load_updated,
             self._cleanup,
         ) = test_utils.setup_neuropixels_etl_dirs(
-            pathlib.Path(
-                "./tests/resources/neuropixels/" "open-ephys-rig-inferred.json"
-            ),
+            RESOURCES_DIR / "open-ephys-rig-inferred.json"
         )
 
     def tearDown(self):
         """Removes test resources and directory."""
         self._cleanup()
+
+
+if __name__ == "__main__":
+    unittest.main()

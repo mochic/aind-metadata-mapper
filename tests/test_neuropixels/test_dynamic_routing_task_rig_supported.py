@@ -1,13 +1,20 @@
 """Tests for neuropixels dynamic routing task rig ETL."""
 
-import pathlib
+import os
 import unittest
+from pathlib import Path
 
-from aind_metadata_mapper.neuropixels import (  # type: ignore
-    dynamic_routing_task,
+from aind_metadata_mapper.neuropixels.dynamic_routing_task import (
+    DynamicRoutingTaskRigEtl,
 )
+from tests.test_neuropixels import utils as test_utils
 
-from . import utils as test_utils
+RESOURCES_DIR = (
+    Path(os.path.dirname(os.path.realpath(__file__)))
+    / ".."
+    / "resources"
+    / "neuropixels"
+)
 
 
 class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
@@ -34,12 +41,11 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
         else:  # pragma: no cover
             raise Exception("Water calibration not found")  # pragma: no cover
 
-        etl = dynamic_routing_task.DynamicRoutingTaskRigEtl(
+        etl = DynamicRoutingTaskRigEtl(
             self.input_source,
             self.output_dir,
-            task_source=pathlib.Path(
-                "./tests/resources/neuropixels/"
-                "DynamicRouting1_690706_20231130_131725.hdf5"
+            task_source=Path(
+                RESOURCES_DIR / "DynamicRouting1_690706_20231130_131725.hdf5"
             ),
             sound_calibration_date=expected_sound_calibration_date,
             reward_calibration_date=expected_water_calibration_date,
@@ -58,12 +64,13 @@ class TestDynamicRoutingTaskRigEtl(unittest.TestCase):
             self.load_updated,
             self._cleanup,
         ) = test_utils.setup_neuropixels_etl_dirs(
-            pathlib.Path(
-                "./tests/resources/neuropixels/"
-                "dynamic-routing-task-rig.json"
-            ),
+            Path(RESOURCES_DIR / "dynamic-routing-task-rig.json"),
         )
 
     def tearDown(self):
         """Removes test resources and directory."""
         self._cleanup()
+
+
+if __name__ == "__main__":
+    unittest.main()

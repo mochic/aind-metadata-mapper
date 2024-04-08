@@ -1,22 +1,29 @@
 """Tests for Sync rig ETL."""
 
-import pathlib
+import os
 import unittest
+from pathlib import Path
 
-from aind_metadata_mapper.neuropixels import sync_rig  # type: ignore
+from aind_metadata_mapper.neuropixels.sync_rig import SyncRigEtl
+from tests.test_neuropixels import utils as test_utils
 
-from . import utils
+RESOURCES_DIR = (
+    Path(os.path.dirname(os.path.realpath(__file__)))
+    / ".."
+    / "resources"
+    / "neuropixels"
+)
 
 
-class SyncRigEtl(unittest.TestCase):
+class TestSyncRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
     def test_etl(self):
         """Test ETL workflow."""
-        etl = sync_rig.SyncRigEtl(
+        etl = SyncRigEtl(
             self.input_source,
             self.output_dir,
-            pathlib.Path("./tests/resources/neuropixels/sync.yml"),
+            RESOURCES_DIR / "sync.yml",
         )
         etl.run_job()
 
@@ -31,10 +38,14 @@ class SyncRigEtl(unittest.TestCase):
             self.expected,
             self.load_updated,
             self._cleanup,
-        ) = utils.setup_neuropixels_etl_dirs(
-            pathlib.Path("./tests/resources/neuropixels/sync-rig.json"),
+        ) = test_utils.setup_neuropixels_etl_dirs(
+            RESOURCES_DIR / "sync-rig.json"
         )
 
     def tearDown(self):
         """Removes test resources and directory."""
         self._cleanup()
+
+
+if __name__ == "__main__":
+    unittest.main()

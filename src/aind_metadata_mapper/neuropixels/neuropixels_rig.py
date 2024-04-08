@@ -1,20 +1,20 @@
 """Base ETL class for neuropixels rigs."""
 
 import logging
-import pathlib
+from pathlib import Path
 
-import pydantic
-from aind_data_schema.core import rig  # type: ignore
+from aind_data_schema.core.rig import Rig
+from pydantic import BaseModel
 
-from ..core import BaseEtl
+from aind_metadata_mapper.core import BaseEtl
 
 logger = logging.getLogger(__name__)
 
 
-class NeuropixelsRigContext(pydantic.BaseModel):
+class NeuropixelsRigContext(BaseModel):
     """Base context for neuropixels rig etl."""
 
-    current: rig.Rig
+    current: Rig
 
 
 class NeuropixelsRigEtl(BaseEtl):
@@ -24,8 +24,8 @@ class NeuropixelsRigEtl(BaseEtl):
 
     def __init__(
         self,
-        input_source: pathlib.Path,
-        output_directory: pathlib.Path,
+        input_source: Path,
+        output_directory: Path,
     ):
         """Class constructor for Neuropixels rig etl class.
 
@@ -36,16 +36,16 @@ class NeuropixelsRigEtl(BaseEtl):
         output_directory : Path
           The directory where to save the json files.
         """
-        self.input_source: pathlib.Path = input_source
+        self.input_source: Path = input_source
         self.output_directory = output_directory
 
-    def _extract(self) -> rig.Rig:
+    def _extract(self) -> Rig:
         """Extracts rig-related information from config files."""
-        return rig.Rig.model_validate_json(
+        return Rig.model_validate_json(
             self.input_source.read_text(),
         )
 
-    def _transform(self, extracted_source: rig.Rig) -> rig.Rig:
+    def _transform(self, extracted_source: Rig) -> Rig:
         """Transforms extracted rig context into aind-data-schema rig.Rig
         instance.
         """

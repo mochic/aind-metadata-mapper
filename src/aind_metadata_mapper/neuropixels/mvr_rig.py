@@ -1,31 +1,36 @@
 """ETL for the MVR config."""
 
 import logging
-import pathlib
+from pathlib import Path
+from typing import Dict, List, Tuple
 
-from aind_data_schema.core import rig  # type: ignore
-from aind_data_schema.models import devices  # type: ignore
+from aind_data_schema.core.rig import Rig
+from aind_data_schema.models.devices import Software
 
-from . import neuropixels_rig, utils
+from aind_metadata_mapper.neuropixels import utils
+from aind_metadata_mapper.neuropixels.neuropixels_rig import (
+    NeuropixelsRigContext,
+    NeuropixelsRigEtl,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class ExtractContext(neuropixels_rig.NeuropixelsRigContext):
+class ExtractContext(NeuropixelsRigContext):
     """Extract context for MVR rig etl."""
 
-    serial_numbers: list[tuple[str, str]]
+    serial_numbers: List[Tuple[str, str]]
 
 
-class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
+class MvrRigEtl(NeuropixelsRigEtl):
     """MVR rig ETL class. Extracts information from MVR-related config file."""
 
     def __init__(
         self,
-        input_source: pathlib.Path,
-        output_directory: pathlib.Path,
-        mvr_config_source: pathlib.Path,
-        mvr_mapping: dict[str, str],
+        input_source: Path,
+        output_directory: Path,
+        mvr_config_source: Path,
+        mvr_mapping: Dict[str, str],
         **kwargs,
     ):
         """Class constructor for MVR rig etl class."""
@@ -56,7 +61,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
             serial_numbers=serial_numbers,
         )
 
-    def _transform(self, extracted_source: ExtractContext) -> rig.Rig:
+    def _transform(self, extracted_source: ExtractContext) -> Rig:
         """Updates rig model with MVR-related camera information."""
         for assembly_name, serial_number in extracted_source.serial_numbers:
             utils.find_update(
@@ -71,7 +76,7 @@ class MvrRigEtl(neuropixels_rig.NeuropixelsRigEtl):
                     lambda item, name, value: setattr(item.camera, name, value)
                 ),
                 serial_number=serial_number,
-                recording_software=devices.Software(
+                recording_software=Software(
                     name="MVR",
                     version="Not detected/provided.",
                 ),
