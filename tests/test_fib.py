@@ -4,7 +4,6 @@ import zoneinfo
 import json
 import os
 import unittest
-import zoneinfo
 from datetime import datetime
 from pathlib import Path
 
