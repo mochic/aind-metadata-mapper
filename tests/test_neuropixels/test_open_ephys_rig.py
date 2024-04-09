@@ -21,6 +21,46 @@ RESOURCES_DIR = (
 class TestOpenEphysRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
+    def test_transform(self):
+        """Tests etl transform."""
+        etl = OpenEphysRigEtl(
+            self.input_source,
+            self.output_dir,
+            open_ephys_settings_sources=[
+                RESOURCES_DIR / "settings.xml",
+            ],
+            probe_manipulator_serial_numbers=[
+                (
+                    "Ephys Assembly A",
+                    "SN45356",
+                ),
+                (
+                    "Ephys Assembly B",
+                    "SN45484",
+                ),
+                (
+                    "Ephys Assembly C",
+                    "SN45485",
+                ),
+                (
+                    "Ephys Assembly D",
+                    "SN45359",
+                ),
+                (
+                    "Ephys Assembly E",
+                    "SN45482",
+                ),
+                (
+                    "Ephys Assembly F",
+                    "SN45361",
+                ),
+            ],
+            modification_date=self.expected.modification_date,
+        )
+        extracted = etl._extract()
+        transformed = etl._transform(extracted)
+        self.assertEqual(transformed, self.expected)
+
     @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
     def test_etl(self, mock_write_standard_file: MagicMock):
         """Test ETL workflow."""

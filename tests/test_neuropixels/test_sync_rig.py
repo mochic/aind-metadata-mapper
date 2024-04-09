@@ -21,6 +21,17 @@ RESOURCES_DIR = (
 class TestSyncRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
+    def test_transform(self):
+        """Test etl transform."""
+        etl = SyncRigEtl(
+            self.input_source,
+            self.output_dir,
+            RESOURCES_DIR / "sync.yml",
+        )
+        extracted = etl._extract()
+        transformed = etl._transform(extracted)
+        self.assertEqual(transformed, self.expected)
+
     @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
     def test_etl(
         self,

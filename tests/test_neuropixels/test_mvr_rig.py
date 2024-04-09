@@ -19,8 +19,24 @@ RESOURCES_DIR = (
 class TestMvrRigEtl(unittest.TestCase):
     """Tests dxdiag utilities in for the neuropixels project."""
 
+    def test_transform(self):
+        """Test etl transform."""
+        etl = MvrRigEtl(
+            self.input_source,
+            self.output_dir,
+            RESOURCES_DIR / "mvr.ini",
+            mvr_mapping={
+                "Camera 1": test_utils.SIDE_CAMERA_ASSEMBLY_NAME,
+                "Camera 2": test_utils.EYE_CAMERA_ASSEMBLY_NAME,
+                "Camera 3": test_utils.FORWARD_CAMERA_ASSEMBLY_NAME,
+            },
+        )
+        extracted = etl._extract()
+        transformed = etl._transform(extracted)
+        self.assertEqual(transformed, self.expected)
+
     @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
-    def test_etl(self, mock_write_standard_file: MagicMock):
+    def test_run_job(self, mock_write_standard_file: MagicMock):
         """Test basic MVR etl workflow."""
         etl = MvrRigEtl(
             self.input_source,
@@ -37,7 +53,7 @@ class TestMvrRigEtl(unittest.TestCase):
             output_directory=self.output_dir)
 
     @patch("aind_data_schema.base.AindCoreModel.write_standard_file")
-    def test_etl_bad_mapping(self, mock_write_standard_file: MagicMock):
+    def test_run_job_bad_mapping(self, mock_write_standard_file: MagicMock):
         """Test MVR etl workflow with bad mapping."""
         etl = MvrRigEtl(
             self.input_source,
