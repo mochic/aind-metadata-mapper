@@ -127,6 +127,7 @@ class OpenEphysRigEtl(NeuropixelsRigEtl):
         extracted_source: ExtractContext,
     ) -> Rig:
         """Updates rig model with Open Ephys-related probe information."""
+        prev_model = extracted_source.current.model_copy(deep=True)
         # update manipulator serial numbers
         for (
             ephys_assembly_name,
@@ -158,9 +159,13 @@ class OpenEphysRigEtl(NeuropixelsRigEtl):
                 )
                 if updated:
                     break
-
-        self.update_modification_date(
-            extracted_source.current, self.modification_date
-        )
+        
+        if prev_model != extracted_source.current:
+            logger.debug("Rig model changed. Updating modification date.")
+            self.update_modification_date(
+                extracted_source.current, self.modification_date
+            )
+        else:
+            logger.debug("Rig model unchanged. Keeping modification date.")
 
         return super()._transform(extracted_source.current)
