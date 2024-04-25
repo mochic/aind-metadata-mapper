@@ -63,14 +63,14 @@ class MetadataSettings(BaseSettings):
 
     name: str
     location: str
-    subject_filepath: Optional[Path]
-    data_description_filepath: Optional[Path]
-    procedures_filepath: Optional[Path]
-    session_filepath: Optional[Path]
-    rig_filepath: Optional[Path]
-    processing_filepath: Optional[Path]
-    acquisition_filepath: Optional[Path]
-    instrument_filepath: Optional[Path]
+    subject_filepath: Optional[Path] = None
+    data_description_filepath: Optional[Path] = None
+    procedures_filepath: Optional[Path] = None
+    session_filepath: Optional[Path] = None
+    rig_filepath: Optional[Path] = None
+    processing_filepath: Optional[Path] = None
+    acquisition_filepath: Optional[Path] = None
+    instrument_filepath: Optional[Path] = None
 
 
 class JobSettings(BaseSettings):
