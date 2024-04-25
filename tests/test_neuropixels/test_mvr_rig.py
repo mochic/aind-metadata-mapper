@@ -30,6 +30,7 @@ class TestMvrRigEtl(unittest.TestCase):
                 "Camera 2": test_utils.EYE_CAMERA_ASSEMBLY_NAME,
                 "Camera 3": test_utils.FORWARD_CAMERA_ASSEMBLY_NAME,
             },
+            modification_date=self.expected.modification_date,
         )
         extracted = etl._extract()
         transformed = etl._transform(extracted)

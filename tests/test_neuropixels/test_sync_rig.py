@@ -27,6 +27,7 @@ class TestSyncRigEtl(unittest.TestCase):
             self.input_source,
             self.output_dir,
             RESOURCES_DIR / "sync.yml",
+            modification_date=self.expected.modification_date,
         )
         extracted = etl._extract()
         transformed = etl._transform(extracted)
