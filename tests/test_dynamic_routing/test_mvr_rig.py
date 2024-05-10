@@ -5,8 +5,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from aind_metadata_mapper.neuropixels.mvr_rig import MvrRigEtl  # type: ignore
-from tests.test_neuropixels import utils as test_utils
+from aind_metadata_mapper.dynamic_routing.mvr_rig import (  # type: ignore
+     MvrRigEtl,
+)
+from tests.test_dynamic_routing import utils as test_utils
 
 RESOURCES_DIR = (
     Path(os.path.dirname(os.path.realpath(__file__)))
